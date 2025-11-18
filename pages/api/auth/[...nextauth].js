@@ -22,11 +22,18 @@ export default NextAuth({
     },
     async session({ session, token }) {
       // Send properties to the client, like an access_token from a provider
-      session.accessToken = token.accessToken;
+      // Safely handle the case where token might be undefined
+      if (token && token.accessToken) {
+        session.accessToken = token.accessToken;
+      }
       return session;
     },
   },
   pages: {
     signIn: '/auth/signin',
   },
+  session: {
+    strategy: "jwt",
+  },
+  debug: process.env.NODE_ENV === "development",
 });
