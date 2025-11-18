@@ -1,0 +1,34 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  background-color: #ffffff;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Mobile first approach */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Focus styles for accessibility */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #0070f3;
+  outline-offset: 2px;
+}
