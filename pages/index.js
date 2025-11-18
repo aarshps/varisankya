@@ -5,6 +5,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/router';
 import App from '../components/App';
 import Subscriptions from '../components/Subscriptions';
+import Header from '../components/Header';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -13,10 +14,14 @@ export default function Home() {
   const [newSubscription, setNewSubscription] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [notification, setNotification] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const hasFetched = useRef(false);
   const sidebarRef = useRef(null);
   const hamburgerRef = useRef(null);
+  const router = useRouter();
+  const { error: urlError } = router.query;
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   useEffect(() => {
     // Check if device is mobile
@@ -146,10 +151,13 @@ export default function Home() {
           sub._id === tempId ? actualSub : sub
         )
       );
+
+      // Show success notification
+      setNotification({ type: 'success', message: 'Subscription added successfully!' });
     } catch (err) {
       // If there's an error, remove the optimistic subscription
       setSubscriptions(prev => prev.filter(sub => sub._id !== tempId));
-      setError(err.message);
+      setNotification({ type: 'error', message: err.message });
       console.error('Error adding subscription:', err);
     }
   };
@@ -170,9 +178,12 @@ export default function Home() {
         }
         throw new Error('Failed to delete subscription');
       }
+
+      // Show success notification
+      setNotification({ type: 'success', message: 'Subscription deleted successfully!' });
     } catch (err) {
       // If there's an error, re-add the subscription to the UI
-      setError(err.message);
+      setNotification({ type: 'error', message: err.message });
       console.error('Error deleting subscription:', err);
       // Fetch subscriptions again to restore the list
       fetchSubscriptions(true); // force refresh
@@ -197,15 +208,87 @@ export default function Home() {
     };
   }, [sidebarOpen, sidebarRef, hamburgerRef]);
 
-  const router = useRouter();
-
+  // Clear notification after 3 seconds
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/signin');
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+      return () => clearTimeout(timer);
     }
-  }, [status, router]);
+  }, [notification]);
 
-  if (status === 'loading' || status === 'unauthenticated') {
+  // Handle sign in
+  const handleSignIn = () => {
+    setIsSigningIn(true);
+    // Direct redirect to Google OAuth flow
+    signIn('google', { callbackUrl: '/' });
+  };
+
+  // Determine if we have a database-related error
+  const hasDbError = urlError === 'db_not_found';
+
+  if (status === 'unauthenticated') {
+    // Show login page for unauthenticated users
+    return (
+      <div className={styles.appContainer}>
+        <Head>
+          <title>Varisankya - Sign In</title>
+          <meta name="description" content="Sign in to Varisankya subscription tracker" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+
+        <Header
+          session={null}
+          onHamburgerClick={() => {}}
+          hamburgerRef={{ current: null }}
+          hideHamburger={true}
+        />
+
+        <main className={`${styles.appMain} ${styles.centeredMain}`} style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+          <div style={{ textAlign: 'center', maxWidth: '400px', width: '100%', padding: '20px' }}>
+
+            {/* Error message for database not found - shown inline on login page since notifications are for app errors */}
+            {hasDbError && (
+              <div style={{
+                color: '#d93025',
+                backgroundColor: '#fce8e6',
+                padding: '10px',
+                borderRadius: '4px',
+                marginBottom: '1rem',
+                textAlign: 'center'
+              }}>
+                Your database was not found. Please contact support or try signing in again.
+              </div>
+            )}
+
+            <div style={{ marginTop: '2rem' }}>
+              <button
+                onClick={handleSignIn}
+                disabled={isSigningIn}
+                style={{
+                  padding: '12px 20px',
+                  fontSize: mobile ? '16px' : '18px',
+                  backgroundColor: isSigningIn ? '#cccccc' : '#4285f4',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: isSigningIn ? 'not-allowed' : 'pointer',
+                  fontWeight: '500',
+                  width: '100%'
+                }}
+              >
+                {isSigningIn ? 'Signing in...' : 'Sign in with Google'}
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (status === 'loading') {
     return (
       <div className={styles.container}>
         <div className={styles.main}>
@@ -225,6 +308,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      {/* Notification Toast */}
+      {notification && (
+        <div className={`${styles.notification} ${styles[`notification--${notification.type}`]}`}>
+          {notification.message}
+        </div>
+      )}
+
       <App
         session={session}
         sidebarOpen={sidebarOpen}
@@ -243,7 +333,7 @@ export default function Home() {
           <Subscriptions
             subscriptions={subscriptions}
             loading={loading}
-            error={error}
+            error={null} // Using notifications instead of inline error
             onDelete={handleDeleteSubscription}
             composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription }}
           />

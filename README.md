@@ -27,6 +27,10 @@ This application implements:
 - Protected routes - only authenticated users can access subscription data
 - Mobile-responsive UI for subscription management
 - Auto-logout when user's database becomes inaccessible
+- Integrated login UI at root path `/` instead of separate `/auth/signin`
+- Toast notifications for user feedback
+- Optimistic UI updates for subscription management
+- Independent scrolling for subscription list with fixed composer
 
 ## Features
 
@@ -44,12 +48,16 @@ This application implements:
 - Sidebar navigation with overlay behavior
 - Scrollable subscription list
 - Proper header padding and layout
+- Integrated login page at root path `/`
+- Toast notifications with auto-dismiss
+- Optimistic login UI with "Signing in..." state
+- Independent scrolling for subscription list with fixed composer component
 
 ## Business Flows
 
 ### User Registration & Authentication Flow
-1. New users access the application and see a login page
-2. User selects Google login option
+1. New users access the application at root path `/` and see a login page with "Sign in with Google" button
+2. User selects Google login option, which shows an optimistic "Signing in..." state
 3. User is redirected to Google OAuth for authentication
 4. Google redirects user back to application with authentication token
 5. Application validates the token and creates a session
@@ -112,7 +120,7 @@ This application implements:
 ### Component Architecture
 - **Header Component**: Sticky header with hamburger icon and user profile
 - **Sidebar Component**: Navigation menu with user information and logout
-- **Subscriptions Component**: Main content area with subscription list and composer
+- **Subscriptions Component**: Main content area with subscription list and composer, featuring independent scrolling container and toast notification system
 - **SubscriptionList Component**: Renders subscription items in a scrollable list
 - **SubscriptionListItem Component**: Individual subscription item with delete functionality
 - **Composer Component**: Input form for adding new subscriptions
@@ -146,10 +154,8 @@ varisankya/
 │   │   │   └── index.js          # Subscription CRUD API
 │   │   └── user/
 │   │       └── index.js          # User profile API
-│   ├── auth/
-│   │   └── signin.js             # Custom sign-in page
 │   ├── _app.js                   # App wrapper with SessionProvider
-│   └── index.js                  # Main application page
+│   └── index.js                  # Main application page with integrated login UI
 ├── public/
 │   └── favicon.ico
 ├── styles/
@@ -316,12 +322,16 @@ All endpoints require authentication and validate database access.
 - Scrollable subscription list with proper max-height
 - Overlay sidebar navigation for clean desktop experience
 - Proper padding and spacing for touch targets
+- Integrated login page at root path `/` instead of separate route
+- Independent scrolling for subscription list with fixed composer component at bottom
 
 ### Interaction Design
 - Optimistic UI updates for immediate feedback
 - Smooth animations for sidebar transitions
 - Loading states for API operations
 - Error handling with user-friendly messages
+- Toast notifications that appear at top-right and auto-dismiss after 3 seconds
+- Login button with "Signing in..." state during authentication
 
 ### Visual Design
 - Clean, minimal aesthetic
@@ -419,10 +429,14 @@ All API routes should include robust error handling to ensure that the applicati
 - **Fixed `CLIENT_FETCH_ERROR`**: Fixed a `CLIENT_FETCH_ERROR` that was causing users to be logged out when adding a subscription.
 - **Fixed database connection issue**: Fixed a database connection issue that was causing a new `MongoClient` instance to be created for each API request.
 - **Fixed `unstable_getServerSession` issue**: Fixed an issue where `unstable_getServerSession` was not being used correctly.
-- **Fixed `getUserDb` issue**: Fixed an issue where `getUserDb` was being used instead of `getUserDatabase`.
+- **Fixed `getUserDb` issue**: Moved from `getUserDb` to `getUserDatabase`.
 - **Removed `lib/mongodb.js`**: Removed the `lib/mongodb.js` file, as it is no longer needed.
 - **Updated `pages/api/user/index.js`**: Updated the `pages/api/user/index.js` file to use `getUserDatabase` instead of `getUserDb`.
 - **Optimistic UI Updates**: Implemented optimistic UI updates for subscription add/delete operations for enhanced user experience.
 - **Sidebar Overlay**: Implemented sidebar as overlay that doesn't push content.
 - **Scrollable Content**: Added scroll functionality to subscription list for when many items are present.
 - **Header Padding**: Removed outer container padding and added proper header inner padding.
+- **Root Login Page**: Migrated login functionality from `/auth/signin` to root path `/` for better UX
+- **Toaster Notifications**: Implemented toast notifications that appear at the top right of the screen and auto-dismiss after 3 seconds
+- **Optimistic Login UI**: Added optimistic UI to login button with "Signing in..." state
+- **Improved Layout**: Enhanced layout with independent scrolling for subscription list while keeping composer fixed at bottom
