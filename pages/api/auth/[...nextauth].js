@@ -2,6 +2,7 @@ import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "../../../lib/mongodb";
+import { getUserDb } from "../../../lib/mongodb";
 
 export default NextAuth({
   adapter: MongoDBAdapter(clientPromise),
@@ -34,6 +35,28 @@ export default NextAuth({
       // Add user email to session for database access
       if (token && token.email) {
         session.user.email = token.email;
+      }
+
+      // Verify user database exists and is accessible during session creation
+      if (token && token.email) {
+        try {
+          const email = token.email;
+          const username = email.split('@')[0];
+
+          // Get user-specific database
+          const db = await getUserDb(username);
+
+          // Test database access by attempting to access the subscriptions collection
+          // This will create the database if it doesn't exist or throw an error if there's an issue
+          await db.collection('subscriptions').findOne({});
+
+          // Add a flag to indicate DB access is valid
+          session.dbAccessValid = true;
+        } catch (error) {
+          console.error(`Database access error for user ${token.email}:`, error);
+          // Return null to end the session if database is not accessible
+          return null;
+        }
       }
 
       return session;
