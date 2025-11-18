@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "../../../lib/mongodb";
-import { getUserDb } from "../../../lib/mongodb";
+import { validateUserDatabase } from "../../../lib/dbValidation";
 
 export default NextAuth({
   adapter: MongoDBAdapter(clientPromise),
@@ -22,6 +22,7 @@ export default NextAuth({
       // Include user email in token for database access
       if (user) {
         token.email = user.email;
+        token.username = user.email.split('@')[0];
       }
       return token;
     },
@@ -38,25 +39,19 @@ export default NextAuth({
       }
 
       // Verify user database exists and is accessible during session creation
-      if (token && token.email) {
-        try {
-          const email = token.email;
-          const username = email.split('@')[0];
+      if (token && token.username) {
+        const dbValid = await validateUserDatabase(token.username);
 
-          // Get user-specific database
-          const db = await getUserDb(username);
-
-          // Test database access by attempting to access the subscriptions collection
-          // This will create the database if it doesn't exist or throw an error if there's an issue
-          await db.collection('subscriptions').findOne({});
-
-          // Add a flag to indicate DB access is valid
+        if (!dbValid) {
+          // If database is not valid, we'll mark this in the session
+          // but let the app handle the sign out properly
+          session.dbAccessValid = false;
+        } else {
           session.dbAccessValid = true;
-        } catch (error) {
-          console.error(`Database access error for user ${token.email}:`, error);
-          // Return null to end the session if database is not accessible
-          return null;
         }
+      } else {
+        // If we don't have the username in the token, we can't validate the database
+        session.dbAccessValid = false;
       }
 
       return session;

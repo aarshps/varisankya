@@ -2,21 +2,27 @@ import { getServerSession } from 'next-auth';
 import { getProviders, signIn } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import styles from '../../styles/Home.module.css';
 
 export default function SignIn({ providers }) {
   const [mobile, setMobile] = useState(false);
+  const router = useRouter();
+  const { error } = router.query;
 
   useEffect(() => {
     // Check if device is mobile
     const checkMobile = () => {
       setMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Determine if we have a database-related error
+  const hasDbError = error === 'db_not_found';
 
   return (
     <div className={styles.container}>
@@ -35,8 +41,22 @@ export default function SignIn({ providers }) {
           Please sign in to continue
         </p>
 
-        <div className={styles.loginContainer} style={{ 
-          width: '100%', 
+        {/* Error message for database not found */}
+        {hasDbError && (
+          <div style={{
+            color: '#d93025',
+            backgroundColor: '#fce8e6',
+            padding: '10px',
+            borderRadius: '4px',
+            marginBottom: '1rem',
+            textAlign: 'center'
+          }}>
+            Your database was not found. Please contact support or try signing in again.
+          </div>
+        )}
+
+        <div className={styles.loginContainer} style={{
+          width: '100%',
           maxWidth: mobile ? '100%' : '400px',
           padding: '20px',
           textAlign: 'center'
