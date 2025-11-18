@@ -25,11 +25,12 @@ export default async function handler(req, res) {
     db = await getUserDb(username);
 
     // Test the database connection by attempting a read operation
-    // This will help ensure the database is accessible
+    // This ensures the database is accessible
     await db.command({ ping: 1 });
   } catch (error) {
     console.error('Database access error:', error);
-    return res.status(500).json({ error: 'Database access error' });
+    // Log the user out if database access fails
+    return res.status(401).json({ error: 'Database access error - please log in again' });
   }
 
   const collection = db.collection('subscriptions');
