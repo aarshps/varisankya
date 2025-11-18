@@ -5,10 +5,13 @@ export default function Header({ onHamburgerClick, hamburgerRef, session, hideHa
   return (
     <header className={styles.header}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        {!hideHamburger && (
+        {hideHamburger ? (
+          // Empty div to maintain spacing where hamburger would be
+          <div style={{ width: '40px', height: '40px', visibility: 'hidden' }}></div>
+        ) : (
           <button ref={hamburgerRef} className={styles.hamburger} onClick={onHamburgerClick} aria-label="Toggle sidebar">☰</button>
         )}
-        <div style={{ marginLeft: !hideHamburger ? '12px' : '0' }}>Varisankya</div>
+        <div style={{ marginLeft: '12px' }}>Varisankya</div>
       </div>
       {!hideHamburger && (
         <div style={{ display: 'flex', alignItems: 'center' }}>

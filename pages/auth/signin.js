@@ -57,12 +57,6 @@ export default function SignIn({}) {
 
       <main className={`${styles.appMain} ${styles.centeredMain}`} style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
         <div style={{ textAlign: 'center', maxWidth: '400px', width: '100%', padding: '20px' }}>
-          <h1 className={styles.title}>
-            Varisankya
-          </h1>
-          <p className={styles.description}>
-            Track and manage your subscriptions
-          </p>
 
           {/* Error message for database not found */}
           {hasDbError && (
