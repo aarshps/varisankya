@@ -26,13 +26,10 @@ export default function SignIn({}) {
   // Determine if we have a database-related error
   const hasDbError = error === 'db_not_found';
 
-  const handleSignIn = async () => {
+  const handleSignIn = () => {
     setIsSigningIn(true);
-    try {
-      await signIn('google', { callbackUrl: '/' });
-    } catch (error) {
-      setIsSigningIn(false);
-    }
+    // Direct redirect to Google OAuth flow
+    signIn('google', { callbackUrl: '/' });
   };
 
   // For the sign-in page, we want a simple header with just the app name
