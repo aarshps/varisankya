@@ -23,6 +23,10 @@ export default async function handler(req, res) {
   try {
     // Get user-specific database
     db = await getUserDb(username);
+
+    // Test the database connection by attempting a read operation
+    // This will help ensure the database is accessible
+    await db.command({ ping: 1 });
   } catch (error) {
     console.error('Database access error:', error);
     return res.status(500).json({ error: 'Database access error' });

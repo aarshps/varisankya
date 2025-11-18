@@ -22,8 +22,22 @@ export default function Home() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Check if session has valid database access
+  useEffect(() => {
+    if (session && session.dbAccessValid === false) {
+      // If DB access is invalid, sign out the user
+      signOut({ callbackUrl: '/' });
+    }
+  }, [session]);
+
   const fetchSubscriptions = useCallback(async () => {
     if (!session) return;
+
+    // Check database access validity from session
+    if (session.dbAccessValid === false) {
+      signOut({ callbackUrl: '/' });
+      return;
+    }
 
     try {
       setLoading(true);
