@@ -1,10 +1,11 @@
 import { getSession } from 'next-auth/react';
 import { getUserDb } from '../../../lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export default async function handler(req, res) {
   // Check if user is authenticated
   const session = await getSession({ req });
-  
+
   if (!session) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -18,7 +19,7 @@ export default async function handler(req, res) {
   // Extract username from email (before @ symbol)
   const username = email.split('@')[0];
   let db;
-  
+
   try {
     // Get user-specific database
     db = await getUserDb(username);
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
 
     try {
       const result = await collection.insertOne({ name });
-      res.status(201).json({ id: result.insertedId, name });
+      res.status(201).json({ id: result.insertedId.toString(), name });
     } catch (error) {
       console.error('Error adding subscription:', error);
       res.status(500).json({ error: 'Failed to add subscription' });
@@ -59,7 +60,7 @@ export default async function handler(req, res) {
     }
 
     try {
-      const result = await collection.deleteOne({ _id: id });
+      const result = await collection.deleteOne({ _id: new ObjectId(id) });
       if (result.deletedCount === 0) {
         return res.status(404).json({ error: 'Subscription not found' });
       }

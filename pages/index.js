@@ -85,7 +85,7 @@ export default function Home() {
 
   const handleDeleteSubscription = async (id) => {
     try {
-      const response = await fetch(`/api/subscriptions?id=${id}`, {
+      const response = await fetch(`/api/subscriptions?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
       });
 
