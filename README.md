@@ -22,11 +22,12 @@ npm install
 
 Then, set up your environment variables:
 
-1. Create a `.env.local` file in the root directory with your Google OAuth credentials:
+1. Create a `.env.local` file in the root directory with your Google OAuth credentials and MongoDB connection string:
    ```env
    CLIENT_ID="your_google_client_id_here"
    CLIENT_SECRET="your_google_client_secret_here"
    NEXTAUTH_SECRET="your_nextauth_secret_here"
+   MONGODB_URI="your_mongodb_connection_string_here"
    ```
    (Use the `.env.example` file as a template)
 
@@ -65,7 +66,7 @@ Check out the [Next.js deployment documentation](https://nextjs.org/docs/deploym
 1. Push this repository to GitHub
 2. Connect your GitHub account to Vercel
 3. Import this repository into Vercel
-4. Add your environment variables in the Vercel dashboard (CLIENT_ID, CLIENT_SECRET, NEXTAUTH_SECRET)
+4. Add your environment variables in the Vercel dashboard (CLIENT_ID, CLIENT_SECRET, NEXTAUTH_SECRET, MONGODB_URI)
 5. Vercel will automatically detect it's a Next.js app and build it
 6. Your app will be deployed with a unique URL
 
