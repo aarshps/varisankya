@@ -1,7 +1,9 @@
 import { useSession, signIn, signOut } from 'next-auth/react';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import App from '../components/App';
+import Subscriptions from '../components/Subscriptions';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -10,6 +12,10 @@ export default function Home() {
   const [newSubscription, setNewSubscription] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const hasFetched = useRef(false);
+  const sidebarRef = useRef(null);
+  const hamburgerRef = useRef(null);
 
   useEffect(() => {
     // Check if device is mobile
@@ -22,22 +28,52 @@ export default function Home() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Check if session has valid database access
+  // Check if session has valid database access on page load and only once (no auto-refresh on window focus)
   useEffect(() => {
-    if (session && session.dbAccessValid === false) {
-      // If DB access is invalid, sign out the user
-      signOut({ callbackUrl: '/' });
+    if (session) {
+      if (session.dbAccessValid === false) {
+        // If DB access was already invalid, sign out the user
+        console.log('[Page Refresh] Session indicates invalid database access, signing out');
+        signOut({ callbackUrl: '/' });
+      } else if (session.user?.username) {
+        // Validate database access using lightweight endpoint to avoid fetching subscriptions
+        const validateDbAccess = async () => {
+          try {
+            console.log(`[Page Refresh] Validating database access for user: ${session.user.username}`);
+
+            // Use a lightweight endpoint that only validates DB existence
+            const response = await fetch('/api/db/validate');
+
+            if (response.status === 401) {
+              console.log('[Page Refresh] Database access failed (401), signing out user');
+              signOut({ callbackUrl: '/' });
+            } else if (!response.ok) {
+              console.log(`[Page Refresh] Database validation failed with status: ${response.status}, signing out user`);
+              signOut({ callbackUrl: '/' });
+            } else {
+              console.log('[Page Refresh] Database access validated successfully');
+            }
+          } catch (error) {
+            console.error('[Page Refresh] Database validation network error:', error);
+            signOut({ callbackUrl: '/' });
+          }
+        };
+
+        // Only validate once when session arrives, to avoid repeated DB calls on focus
+        validateDbAccess();
+      }
     }
   }, [session]);
 
-  const fetchSubscriptions = useCallback(async () => {
+  const fetchSubscriptions = useCallback(async (force = false) => {
     if (!session) return;
-
     // Check database access validity from session
     if (session.dbAccessValid === false) {
       signOut({ callbackUrl: '/' });
       return;
     }
+
+    if (hasFetched.current && !force) return;
 
     try {
       setLoading(true);
@@ -52,8 +88,8 @@ export default function Home() {
       }
       const data = await response.json();
       setSubscriptions(data);
+      hasFetched.current = true;
     } catch (err) {
-      setError(err.message);
       console.error('Error fetching subscriptions:', err);
     } finally {
       setLoading(false);
@@ -64,12 +100,25 @@ export default function Home() {
     if (session) {
       fetchSubscriptions();
     }
-  }, [session, fetchSubscriptions]);
+    // Intentionally omit session here to avoid re-fetching on focus
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchSubscriptions]);
 
   const handleAddSubscription = async (e) => {
     e.preventDefault();
 
     if (!newSubscription.trim()) return;
+
+    // Optimistic update: add the subscription to the UI immediately
+    const tempId = Date.now().toString(); // Temporary ID for optimistic update
+    const optimisticSubscription = {
+      _id: tempId,
+      name: newSubscription.trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    setSubscriptions(prev => [...prev, optimisticSubscription]);
+    setNewSubscription('');
 
     try {
       const response = await fetch('/api/subscriptions', {
@@ -77,7 +126,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: newSubscription.trim() }),
+        body: JSON.stringify({ name: optimisticSubscription.name }),
       });
 
       if (!response.ok) {
@@ -88,16 +137,26 @@ export default function Home() {
         throw new Error('Failed to add subscription');
       }
 
-      const newSub = await response.json();
-      setSubscriptions([...subscriptions, newSub]);
-      setNewSubscription('');
+      const actualSub = await response.json();
+
+      // Update the subscription with the actual ID from the server
+      setSubscriptions(prev =>
+        prev.map(sub =>
+          sub._id === tempId ? actualSub : sub
+        )
+      );
     } catch (err) {
+      // If there's an error, remove the optimistic subscription
+      setSubscriptions(prev => prev.filter(sub => sub._id !== tempId));
       setError(err.message);
       console.error('Error adding subscription:', err);
     }
   };
 
   const handleDeleteSubscription = async (id) => {
+    // Optimistic update: remove the subscription from UI immediately
+    setSubscriptions(prev => prev.filter(sub => sub._id !== id));
+
     try {
       const response = await fetch(`/api/subscriptions?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
@@ -110,13 +169,32 @@ export default function Home() {
         }
         throw new Error('Failed to delete subscription');
       }
-
-      setSubscriptions(subscriptions.filter(sub => sub._id !== id));
     } catch (err) {
+      // If there's an error, re-add the subscription to the UI
       setError(err.message);
       console.error('Error deleting subscription:', err);
+      // Fetch subscriptions again to restore the list
+      fetchSubscriptions(true); // force refresh
     }
   };
+
+  // Close sidebar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sidebarOpen &&
+          sidebarRef.current &&
+          !sidebarRef.current.contains(event.target) &&
+          hamburgerRef.current &&
+          !hamburgerRef.current.contains(event.target)) {
+        setSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [sidebarOpen, sidebarRef, hamburgerRef]);
 
   if (status === 'loading') {
     return (
@@ -138,7 +216,7 @@ export default function Home() {
           <link rel="icon" href="/favicon.ico" />
         </Head>
 
-        <main className={styles.main}>
+        <main className={`${styles.main} ${styles.centeredMain}`}>
           <h1 className={styles.title}>
             Varisankya
           </h1>
@@ -179,151 +257,28 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome {session.user?.name || 'User'}!
-        </h1>
-        <p className={styles.description}>
-          Manage your subscriptions
-        </p>
-
-        <div style={{ width: '100%', maxWidth: mobile ? '100%' : '600px', padding: '20px' }}>
-          <div style={{ marginBottom: '2rem', textAlign: 'center' }}>
-            <p>Signed in as {session.user?.email}</p>
-            <button
-              onClick={() => signOut({ callbackUrl: '/' })}
-              style={{
-                padding: '10px 15px',
-                fontSize: '16px',
-                backgroundColor: '#ea4335',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                marginTop: '1rem'
-              }}
-            >
-              Sign Out
-            </button>
-          </div>
-
-          {/* Add Subscription Form */}
-          <form onSubmit={handleAddSubscription} style={{ marginBottom: '2rem' }}>
-            <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
-              <input
-                type="text"
-                value={newSubscription}
-                onChange={(e) => setNewSubscription(e.target.value)}
-                placeholder="Add a subscription..."
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  fontSize: mobile ? '16px' : '18px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  minWidth: 0
-                }}
-              />
-              <button
-                type="submit"
-                style={{
-                  padding: '12px 20px',
-                  fontSize: mobile ? '16px' : '18px',
-                  backgroundColor: '#34a853',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                Add
-              </button>
-            </div>
-          </form>
-
-          {/* Error message */}
-          {error && (
-            <div style={{
-              color: '#d93025',
-              backgroundColor: '#fce8e6',
-              padding: '10px',
-              borderRadius: '4px',
-              marginBottom: '1rem',
-              textAlign: 'center'
-            }}>
-              {error}
-            </div>
-          )}
-
-          {/* Loading indicator */}
-          {loading && (
-            <div style={{ textAlign: 'center', padding: '20px' }}>
-              Loading subscriptions...
-            </div>
-          )}
-
-          {/* Subscriptions List */}
-          {!loading && (
-            <div>
-              <h2 style={{ textAlign: 'center', marginBottom: '1rem' }}>
-                Your Subscriptions ({subscriptions.length})
-              </h2>
-
-              {subscriptions.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#666' }}>
-                  No subscriptions yet. Add one above!
-                </p>
-              ) : (
-                <ul style={{
-                  listStyle: 'none',
-                  padding: 0,
-                  width: '100%'
-                }}>
-                  {subscriptions.map((subscription) => (
-                    <li
-                      key={subscription._id}
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '12px',
-                        margin: '8px 0',
-                        backgroundColor: '#f8f9fa',
-                        border: '1px solid #e0e0e0',
-                        borderRadius: '4px',
-                        width: '100%'
-                      }}
-                    >
-                      <span style={{
-                        flex: 1,
-                        wordBreak: 'break-word',
-                        paddingRight: '10px'
-                      }}>
-                        {subscription.name}
-                      </span>
-                      <button
-                        onClick={() => handleDeleteSubscription(subscription._id)}
-                        style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#ea4335',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '14px'
-                        }}
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
+      <App
+        session={session}
+        sidebarOpen={sidebarOpen}
+        sidebarRef={sidebarRef}
+        hamburgerRef={hamburgerRef}
+        onHamburgerClick={() => setSidebarOpen(!sidebarOpen)}
+        onCloseSidebar={() => setSidebarOpen(false)}
+        onSignOut={() => signOut({ callbackUrl: '/' })}
+        composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription }}
+      >
+        <div className={styles.content}>
+          <Subscriptions
+            subscriptions={subscriptions}
+            loading={loading}
+            error={error}
+            onDelete={handleDeleteSubscription}
+            composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription }}
+          />
         </div>
-      </main>
+
+        {/* Composer handled by Page component */}
+      </App>
     </div>
   );
 }

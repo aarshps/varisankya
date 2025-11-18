@@ -1,10 +1,12 @@
-import { getSession } from 'next-auth/react';
-import { getUserDb } from '../../../lib/mongodb';
+import { unstable_getServerSession } from 'next-auth/next';
+import { authOptions } from '../auth/[...nextauth]';
+import { getUserDatabase } from '../../../lib/databaseFactory';
+import { validateUserDatabase } from '../../../lib/dbValidation';
 import { ObjectId } from 'mongodb';
 
 export default async function handler(req, res) {
   // Check if user is authenticated
-  const session = await getSession({ req });
+  const session = await unstable_getServerSession(req, res, authOptions);
 
   if (!session) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -20,15 +22,32 @@ export default async function handler(req, res) {
   const username = email.split('@')[0];
   let db;
 
-  try {
+    try {
+    // Ensure the user's database exists and is accessible (non-creating check)
+    const dbValid = await validateUserDatabase(username);
+    if (!dbValid) {
+      console.error(`[Subscriptions API] Database validation failed for user: ${username}`);
+      return res.status(401).json({ error: 'Database not accessible - please log in again' });
+    }
+
     // Get user-specific database
-    db = await getUserDb(username);
+    db = await getUserDatabase(username);
+
+    // Log and validate the database name being used
+    const expectedDbName = `vari_${username}_${process.env.NODE_ENV || 'development'}`;
+    console.log(`[Subscriptions API] Expected database: ${expectedDbName}, Using database: ${db.databaseName} for user: ${username}`);
+
+    // Validate that we're using the correct database
+    if (db.databaseName !== expectedDbName) {
+      console.error(`[Subscriptions API] Database name mismatch. Expected: ${expectedDbName}, Got: ${db.databaseName}`);
+      return res.status(401).json({ error: 'Database validation failed - please log in again' });
+    }
 
     // Test the database connection by attempting a read operation
     // This ensures the database is accessible
     await db.command({ ping: 1 });
   } catch (error) {
-    console.error('Database access error:', error);
+    console.error('[Subscriptions API] Database access error:', error);
     // Log the user out if database access fails
     return res.status(401).json({ error: 'Database access error - please log in again' });
   }
@@ -38,7 +57,9 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const subscriptions = await collection.find({}).toArray();
-      res.status(200).json(subscriptions);
+      // Normalize `_id` to string for client consumption and consistency with POST responses
+      const normalized = subscriptions.map(s => ({ ...s, _id: s._id.toString() }));
+      res.status(200).json(normalized);
     } catch (error) {
       console.error('Error fetching subscriptions:', error);
       res.status(500).json({ error: 'Failed to fetch subscriptions' });
@@ -52,7 +73,8 @@ export default async function handler(req, res) {
 
     try {
       const result = await collection.insertOne({ name });
-      res.status(201).json({ id: result.insertedId.toString(), name });
+      // Return the newly created subscription with `_id` matching the rest of the API
+      res.status(201).json({ _id: result.insertedId.toString(), name });
     } catch (error) {
       console.error('Error adding subscription:', error);
       res.status(500).json({ error: 'Failed to add subscription' });

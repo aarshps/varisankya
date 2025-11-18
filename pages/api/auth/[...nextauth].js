@@ -1,18 +1,17 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
-import clientPromise from "../../../lib/mongodb";
 import { validateUserDatabase } from "../../../lib/dbValidation";
+import { getUserDatabase } from "../../../lib/databaseFactory";
+import config from '../../../lib/config';
 
-export default NextAuth({
-  adapter: MongoDBAdapter(clientPromise),
+export const authOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.CLIENT_ID,
-      clientSecret: process.env.CLIENT_SECRET,
+      clientId: config.CLIENT_ID,
+      clientSecret: config.CLIENT_SECRET,
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: config.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, account, user }) {
       // Persist the OAuth access_token to the token right after signin
@@ -23,6 +22,40 @@ export default NextAuth({
       if (user) {
         token.email = user.email;
         token.username = user.email.split('@')[0];
+        token.name = user.name || token.email.split('@')[0];
+        token.picture = user.image || null;
+      }
+
+      // Only during sign-in (when `account` is present) should we attempt to create a user DB.
+      if (account && token.username) {
+        try {
+          const dbValid = await validateUserDatabase(token.username);
+          if (!dbValid) {
+            const db = await getUserDatabase(token.username);
+            const usersCollection = db.collection('users');
+            await usersCollection.updateOne(
+              { email: token.email },
+              {
+                $set: {
+                  name: token.name || token.email.split('@')[0],
+                  image: token.picture || null,
+                  lastLogin: new Date(),
+                  username: token.username,
+                },
+                $setOnInsert: {
+                  createdAt: new Date(),
+                },
+              },
+              { upsert: true }
+            );
+            token.dbAccessValid = true;
+          } else {
+            token.dbAccessValid = true;
+          }
+        } catch (error) {
+          console.error(`[NextAuth] Error creating database for user: ${token.username}`, error);
+          token.dbAccessValid = false;
+        }
       }
       return token;
     },
@@ -38,20 +71,29 @@ export default NextAuth({
         session.user.email = token.email;
       }
 
-      // Verify user database exists and is accessible during session creation
+      // Include username in the session for database access
       if (token && token.username) {
-        const dbValid = await validateUserDatabase(token.username);
+        session.user.username = token.username;
+      }
 
-        if (!dbValid) {
-          // If database is not valid, we'll mark this in the session
-          // but let the app handle the sign out properly
-          session.dbAccessValid = false;
-        } else {
+      // Always perform a non-creating validation on session creation/refresh
+      if (token && token.username) {
+        try {
+          const dbValid = await validateUserDatabase(token.username);
+          if (!dbValid) {
+            // Invalidate the session to ensure client is logged out
+            console.log(`[NextAuth] Invalidating session for user: ${token.username} due to failed DB validation`);
+            return null;
+          }
           session.dbAccessValid = true;
+        } catch (error) {
+          console.error(`[NextAuth] Error validating database for user: ${token.username}`, error);
+          // Invalidate session on error to be safe
+          return null;
         }
       } else {
-        // If we don't have the username in the token, we can't validate the database
-        session.dbAccessValid = false;
+        // No username, invalidate session
+        return null;
       }
 
       return session;
@@ -63,5 +105,7 @@ export default NextAuth({
   session: {
     strategy: "jwt",
   },
-  debug: process.env.NODE_ENV === "development",
-});
+  debug: config.isDevelopment(),
+};
+
+export default NextAuth(authOptions);

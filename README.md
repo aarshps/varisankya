@@ -29,7 +29,9 @@ This application implements:
 ```
 varisankya/
 ├── lib/
-│   └── mongodb.js           # MongoDB client with user-specific database support
+│   ├── config.js            # Centralized configuration for environment variables
+│   ├── databaseFactory.js   # Database factory with centralized database operations
+│   └── mongodb.js           # MongoDB client (uses databaseFactory internally)
 ├── pages/
 │   ├── api/
 │   │   ├── auth/
@@ -107,14 +109,41 @@ The application creates user-specific databases with the naming convention:
   - Development: `vari_aarshps_development`
   - Production: `vari_aarshps_production`
 
-Each database contains a `subscriptions` collection that stores subscription documents with a `name` field.
+Each user's database contains two collections:
+- `users` collection: Contains user profile information (email, name, image, preferences, etc.)
+- `subscriptions` collection: Contains user's subscription data
+
+### User Database Lifecycle Flow
+
+1. **User Login Process**:
+   - When a user logs in via Google OAuth, the application checks if a database already exists for that user
+   - If no database exists, the application automatically creates one with the naming convention: `vari_<username>_<environment>`
+   - The application then creates a `users` collection in that database and stores the user's profile information
+   - If the database already exists, the application updates the user's profile information in the `users` collection
+
+2. **User Profile Management**:
+   - The `/api/user` endpoint handles user profile data storage and retrieval
+   - User information is stored in the `users` collection within the user's specific database
+   - Each user's profile is completely isolated from other users
+
+3. **Page Refresh & Session Validation**:
+   - When the user refreshes the page, a session checker validates that the user's database still exists
+   - The application makes a test API call to `/api/subscriptions` to verify database accessibility
+   - If the database no longer exists or is inaccessible, the user is automatically logged out
+   - This prevents users from being stuck in an invalid session state
+
+4. **Subscription Management**:
+   - The `/api/subscriptions` endpoint manages all subscription CRUD operations
+   - All subscription data is stored in the `subscriptions` collection within the user's database
+   - Users can create, read, update, and delete their subscriptions
+   - Each user's subscription data is completely isolated from other users
 
 ### Database Validation
 
 - The application validates database access during session creation
 - If a user's database becomes inaccessible (e.g., deleted), the user is automatically logged out
-- The NextAuth adapter uses a separate database for session management
-- Each user's subscription data is stored in their own database with isolation
+- The NextAuth authentication uses JWT strategy (not MongoDB adapter) to keep authentication separate from user data
+- Each user's data is stored in their own database with complete isolation
 
 ## API Endpoints
 
@@ -132,10 +161,24 @@ All endpoints require authentication and validate database access.
 - Automatically invalidates session if database access fails
 - Includes Google OAuth provider
 
+### Configuration (`lib/config.js`)
+- Centralized configuration object for all environment variables
+- Single source of truth for environment variable access
+- Provides helper methods for environment-specific logic
+- Validates required environment variables on initialization
+- Includes database name generation helper method
+
+### Database Factory (`lib/databaseFactory.js`)
+- Implements the factory pattern with centralized database operations
+- Single responsibility for all database-related functionality
+- Database name generation logic (uses config helper)
+- User database instance creation and validation
+- MongoDB client connection management using singleton pattern
+
 ### Database Client (`lib/mongodb.js`)
-- Creates user-specific database instances based on username and environment
-- Uses `client.db(dbName)` to specify database at runtime
-- Handles both development and production environments
+- Maintains backward compatibility for existing code
+- Imports and delegates to the DatabaseFactory
+- Exposes the same interface as before: `clientPromise`, `getUserDb`, `generateDatabaseName`
 
 ### Frontend Integration
 - Uses `useSession` hook to check authentication status
