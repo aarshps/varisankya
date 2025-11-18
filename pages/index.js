@@ -264,7 +264,11 @@ export default function Home() {
         hamburgerRef={hamburgerRef}
         onHamburgerClick={() => setSidebarOpen(!sidebarOpen)}
         onCloseSidebar={() => setSidebarOpen(false)}
-        onSignOut={() => signOut({ callbackUrl: '/' })}
+        onSignOut={async () => {
+          // Optimistic UI: immediately close sidebar and start logout process
+          setSidebarOpen(false);
+          await signOut({ callbackUrl: '/' });
+        }}
         composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription }}
       >
         <div className={styles.content}>

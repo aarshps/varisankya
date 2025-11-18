@@ -24,21 +24,32 @@ export default function SignIn({ providers }) {
   // Determine if we have a database-related error
   const hasDbError = error === 'db_not_found';
 
+  const [isSigningIn, setIsSigningIn] = useState(false);
+
+  const handleSignIn = async () => {
+    setIsSigningIn(true);
+    try {
+      await signIn('google', { callbackUrl: '/' });
+    } catch (error) {
+      setIsSigningIn(false);
+    }
+  };
+
   return (
     <div className={styles.container}>
       <Head>
-        <title>Login - Hello World App</title>
-        <meta name="description" content="Login to access the Hello World app" />
+        <title>Varisankya - Sign In</title>
+        <meta name="description" content="Sign in to Varisankya subscription tracker" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
+      <main className={`${styles.main} ${styles.centeredMain}`}>
         <h1 className={styles.title}>
-          Welcome to the App
+          Varisankya
         </h1>
         <p className={styles.description}>
-          Please sign in to continue
+          Track and manage your subscriptions
         </p>
 
         {/* Error message for database not found */}
@@ -49,39 +60,34 @@ export default function SignIn({ providers }) {
             padding: '10px',
             borderRadius: '4px',
             marginBottom: '1rem',
-            textAlign: 'center'
+            textAlign: 'center',
+            maxWidth: '400px',
+            width: '100%'
           }}>
             Your database was not found. Please contact support or try signing in again.
           </div>
         )}
 
-        <div className={styles.loginContainer} style={{
-          width: '100%',
-          maxWidth: mobile ? '100%' : '400px',
-          padding: '20px',
-          textAlign: 'center'
-        }}>
-          {Object.values(providers).map((provider) => (
-            <div key={provider.name} style={{ marginBottom: '1rem', width: '100%' }}>
-              <button
-                className={styles.googleButton}
-                onClick={() => signIn(provider.id, { callbackUrl: '/' })}
-                style={{
-                  padding: '12px 20px',
-                  fontSize: mobile ? '16px' : '18px',
-                  width: '100%',
-                  backgroundColor: '#4285f4',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                }}
-              >
-                Sign in with {provider.name}
-              </button>
-            </div>
-          ))}
+        <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+          <p>Please sign in to view and manage your subscriptions</p>
+          <button
+            onClick={handleSignIn}
+            disabled={isSigningIn}
+            style={{
+              padding: '12px 20px',
+              fontSize: mobile ? '16px' : '18px',
+              backgroundColor: isSigningIn ? '#cccccc' : '#4285f4',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: isSigningIn ? 'not-allowed' : 'pointer',
+              fontWeight: '500',
+              marginTop: '1rem',
+              opacity: isSigningIn ? 0.7 : 1
+            }}
+          >
+            {isSigningIn ? 'Signing in...' : 'Sign in with Google'}
+          </button>
         </div>
       </main>
     </div>
