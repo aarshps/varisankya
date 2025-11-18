@@ -2,6 +2,7 @@ import { useSession, signIn, signOut } from 'next-auth/react';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { useRouter } from 'next/router';
 import App from '../components/App';
 import Subscriptions from '../components/Subscriptions';
 
@@ -196,53 +197,20 @@ export default function Home() {
     };
   }, [sidebarOpen, sidebarRef, hamburgerRef]);
 
-  if (status === 'loading') {
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin');
+    }
+  }, [status, router]);
+
+  if (status === 'loading' || status === 'unauthenticated') {
     return (
       <div className={styles.container}>
         <div className={styles.main}>
           <h1 className={styles.title}>Loading...</h1>
         </div>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return (
-      <div className={styles.container}>
-        <Head>
-          <title>Varisankya - Subscription Tracker</title>
-          <meta name="description" content="Track and manage your subscriptions" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-
-        <main className={`${styles.main} ${styles.centeredMain}`}>
-          <h1 className={styles.title}>
-            Varisankya
-          </h1>
-          <p className={styles.description}>
-            Track and manage your subscriptions
-          </p>
-          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-            <p>Please sign in to view and manage your subscriptions</p>
-            <button
-              onClick={() => signIn('google', { callbackUrl: '/' })}
-              style={{
-                padding: '12px 20px',
-                fontSize: mobile ? '16px' : '18px',
-                backgroundColor: '#4285f4',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontWeight: '500',
-                marginTop: '1rem'
-              }}
-            >
-              Sign in with Google
-            </button>
-          </div>
-        </main>
       </div>
     );
   }
