@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export', // This enables static export for Vercel deployment
+  // Remove output: 'export' since we need API routes for authentication
   trailingSlash: true, // This ensures all routes have trailing slashes for consistency
 }
 
