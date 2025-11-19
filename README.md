@@ -74,6 +74,12 @@ This application implements:
 - **Custom Select Styling**: Styled dropdown with custom arrow and proper padding.
 - **Button Interaction Animations**: Subtle press animations on all interactive buttons.
 - **Responsive Design**: Adapts to different screen sizes with mobile-first approach.
+- **Chrome Extension**: Basic structure for a companion Chrome extension.
+- **Mobile Modal Fix**: Improved add modal scrolling and keyboard handling on mobile devices.
+- **UI Logo**: Added application logo to the main header for better branding.
+- **Animation Fixes**: Resolved double animation issue when adding new subscriptions.
+- **Custom Status Dropdown**: Implemented a custom, styled dropdown for status selection.
+- **Responsive Date Pickers**: Improved layout for date inputs to wrap correctly on small screens.
 - **Comprehensive API**: Full CRUD operations with proper error handling and validation.
 
 ## Business Flows

@@ -53,12 +53,14 @@ const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) =>
         right: 0,
         bottom: 0,
         backgroundColor: isClosing ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.7)',
-        display: (isOpen || isClosing) ? 'flex' : 'none',
-        alignItems: 'center',
-        justifyContent: 'center',
         zIndex: 1000,
         opacity: isClosing ? 0 : 1,
         transition: 'background-color 0.3s ease-out, opacity 0.3s ease-out',
+        // Scroll handling for mobile keyboards
+        overflowY: 'auto',
+        display: (isOpen || isClosing) ? 'flex' : 'none',
+        // Using margin: auto on the child handles centering + scrolling correctly
+        padding: '20px',
       }}
       onClick={handleCancel}
     >
@@ -73,6 +75,7 @@ const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) =>
           transform: isClosing ? 'scale(0.95)' : 'scale(1)',
           opacity: isClosing ? 0 : 1,
           transition: 'transform 0.3s ease-out, opacity 0.3s ease-out',
+          margin: 'auto', // Centers the modal and allows scrolling
         }}
         onClick={(e) => e.stopPropagation()}
       >

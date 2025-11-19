@@ -15,7 +15,10 @@ export default function Header({ onHamburgerClick, hamburgerRef, session, hideHa
             </svg>
           </button>
         )}
-        <div>Varisankya</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <img src="/android-chrome-192x192.png" alt="Varisankya Logo" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
+          <span style={{ fontWeight: '500', fontSize: '20px' }}>Varisankya</span>
+        </div>
       </div>
       {!hideHamburger && (
         <div style={{ display: 'flex', alignItems: 'center' }}>

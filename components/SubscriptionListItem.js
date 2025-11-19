@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styles from '../styles/Home.module.css';
 import ProgressBar from './ProgressBar';
+import StatusSelect from './StatusSelect';
 
 // Hook for M3E button press animation
 const useButtonAnim = () => {
@@ -290,8 +291,8 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   disabled={isSaving}
                 />
               </div>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: '1 1 150px' }}>
                   <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Last Paid</label>
                   <div style={{ position: 'relative' }}>
                     <input
@@ -315,7 +316,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                     </svg>
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: '1 1 150px' }}>
                   <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Next Due</label>
                   <div style={{ position: 'relative' }}>
                     <input
@@ -342,27 +343,11 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</label>
-                <select
-                  className={styles.composerInput}
-                  style={{
-                    borderRadius: '12px',
-                    fontFamily: "'Google Sans Flex', sans-serif",
-                    fontSize: '16px',
-                    padding: '14px 44px 14px 16px',
-                    height: '48px',
-                    appearance: 'none',  // Remove default dropdown styling
-                    WebkitAppearance: 'none',  // For Safari
-                    MozAppearance: 'none',  // For Firefox
-                    cursor: 'pointer',
-                    background: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23A8C7FA' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") no-repeat right 16px center / 16px 16px`
-                  }}
+                <StatusSelect
                   value={editForm.status || 'Active'}
-                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                  onChange={(val) => setEditForm({ ...editForm, status: val })}
                   disabled={isSaving}
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
+                />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                 <button

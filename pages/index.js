@@ -119,6 +119,7 @@ export default function Home() {
     const tempId = Date.now().toString(); // Temporary ID for optimistic update
     const optimisticSubscription = {
       _id: tempId,
+      localId: tempId, // Stable ID for UI rendering to prevent re-animation
       name: newSubscription.trim(),
       createdAt: new Date().toISOString()
     };
@@ -145,10 +146,10 @@ export default function Home() {
 
       const actualSub = await response.json();
 
-      // Update the subscription with the actual ID from the server
+      // Update the subscription with the actual ID from the server but keep localId
       setSubscriptions(prev =>
         prev.map(sub =>
-          sub._id === tempId ? actualSub : sub
+          sub._id === tempId ? { ...actualSub, localId: tempId } : sub
         )
       );
 

@@ -32,7 +32,7 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
       {subscriptions.map((s) => (
         <SubscriptionListItem
-          key={s._id}
+          key={s.localId || s._id}
           subscription={s}
           onDelete={onDelete}
           onUpdate={onUpdate}
