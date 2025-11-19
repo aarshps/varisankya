@@ -86,7 +86,50 @@ This application implements:
 - **Enhanced Mobile Modal**: Fixed centering and scrolling issues when mobile keyboard is active.
 - **Scroll-aware FAB**: Floating action button slides out of view when scrolling down and reappears when scrolling up.
 
-## Business Flows
+## User Guide
+
+### Managing Subscriptions
+
+#### Adding a Subscription
+1.  Locate the **Floating Action Button (+)** at the bottom right of the screen.
+2.  Click the button to open the **Add Subscription** modal.
+3.  Enter the name of the subscription (e.g., "Netflix", "Spotify").
+4.  Click **Add** or press Enter.
+5.  The subscription will immediately appear in your list (Optimistic UI).
+
+#### Editing Subscription Details
+1.  Click on any subscription card to expand it.
+2.  **Name**: Click the name field to rename.
+3.  **Dates**:
+    *   **Last Paid**: Set the date you last paid. The progress bar will calculate the cycle based on a 30-day month.
+    *   **Next Due**: Set the upcoming due date. The progress bar will show days remaining.
+    *   *Note*: If both are set, "Next Due" takes precedence for the progress calculation.
+4.  **Status**: Toggle between **Active** and **Inactive**. Inactive subscriptions are sorted to the bottom.
+5.  **Amount**: Enter the subscription cost (e.g., "15.99").
+6.  Changes are saved automatically as you type or select options.
+
+#### Understanding the Progress Bar
+*   **Green/Blue**: Subscription is active and within the current cycle.
+*   **Red (Full Bar)**: Subscription is overdue (current date is past the calculated due date).
+*   **Text**: Displays "X days left" or "X days ago" based on the current date relative to the due date.
+
+#### Sorting
+The application automatically sorts your subscriptions to help you prioritize:
+1.  **Overdue**: Items past their due date appear at the very top.
+2.  **Due Soon**: Items with the fewest days left appear next.
+3.  **Due Later**: Items with more days remaining follow.
+4.  **Inactive**: Subscriptions marked as "Inactive" are placed at the bottom.
+5.  **No Dates**: Subscriptions with no dates set are grouped near the bottom, just above inactive ones.
+
+#### Deleting a Subscription
+1.  Click a subscription to expand it.
+2.  Click the **Delete** button (trash icon) in the expanded view.
+3.  Confirm the deletion if prompted (or it may delete immediately depending on configuration).
+4.  The item is instantly removed from the list.
+
+### Mobile Features
+*   **Scroll-aware FAB**: As you scroll down the list, the "+" button slides away to give you more view area. Scroll up slightly to bring it back.
+*   **Keyboard Handling**: When adding a subscription on mobile, the modal adjusts so the input field isn't hidden by the keyboard.
 
 ### User Registration & Authentication Flow
 1. New users access the application at root path `/` and see a login page with "Sign in with Google" button
