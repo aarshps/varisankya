@@ -45,12 +45,29 @@ Each subscription has a visual progress bar to show you where you are in the bil
     *   *"5 days left"*: Payment is due in 5 days.
     *   *"2 days ago"*: Payment was due 2 days ago (Overdue).
 
+#### How Progress is Calculated
+Understanding how your progress bar is calculated can help you make the most of Varisankya:
+*   **Primary Date**: The app prioritizes your "Next Due" date if set.
+*   **Fallback Date**: If only "Last Paid" is set, it calculates the next due as exactly one month later.
+*   **30-Day Cycle**: The app assumes a standard 30-day billing cycle for progress calculation.
+*   **Visual Examples**:
+    *   If 15 days remain: progress bar shows 50% completion
+    *   If 5 days remain: progress bar shows 83% completion (approaching due date)
+    *   If overdue by 2 days: progress bar shows 100% (full red) to indicate urgency
+
 #### Smart Sorting
 The list organizes itself automatically to keep you focused:
 1.  **Urgent**: Overdue items are always at the top.
 2.  **Upcoming**: Items due soon appear next.
 3.  **Later**: Items with plenty of time left follow.
 4.  **Inactive**: Cancelled or paused subscriptions sit at the bottom.
+
+#### Technical Details of Calculations
+For developers and power users, here are the precise algorithms used:
+*   **Days Left Calculation**: `daysLeft = (nextDueDate - today) / (24 * 60 * 60 * 1000)`
+*   **Progress Calculation**: `(30 - daysLeftRaw) / 30 * 100`, capped at 0-100%
+*   **Sorting Priority**: Items with lowest days left (including negative values) appear first
+*   **Special Values**: Inactive items = 9999 (bottom), no dates = 9998 (near bottom)
 
 ### 4. Mobile Experience
 *   **Scroll-Away Button**: As you scroll down your list, the **+** button slides away to give you a full view of your content. Scroll up slightly to bring it back.
