@@ -71,6 +71,7 @@ The list organizes itself automatically to keep you focused:
 *   **Optimistic UI**: All actions (Add, Edit, Delete) update the interface immediately while syncing with the server in the background.
 *   **Session Validation**: Automatic checks ensure database connectivity; users are auto-logged out if their database becomes inaccessible.
 *   **Material Design 3**: UI components follow M3 guidelines, featuring smooth animations, rounded corners, and dynamic interactions.
+*   **Image Optimization**: Next.js Image component with optimized loading and proper domain configuration for profile pictures and assets.
 
 ### Project Structure
 ```
@@ -80,6 +81,7 @@ varisankya/
 │   ├── api/            # Backend API endpoints
 │   └── index.js        # Main application entry point
 ├── lib/                # Utilities (Database factory, Config)
+├── public/             # Static assets (app icons, etc.)
 └── styles/             # CSS Modules and Global styles
 ```
 

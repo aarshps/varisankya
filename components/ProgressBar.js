@@ -44,4 +44,6 @@ const ProgressBar = React.memo(({ progress, color = '#A8C7FA' }) => {
     return prevProps.progress === nextProps.progress && prevProps.color === nextProps.color;
 });
 
+ProgressBar.displayName = 'ProgressBar';
+
 export default ProgressBar;

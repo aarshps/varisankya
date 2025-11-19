@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import styles from '../styles/Home.module.css';
 
 export default function Header({ onHamburgerClick, hamburgerRef, session, hideHamburger = false }) {
@@ -16,14 +17,14 @@ export default function Header({ onHamburgerClick, hamburgerRef, session, hideHa
           </button>
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/android-chrome-192x192.png" alt="Varisankya Logo" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
+          <Image src="/android-chrome-192x192.png" alt="Varisankya Logo" width={32} height={32} style={{ borderRadius: '8px' }} />
           <span style={{ fontWeight: '500', fontSize: '20px' }}>Varisankya</span>
         </div>
       </div>
       {!hideHamburger && (
         <div style={{ display: 'flex', alignItems: 'center' }}>
           {session?.user?.image && (
-            <img src={session.user.image} alt="profile" style={{ width: 32, height: 32, borderRadius: '50%' }} />
+            <Image src={session.user.image} alt="profile" width={32} height={32} style={{ borderRadius: '50%' }} />
           )}
         </div>
       )}

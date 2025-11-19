@@ -83,4 +83,6 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
   );
 });
 
+SubscriptionList.displayName = 'SubscriptionList';
+
 export default SubscriptionList;

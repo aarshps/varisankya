@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styles from '../styles/Home.module.css';
 import ProgressBar from './ProgressBar';
 import StatusSelect from './StatusSelect';
+import Modal, { ModalButton } from './Modal';
 
 // Hook for M3E button press animation
 const useButtonAnim = () => {
@@ -23,6 +24,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   const [isClosing, setIsClosing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editForm, setEditForm] = useState({ ...subscription });
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // New state for delete modal
 
   // Keep edit form in sync with prop changes
   useEffect(() => {
@@ -112,11 +114,14 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     cursor: 'pointer',
   };
 
-  const handleDelete = (e) => {
+  const handleDeleteClick = (e) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this subscription?')) {
-      onDelete(subscription._id);
-    }
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setShowDeleteModal(false);
+    onDelete(subscription._id);
   };
 
   const handleSave = async (e) => {
@@ -189,7 +194,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             <ProgressBar progress={progress} color={daysLeft < 3 ? '#F2B8B5' : '#A8C7FA'} />
           </div>
           <button
-            onClick={handleDelete}
+            onClick={handleDeleteClick}
             className={styles.removeButton}
             aria-label="Delete subscription"
             style={buttonStyle}
@@ -416,10 +421,58 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   {isSaving ? 'Saving...' : 'Save'}
                 </button>
               </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #444746' }}>
+                <button
+                  className={styles.deleteButton}
+                  onClick={handleDeleteClick}
+                  disabled={isSaving}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: isSaving ? 'not-allowed' : 'pointer',
+                    padding: '8px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#ffb4ab',
+                    transition: 'background-color 0.2s',
+                    opacity: isSaving ? 0.5 : 1,
+                  }}
+                  onMouseOver={(e) => !isSaving && (e.currentTarget.style.backgroundColor = 'rgba(255, 180, 171, 0.1)')}
+                  onMouseOut={(e) => !isSaving && (e.currentTarget.style.backgroundColor = 'transparent')}
+                  title="Delete subscription"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="currentColor" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Delete Subscription"
+        actions={
+          <>
+            <ModalButton onClick={() => setShowDeleteModal(false)} variant="secondary">
+              Cancel
+            </ModalButton>
+            <ModalButton onClick={handleConfirmDelete} variant="danger">
+              Delete
+            </ModalButton>
+          </>
+        }
+      >
+        <p style={{ color: '#C4C7C5', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', margin: 0 }}>
+          Are you sure you want to delete <strong>{subscription.name}</strong>? This action cannot be undone.
+        </p>
+      </Modal>
     </>
   );
 };
