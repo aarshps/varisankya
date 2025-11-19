@@ -145,6 +145,8 @@ To create Android app icons with large, clear text that displays properly when i
    *   Keep text simple - just "Varisankya" without extra elements
    *   Consider using the "V" from "Varisankya" as a visual symbol if text is too small
    *   Avoid complex graphics that don't scale well at small sizes
+   *   **Important for Android Adaptive Icons**: Create icons with 108x108 dp at the center of 512x512 canvas to avoid white padding
+   *   For adaptive icons, ensure the safe zone (where content is preserved) is properly defined
 
 3. **Implementation**:
    *   Place icons in the `public/` directory
@@ -154,6 +156,24 @@ To create Android app icons with large, clear text that displays properly when i
 4. **Testing**:
    *   Use Chrome DevTools Application tab to test PWA installation
    *   Test actual installation on Android device to verify icon display
+
+### Android Adaptive Icon Issue (White Padding)
+If your app icon appears small with white padding on Android:
+
+1. **Root Cause**: Android uses adaptive icons that apply a mask to all launcher icons.
+   If your icon doesn't account for this, Android adds white padding to fit the mask.
+
+2. **Current Configuration**: The manifest includes `"purpose": "any maskable"` which should allow Android to crop appropriately.
+
+3. **Icon Design Solution**:
+   *   Create icons with extra space around the content to account for the adaptive mask
+   *   Use 108x108 dp safe area within 512x512 canvas (or equivalent for 192x192)
+   *   The safe area represents 66.67% of the canvas size (108/162 ≈ 66.67% for 162x162)
+
+4. **Alternative Approach**:
+   *   If the white padding persists, you may need to create a special 512x512 icon with content
+     that fills the entire canvas area while maintaining text readability
+   *   Consider using a simple, bold design that works well when masked
 
 ---
 
