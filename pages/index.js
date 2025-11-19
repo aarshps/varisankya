@@ -162,6 +162,33 @@ export default function Home() {
     }
   };
 
+  const handleUpdateSubscription = async (updatedSub) => {
+    // Optimistic update
+    setSubscriptions(prev => prev.map(sub => sub._id === updatedSub._id ? updatedSub : sub));
+
+    try {
+      const response = await fetch('/api/subscriptions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: updatedSub._id, ...updatedSub }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          signOut({ callbackUrl: '/' });
+          return;
+        }
+        throw new Error('Failed to update subscription');
+      }
+
+      setNotification({ type: 'success', message: 'Subscription updated!' });
+    } catch (err) {
+      console.error('Error updating subscription:', err);
+      setNotification({ type: 'error', message: err.message });
+      fetchSubscriptions(true); // Revert on error
+    }
+  };
+
   const handleDeleteSubscription = async (id) => {
     // Optimistic update: remove the subscription from UI immediately
     setSubscriptions(prev => prev.filter(sub => sub._id !== id));
@@ -189,6 +216,47 @@ export default function Home() {
       fetchSubscriptions(true); // force refresh
     }
   };
+
+  // Sort subscriptions: Inactive at bottom, Active sorted by days left (ascending)
+  const sortedSubscriptions = [...subscriptions].sort((a, b) => {
+    if (a.status === 'Inactive' && b.status !== 'Inactive') return 1;
+    if (a.status !== 'Inactive' && b.status === 'Inactive') return -1;
+    if (a.status === 'Inactive' && b.status === 'Inactive') return 0;
+
+    const getDaysLeft = (sub) => {
+      const now = new Date();
+      // Reset hours to compare dates only
+      now.setHours(0, 0, 0, 0);
+
+      let targetDate;
+      if (sub.nextDueDate) {
+        targetDate = new Date(sub.nextDueDate);
+      } else if (sub.lastPaidDate) {
+        const lastPaid = new Date(sub.lastPaidDate);
+        const dayOfMonth = lastPaid.getDate();
+
+        // Check current month
+        const currentMonthDate = new Date(now.getFullYear(), now.getMonth(), dayOfMonth);
+
+        // If current month date is in the future or today, use it. Otherwise use next month.
+        if (currentMonthDate >= now) {
+          targetDate = currentMonthDate;
+        } else {
+          targetDate = new Date(now.getFullYear(), now.getMonth() + 1, dayOfMonth);
+        }
+      } else {
+        return 9999; // No date, push to bottom of active
+      }
+
+      // Reset target hours
+      targetDate.setHours(0, 0, 0, 0);
+
+      const diffTime = targetDate - now;
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    };
+
+    return getDaysLeft(a) - getDaysLeft(b);
+  });
 
   // Close sidebar when clicking outside
   useEffect(() => {
@@ -350,10 +418,11 @@ export default function Home() {
       >
         <div className={styles.content}>
           <Subscriptions
-            subscriptions={subscriptions}
+            subscriptions={sortedSubscriptions}
             loading={loading}
             error={null} // Using notifications instead of inline error
             onDelete={handleDeleteSubscription}
+            onUpdate={handleUpdateSubscription}
             composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription }}
           />
         </div>

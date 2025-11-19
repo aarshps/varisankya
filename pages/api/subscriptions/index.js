@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   const username = email.split('@')[0];
   let db;
 
-    try {
+  try {
     // Ensure the user's database exists and is accessible (non-creating check)
     const dbValid = await validateUserDatabase(username);
     if (!dbValid) {
@@ -65,19 +65,59 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to fetch subscriptions' });
     }
   } else if (req.method === 'POST') {
-    const { name } = req.body;
+    const { name, lastPaidDate, nextDueDate, status } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Subscription name is required' });
     }
 
     try {
-      const result = await collection.insertOne({ name });
-      // Return the newly created subscription with `_id` matching the rest of the API
-      res.status(201).json({ _id: result.insertedId.toString(), name });
+      const newSubscription = {
+        name,
+        lastPaidDate: lastPaidDate ? new Date(lastPaidDate) : null,
+        nextDueDate: nextDueDate ? new Date(nextDueDate) : null,
+        status: status || 'Active',
+        createdAt: new Date(),
+      };
+
+      const result = await collection.insertOne(newSubscription);
+      res.status(201).json({ ...newSubscription, _id: result.insertedId.toString() });
     } catch (error) {
       console.error('Error adding subscription:', error);
       res.status(500).json({ error: 'Failed to add subscription' });
+    }
+  } else if (req.method === 'PUT') {
+    const { id, name, lastPaidDate, nextDueDate, status } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'Subscription ID is required' });
+    }
+
+    try {
+      const updateData = {
+        name,
+        lastPaidDate: lastPaidDate ? new Date(lastPaidDate) : null,
+        nextDueDate: nextDueDate ? new Date(nextDueDate) : null,
+        status: status || 'Active',
+        updatedAt: new Date(),
+      };
+
+      // Remove undefined fields
+      Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+
+      const result = await collection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: updateData }
+      );
+
+      if (result.matchedCount === 0) {
+        return res.status(404).json({ error: 'Subscription not found' });
+      }
+
+      res.status(200).json({ ...updateData, _id: id });
+    } catch (error) {
+      console.error('Error updating subscription:', error);
+      res.status(500).json({ error: 'Failed to update subscription' });
     }
   } else if (req.method === 'DELETE') {
     const { id } = req.query;
@@ -97,7 +137,7 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to delete subscription' });
     }
   } else {
-    res.setHeader('Allow', ['GET', 'POST', 'DELETE']);
+    res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

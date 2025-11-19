@@ -5,7 +5,10 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
-  background-color: #f5f5f5;
+  background-color: #121212;
+  /* M3 Dark Background */
+  color: #E3E3E3;
+  /* M3 Dark On Background */
 }
 
 .header {
@@ -16,8 +19,10 @@
   justify-content: space-between;
   width: 100%;
   padding: 12px 20px;
-  background-color: #fff;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: #1E1E1E;
+  /* M3 Dark Surface */
+  border-bottom: 1px solid #444746;
+  /* M3 Dark Outline */
   z-index: 20;
 }
 
@@ -27,14 +32,15 @@
   font-size: 2rem;
   font-weight: 600;
   text-align: center;
-  color: #333;
+  color: #E3E3E3;
 }
 
 .description {
   margin: 1rem 0;
   line-height: 1.5;
   font-size: 1rem;
-  color: #666;
+  color: #C4C7C5;
+  /* M3 Dark On Surface Variant */
   max-width: 600px;
   text-align: center;
 }
@@ -81,13 +87,16 @@
   /* Slightly wider for M3 */
   display: flex;
   flex-direction: column;
-  background-color: #fff;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+  background-color: #1E1E1E;
+  /* M3 Dark Surface */
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+  /* Darker shadow */
   transform: translateX(-100%);
   transition: transform 240ms ease-in-out;
   z-index: 30;
   border-top-right-radius: 16px;
   border-bottom-right-radius: 16px;
+  border-right: 1px solid #444746;
 }
 
 .sidebar.open {
@@ -100,20 +109,22 @@
   border-radius: 24px;
   /* M3 Navigation Drawer style */
   cursor: pointer;
-  color: #333;
+  color: #E3E3E3;
   transition: background-color 0.2s ease;
   font-weight: 500;
   font-family: 'Google Sans Flex', sans-serif;
 }
 
 .sidebarItem:hover {
-  background-color: #f0f0f0;
+  background-color: #2D2D2D;
+  /* M3 Dark Surface Variant */
 }
 
 .sidebarItem.selected {
-  background-color: #c2e7ff;
-  /* M3 active indicator color */
-  color: #001d35;
+  background-color: #004A77;
+  /* M3 Dark Primary Container */
+  color: #C2E7FF;
+  /* M3 Dark On Primary Container */
 }
 
 /* Composer */
@@ -122,14 +133,15 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(30, 30, 30, 0.95);
+  /* Dark Surface with opacity */
   backdrop-filter: blur(10px);
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid #444746;
   padding: 16px;
   box-sizing: border-box;
   z-index: 20;
   border-radius: 24px 24px 0 0;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .composerInner {
@@ -151,26 +163,32 @@
 .composerInput {
   padding: 0 16px;
   font-size: 16px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #444746;
   border-radius: 24px 0 0 24px;
   flex: 1;
   height: 48px;
   font-family: 'Google Sans Flex', sans-serif;
-  background-color: #f8f9fa;
+  background-color: #2D2D2D;
+  /* Dark Surface Variant */
+  color: #E3E3E3;
   transition: all 0.2s ease;
 }
 
 .composerInput:focus {
-  background-color: #fff;
-  border-color: #dadce0;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  background-color: #1E1E1E;
+  border-color: #A8C7FA;
+  /* M3 Dark Primary */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  outline: none;
 }
 
 .composerButton {
   padding: 0 24px;
   font-size: 16px;
-  background-color: #1a73e8;
-  color: white;
+  background-color: #A8C7FA;
+  /* M3 Dark Primary */
+  color: #003355;
+  /* M3 Dark On Primary */
   border: none;
   cursor: pointer;
   height: 48px;
@@ -181,7 +199,7 @@
 }
 
 .composerButton:hover {
-  background-color: #1557b0;
+  background-color: #82B4F8;
 }
 
 /* Subscription Items */
@@ -191,16 +209,18 @@
   align-items: center;
   padding: 12px 16px;
   margin: 8px 16px;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
+  background-color: #1E1E1E;
+  /* M3 Dark Surface */
+  border: 1px solid #444746;
   border-radius: 16px;
   /* M3 rounded corners */
   transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+  color: #E3E3E3;
 }
 
 .subscriptionItem:hover {
-  background-color: #f8f9fa;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background-color: #2D2D2D;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .subscriptionItem:active {
@@ -208,22 +228,73 @@
 }
 
 .removeButton {
-  padding: 8px 16px;
-  background-color: #fff;
-  color: #b3261e;
-  /* M3 error color */
-  border: 1px solid #e0e0e0;
-  border-radius: 20px;
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  color: #F2B8B5;
+  /* M3 Dark Error */
+  border: none;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: 'Google Sans Flex', sans-serif;
   transition: all 0.2s ease;
 }
 
 .removeButton:hover {
-  background-color: #ffeceb;
-  border-color: #b3261e;
+  background-color: rgba(242, 184, 181, 0.1);
+  /* Subtle hover state */
+  color: #FF897D;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
 }
 
 /* Login / App Structure */
@@ -232,6 +303,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #121212;
 }
 
 .appMain {
@@ -258,38 +330,62 @@
   display: flex;
   align-items: center;
   margin-right: 12px;
+  color: #E3E3E3;
 }
 
-/* Notifications */
+/* Notifications - Toaster Fix */
 .notification {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 12px 20px;
-  border-radius: 4px;
-  background-color: #d93025;
-  color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  animation: slideIn 0.3s ease-out;
+  top: 24px;
+  /* Increased top spacing */
+  left: 50%;
+  /* Center horizontally */
+  transform: translateX(-50%);
+  /* Center horizontally */
+  padding: 14px 24px;
+  border-radius: 28px;
+  /* Fully rounded pill shape */
+  color: #000;
+  /* Dark text on light background (inverse) */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  /* Ensure it's on top of everything */
+  animation: slideDown 0.4s cubic-bezier(0.2, 0, 0, 1);
+  font-family: 'Google Sans Flex', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 300px;
+  max-width: 90%;
+  text-align: center;
 }
 
 .notification--error {
-  background-color: #d93025;
+  background-color: #F2B8B5;
+  /* M3 Dark Error Container */
+  color: #601410;
+  /* M3 Dark On Error Container */
+  border: 1px solid #8C1D18;
 }
 
 .notification--success {
-  background-color: #34a853;
+  background-color: #C2E7FF;
+  /* M3 Dark Primary Container */
+  color: #001D35;
+  /* M3 Dark On Primary Container */
+  border: 1px solid #004A77;
 }
 
-@keyframes slideIn {
+@keyframes slideDown {
   from {
-    transform: translateX(100%);
+    transform: translate(-50%, -100%);
     opacity: 0;
   }
 
   to {
-    transform: translateX(0);
+    transform: translate(-50%, 0);
     opacity: 1;
   }
 }
@@ -309,7 +405,7 @@
   .title {
     padding: 12px;
     font-size: 18px;
-    border: 1px solid #ccc;
+    border: 1px solid #444746;
     border-radius: 6px;
     flex: 1;
   }

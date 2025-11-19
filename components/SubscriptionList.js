@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SubscriptionListItem from './SubscriptionListItem';
 
-export default function SubscriptionList({ subscriptions, onDelete }) {
+export default function SubscriptionList({ subscriptions, onDelete, onUpdate }) {
+  const [expandedId, setExpandedId] = useState(null);
+
   if (!subscriptions || subscriptions.length === 0) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100%', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
         width: '100%',
         color: '#666',
         padding: '20px'
@@ -21,7 +23,15 @@ export default function SubscriptionList({ subscriptions, onDelete }) {
   return (
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
       {subscriptions.map((s) => (
-        <SubscriptionListItem key={s._id} subscription={s} onDelete={onDelete} />
+        <SubscriptionListItem
+          key={s._id}
+          subscription={s}
+          onDelete={onDelete}
+          onUpdate={onUpdate}
+          isExpanded={expandedId === s._id}
+          onExpand={(id) => setExpandedId(id)}
+          onCollapse={() => setExpandedId(null)}
+        />
       ))}
     </ul>
   );

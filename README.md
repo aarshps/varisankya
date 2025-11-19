@@ -52,9 +52,17 @@ This application implements:
 - Toast notifications with auto-dismiss
 - Optimistic login UI with "Signing in..." state
 - Independent scrolling for subscription list with fixed composer component
-- **Material Design 3 (M3)** styling with rounded corners and interactive animations
-- **Mobile-First Polish**: Optimized for touch targets, keyboard handling, and responsive layout
-- **Google Sans Flex** typography for a modern, premium feel
+- **Detailed Tracking**: Track Name, Last Paid Date, Next Due Date, Status, and Amount.
+- **Smart Progress**: Visual progress bar showing days elapsed or remaining.
+- **Intelligent Sorting**: Active subscriptions sorted by nearest due date; Inactive ones at the bottom.
+- **Optimistic UI**: Instant feedback for all actions (Add, Edit, Delete) with background synchronization.
+- **Interactive Details**: Expandable list items to view details and edit inline.
+- **Auto-collapsing Views**: Expanded views automatically collapse after 8 seconds or when clicking elsewhere.
+- **Enhanced Edit UI**: Smooth animations when opening and closing the edit modal with no flashing.
+- **Material 3 (M3E) Animations**: Subtle animations on button clicks and interactions following M3E principles.
+- **Negative Elapsed Days Fix**: Ensures elapsed days never show negative values, defaulting to 0.
+- **Improved Dropdown Styling**: Properly styled status dropdown with custom arrow in edit modal.
+- **Fixed Layout**: Delete button remains in original position when expanded, with additional details appearing below.
 
 ## Business Flows
 
@@ -71,8 +79,13 @@ This application implements:
 ### Subscription Management Flow
 1. Authenticated user navigates to the subscriptions page
 2. User sees existing subscriptions (if any) in a scrollable list
-3. User can add a new subscription by typing in the composer field and submitting
-4. Frontend optimistically adds the subscription to the UI immediately
+3.  **Add Subscriptions**:
+    *   Enter a name in the composer at the bottom.
+    *   Click the "+" button.
+    *   **Edit Details**: Click on the subscription to expand it.
+    *   **Set Dates**: Add "Last Paid" or "Next Due" dates to see the progress bar in action.
+    *   **Status & Amount**: Track active/inactive status and subscription cost.
+    *   **Sorting**: The app automatically sorts items so the most urgent ones are at the top.
 5. Backend API call creates the subscription in the user's database
 6. If successful, the temporary subscription is updated with server-generated ID
 7. If failed, the subscription is removed from the UI
@@ -342,6 +355,7 @@ All endpoints require authentication and validate database access.
 - **Animations**: Smooth transitions for hover, focus, and active states.
 - **Glassmorphism**: Composer pane features a subtle blur effect for depth.
 - **Consistent Styling**: Uniform design language across all components (Sidebar, List, Inputs).
+- **M3E Animations**: Subtle scale and transition animations on click interactions for enhanced user experience.
 
 ## Deployment
 
@@ -444,3 +458,9 @@ All API routes should include robust error handling to ensure that the applicati
 - **Toaster Notifications**: Implemented toast notifications that appear at the top right of the screen and auto-dismiss after 3 seconds
 - **Optimistic Login UI**: Added optimistic UI to login button with "Signing in..." state
 - **Improved Layout**: Enhanced layout with independent scrolling for subscription list while keeping composer fixed at bottom
+- **Auto-collapsing Views**: Implemented auto-collapse functionality for expanded subscription views after 8 seconds or when clicking elsewhere
+- **M3E Animations**: Added Material 3 (M3E) animations to button clicks and UI interactions for enhanced user experience
+- **Negative Elapsed Days Fix**: Fixed calculation to ensure elapsed days never show negative values
+- **Enhanced Edit UI**: Improved edit modal with smooth transitions and no flashing when closing
+- **Improved Dropdown Styling**: Fixed styling of status dropdown in edit modal with custom arrow
+- **Fixed Layout**: Maintained delete button in original position when expanded view is active
