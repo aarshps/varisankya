@@ -38,7 +38,7 @@ This application implements:
 - Google OAuth authentication using NextAuth.js
 - Protected routes - content only accessible to authenticated users
 - User-specific database creation (vari_<username>_<environment>)
-- Subscription CRUD operations (Create, Read, Delete)
+- Subscription CRUD operations (Create, Read, Update, Delete)
 - Auto-logout when database access fails
 - Optimized for performance
 - SEO-friendly with proper meta tags
@@ -63,6 +63,18 @@ This application implements:
 - **Negative Elapsed Days Fix**: Ensures elapsed days never show negative values, defaulting to 0.
 - **Improved Dropdown Styling**: Properly styled status dropdown with custom arrow in edit modal.
 - **Fixed Layout**: Delete button remains in original position when expanded, with additional details appearing below.
+- **Updated Favicons**: Added comprehensive favicon set including multiple sizes and formats for all devices.
+- **Progress Visualization**: Animated progress bar showing subscription status with color-coded indicators.
+- **Database Validation**: Lightweight endpoint to validate database access without fetching data.
+- **Session Validation**: Automatic validation of database access on page refresh with auto-logout if database is inaccessible.
+- **Single Selection**: Only one expanded subscription view can be open at a time.
+- **Click Outside Detection**: Expanded views collapse when clicking elsewhere on the page.
+- **Edit Mode Transitions**: Smooth transitions when entering and exiting edit mode.
+- **Date Input with Icons**: Enhanced date inputs with calendar icons in edit UI.
+- **Custom Select Styling**: Styled dropdown with custom arrow and proper padding.
+- **Button Interaction Animations**: Subtle press animations on all interactive buttons.
+- **Responsive Design**: Adapts to different screen sizes with mobile-first approach.
+- **Comprehensive API**: Full CRUD operations with proper error handling and validation.
 
 ## Business Flows
 
@@ -288,6 +300,7 @@ Each user's database contains two collections:
 ### Subscriptions API
 - `GET /api/subscriptions` - Retrieve user's subscriptions
 - `POST /api/subscriptions` - Add a new subscription (with optimistic update)
+- `PUT /api/subscriptions` - Update an existing subscription (with optimistic update)
 - `DELETE /api/subscriptions?id=<id>` - Delete a subscription (with optimistic update)
 
 ### User API
@@ -465,4 +478,13 @@ All API routes should include robust error handling to ensure that the applicati
 - **Enhanced Edit UI**: Improved edit modal with smooth transitions and no flashing when closing
 - **Improved Dropdown Styling**: Fixed styling of status dropdown in edit modal with custom arrow
 - **Fixed Layout**: Maintained delete button in original position when expanded view is active
+- **Progress Visualization**: Added animated ProgressBar component with color-coded indicators
+- **Date Input with Icons**: Enhanced date inputs with calendar icons in edit UI
+- **Session Validation**: Added lightweight validation endpoint for database access checks
+- **Click Outside Detection**: Implemented functionality to collapse expanded views when clicking elsewhere
+- **Single Selection**: Added logic to ensure only one expanded view can be open at a time
+- **Edit Mode Transitions**: Implemented smooth transitions when entering/exiting edit mode
+- **Comprehensive API**: Added PUT method for subscription updates with optimistic UI
+- **Custom Select Styling**: Implemented styled dropdown with custom arrow for status selection
+- **Button Animations**: Added subtle press animations on all interactive buttons using M3E principles
 - **Updated Favicons**: Added comprehensive favicon set including multiple sizes and formats for all devices
