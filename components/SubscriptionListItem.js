@@ -63,26 +63,43 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   }, [expanded, onCollapse, subscription._id]);
 
   // Ensure elapsed days never go negative
+  // Ensure elapsed days never go negative
   const calculateProgress = useCallback(() => {
     const now = new Date();
+    now.setHours(0, 0, 0, 0); // Normalize today to midnight
+
     let targetDate;
     if (subscription.status === 'Inactive') return { progress: 0, daysLeft: 0, label: 'Inactive' };
+
     if (subscription.nextDueDate) {
       targetDate = new Date(subscription.nextDueDate);
     } else if (subscription.lastPaidDate) {
+      // If only Last Paid is set, target is exactly one month after
       const lastPaid = new Date(subscription.lastPaidDate);
-      const day = lastPaid.getDate();
-      const thisMonth = new Date(now.getFullYear(), now.getMonth(), day);
-      targetDate = thisMonth >= now ? thisMonth : new Date(now.getFullYear(), now.getMonth() + 1, day);
+      targetDate = new Date(lastPaid);
+      targetDate.setMonth(lastPaid.getMonth() + 1);
     } else {
       return { progress: 0, daysLeft: 0, label: 'No dates set' };
     }
+
+    // Normalize target to midnight
+    targetDate.setHours(0, 0, 0, 0);
+
     const diff = targetDate - now;
-    let daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    if (daysLeft < 0) daysLeft = 0; // clamp to zero
+    const daysLeftRaw = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+    // For display, we don't show negative days
+    const daysLeft = Math.max(0, daysLeftRaw);
+
+    // Assume a 30-day cycle for progress calculation
     const total = 30;
-    const elapsed = Math.max(0, total - daysLeft); // Ensure elapsed is never negative
+    const elapsed = total - daysLeftRaw;
+
+    // Calculate progress
+    // If daysLeftRaw > 30 (e.g. due in 2 months), elapsed is negative -> progress 0%
+    // If daysLeftRaw < 0 (overdue), elapsed > 30 -> progress 100%
     const progress = Math.max(0, Math.min(100, (elapsed / total) * 100));
+
     return { progress, daysLeft, label: `${daysLeft} days left` };
   }, [subscription]);
 

@@ -81,6 +81,8 @@ This application implements:
 - **Custom Status Dropdown**: Implemented a custom, styled dropdown for status selection.
 - **Responsive Date Pickers**: Improved layout for date inputs to wrap correctly on small screens.
 - **Comprehensive API**: Full CRUD operations with proper error handling and validation.
+- **Smart Progress Logic**: Improved calculation for 'Last Paid' (fixed 1-month cycle) and 'Next Due' dates.
+- **Polished Interactions**: Removed mobile tap highlights and improved focus states for a cleaner experience.
 
 ## Business Flows
 
