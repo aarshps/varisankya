@@ -129,6 +129,32 @@ varisankya/
 #### Deployment
 Ready for Vercel. Simply connect your repository and set the environment variables in the Vercel dashboard.
 
+### Creating Proper App Icons
+To create Android app icons with large, clear text that displays properly when installed:
+
+1. **Recommended Icon Sizes**: Create PNG icons at these sizes:
+   *   `192x192.png` - Used for Android app installation
+   *   `512x512.png` - Used for high-resolution displays
+   *   `16x16.png`, `32x32.png` - Used for browser tabs
+   *   `180x180.png` - Used for iOS home screen
+
+2. **Design Guidelines** for visible text on icons:
+   *   Use bold, sans-serif font (like Google Sans used in the app)
+   *   Ensure text size is at least 40% of icon height for 192x192
+   *   Use high contrast colors (e.g., light text on dark background or vice versa)
+   *   Keep text simple - just "Varisankya" without extra elements
+   *   Consider using the "V" from "Varisankya" as a visual symbol if text is too small
+   *   Avoid complex graphics that don't scale well at small sizes
+
+3. **Implementation**:
+   *   Place icons in the `public/` directory
+   *   Update `site.webmanifest` to reference new icons
+   *   Add proper link tags in your HTML head for browser compatibility
+
+4. **Testing**:
+   *   Use Chrome DevTools Application tab to test PWA installation
+   *   Test actual installation on Android device to verify icon display
+
 ---
 
 ### Security
