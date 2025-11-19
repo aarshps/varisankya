@@ -25,7 +25,6 @@ Welcome to Varisankya! This guide will help you get the most out of the applicat
 Tap on any subscription in the list to expand it. Here you can manage all details:
 *   **Name**: Tap the name to correct typos or rename it.
 *   **Status**: Toggle between **Active** (currently paying) and **Inactive** (cancelled/paused). Inactive items move to the bottom of your list.
-*   **Amount**: Enter the cost (e.g., "15.99"). This helps you track spending.
 *   **Dates**:
     *   **Last Paid**: Select the date you last made a payment. The app assumes a monthly cycle and calculates the next due date automatically.
     *   **Next Due**: Manually set the next payment date if it differs from the monthly cycle.
