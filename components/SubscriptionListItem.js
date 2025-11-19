@@ -114,9 +114,9 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
 
   const handleDelete = (e) => {
     e.stopPropagation();
-    setIsDeleting(true);
-    setExpanded(false);
-    setTimeout(() => onDelete(subscription._id), 200);
+    if (window.confirm('Are you sure you want to delete this subscription?')) {
+      onDelete(subscription._id);
+    }
   };
 
   const handleSave = async (e) => {
