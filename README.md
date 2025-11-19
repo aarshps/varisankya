@@ -52,6 +52,9 @@ This application implements:
 - Toast notifications with auto-dismiss
 - Optimistic login UI with "Signing in..." state
 - Independent scrolling for subscription list with fixed composer component
+- **Material Design 3 (M3)** styling with rounded corners and interactive animations
+- **Mobile-First Polish**: Optimized for touch targets, keyboard handling, and responsive layout
+- **Google Sans Flex** typography for a modern, premium feel
 
 ## Business Flows
 
@@ -334,10 +337,11 @@ All endpoints require authentication and validate database access.
 - Login button with "Signing in..." state during authentication
 
 ### Visual Design
-- Clean, minimal aesthetic
-- Appropriate color contrast for accessibility
-- Consistent spacing and typography
-- Visual feedback for interactive elements
+- **Material Design 3**: Adheres to modern M3 principles with 16px-24px rounded corners.
+- **Typography**: Uses 'Google Sans Flex' for a clean, readable, and premium look.
+- **Animations**: Smooth transitions for hover, focus, and active states.
+- **Glassmorphism**: Composer pane features a subtle blur effect for depth.
+- **Consistent Styling**: Uniform design language across all components (Sidebar, List, Inputs).
 
 ## Deployment
 
