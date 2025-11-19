@@ -218,46 +218,9 @@ export default function Home() {
     }
   };
 
-  // Sort subscriptions: Inactive at bottom, Active sorted by days left (ascending)
-  const sortedSubscriptions = [...subscriptions].sort((a, b) => {
-    if (a.status === 'Inactive' && b.status !== 'Inactive') return 1;
-    if (a.status !== 'Inactive' && b.status === 'Inactive') return -1;
-    if (a.status === 'Inactive' && b.status === 'Inactive') return 0;
 
-    const getDaysLeft = (sub) => {
-      const now = new Date();
-      // Reset hours to compare dates only
-      now.setHours(0, 0, 0, 0);
 
-      let targetDate;
-      if (sub.nextDueDate) {
-        targetDate = new Date(sub.nextDueDate);
-      } else if (sub.lastPaidDate) {
-        const lastPaid = new Date(sub.lastPaidDate);
-        const dayOfMonth = lastPaid.getDate();
 
-        // Check current month
-        const currentMonthDate = new Date(now.getFullYear(), now.getMonth(), dayOfMonth);
-
-        // If current month date is in the future or today, use it. Otherwise use next month.
-        if (currentMonthDate >= now) {
-          targetDate = currentMonthDate;
-        } else {
-          targetDate = new Date(now.getFullYear(), now.getMonth() + 1, dayOfMonth);
-        }
-      } else {
-        return 9999; // No date, push to bottom of active
-      }
-
-      // Reset target hours
-      targetDate.setHours(0, 0, 0, 0);
-
-      const diffTime = targetDate - now;
-      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    };
-
-    return getDaysLeft(a) - getDaysLeft(b);
-  });
 
   // Close sidebar when clicking outside
   useEffect(() => {
@@ -427,7 +390,7 @@ export default function Home() {
       >
         <div className={styles.content}>
           <Subscriptions
-            subscriptions={sortedSubscriptions}
+            subscriptions={subscriptions}
             loading={loading}
             error={null} // Using notifications instead of inline error
             onDelete={handleDeleteSubscription}

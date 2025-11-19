@@ -28,9 +28,40 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
     );
   }
 
+  // Helper to calculate days left for sorting
+  const getDaysLeft = (subscription) => {
+    if (subscription.status === 'Inactive') return 9999; // Push to bottom
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    let targetDate;
+    if (subscription.nextDueDate) {
+      targetDate = new Date(subscription.nextDueDate);
+    } else if (subscription.lastPaidDate) {
+      const lastPaid = new Date(subscription.lastPaidDate);
+      targetDate = new Date(lastPaid);
+      targetDate.setMonth(lastPaid.getMonth() + 1);
+    } else {
+      return 9998; // No dates set, push to bottom but above Inactive
+    }
+
+    targetDate.setHours(0, 0, 0, 0);
+    const diff = targetDate - now;
+    const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return daysLeft; // Return raw value for sorting (negative means overdue/fullest)
+  };
+
+  // Sort subscriptions: Fullest (lowest days left) first
+  const sortedSubscriptions = [...subscriptions].sort((a, b) => {
+    const daysA = getDaysLeft(a);
+    const daysB = getDaysLeft(b);
+    return daysA - daysB;
+  });
+
   return (
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
-      {subscriptions.map((s) => (
+      {sortedSubscriptions.map((s) => (
         <SubscriptionListItem
           key={s.localId || s._id}
           subscription={s}
