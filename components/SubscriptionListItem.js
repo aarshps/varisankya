@@ -185,75 +185,61 @@ export default function SubscriptionListItem({ subscription, onDelete, onUpdate,
           </button>
         </div>
 
-        {expanded && (
-          <div
-            style={{
-              marginTop: '16px',
-              borderTop: '1px solid #444746',
-              paddingTop: '16px',
-              width: '100%',
-              animation: `${styles.fadeIn} 0.3s ease-out`, // subtle entry animation
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Status:</span>
-                <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500', color: subscription.status === 'Inactive' ? '#F2B8B5' : '#C2E7FF' }}>{subscription.status || 'Active'}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Last Paid:</span>
-                <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{subscription.lastPaidDate ? new Date(subscription.lastPaidDate).toLocaleDateString() : '-'}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Next Due:</span>
-                <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{subscription.nextDueDate ? new Date(subscription.nextDueDate).toLocaleDateString() : '-'}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
-                <button
-                  onClick={handleDelete}
-                  className={styles.removeButton}
-                  aria-label="Delete subscription"
-                  style={{
-                    ...buttonStyle,
-                  }}
-                  onMouseDown={onPress}
-                  onMouseUp={onRelease}
-                  onMouseLeave={onRelease}
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="currentColor" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => {
-                    setIsEditing(true);
-                    setExpanded(false); // Collapse the expanded view when edit is clicked
-                    if (onCollapse) onCollapse();
-                  }}
-                  style={{
-                    padding: '8px 24px',
-                    borderRadius: '20px',
-                    border: '1px solid #444746',
-                    background: 'transparent',
-                    color: '#A8C7FA',
-                    fontFamily: "'Google Sans Flex', sans-serif",
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    ...buttonStyle,
-                  }}
-                  onMouseDown={onPress}
-                  onMouseUp={onRelease}
-                  onMouseLeave={onRelease}
-                  onMouseOver={(e) => (e.currentTarget.style.background = '#2D2D2D')}
-                  onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
-                >
-                  Edit
-                </button>
-              </div>
+        <div
+          style={{
+            width: '100%',
+            overflow: 'hidden',
+            maxHeight: expanded ? '300px' : '0',
+            opacity: expanded ? 1 : 0,
+            marginTop: expanded ? '16px' : '0',
+            paddingTop: expanded ? '16px' : '0',
+            borderTop: expanded ? '1px solid #444746' : 'none',
+            transition: 'max-height 0.3s ease-out, opacity 0.3s ease-out, margin-top 0.3s ease-out, padding-top 0.3s ease-out, border-top 0.3s ease-out',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Status:</span>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500', color: subscription.status === 'Inactive' ? '#F2B8B5' : '#C2E7FF' }}>{subscription.status || 'Active'}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Last Paid:</span>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{subscription.lastPaidDate ? new Date(subscription.lastPaidDate).toLocaleDateString() : '-'}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Next Due:</span>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{subscription.nextDueDate ? new Date(subscription.nextDueDate).toLocaleDateString() : '-'}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
+              <button
+                onClick={() => {
+                  setIsEditing(true);
+                  setExpanded(false); // Collapse the expanded view when edit is clicked
+                  if (onCollapse) onCollapse();
+                }}
+                style={{
+                  padding: '8px 24px',
+                  borderRadius: '20px',
+                  border: '1px solid #444746',
+                  background: 'transparent',
+                  color: '#A8C7FA',
+                  fontFamily: "'Google Sans Flex', sans-serif",
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  ...buttonStyle,
+                }}
+                onMouseDown={onPress}
+                onMouseUp={onRelease}
+                onMouseLeave={onRelease}
+                onMouseOver={(e) => (e.currentTarget.style.background = '#2D2D2D')}
+                onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                Edit
+              </button>
             </div>
           </div>
-        )}
+        </div>
       </li>
 
       {/* Edit Modal */}
