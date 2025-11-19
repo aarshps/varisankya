@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SubscriptionList from './SubscriptionList';
 import styles from '../styles/Home.module.css';
 
@@ -56,10 +56,10 @@ const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) =>
         zIndex: 1000,
         opacity: isClosing ? 0 : 1,
         transition: 'background-color 0.3s ease-out, opacity 0.3s ease-out',
-        // Scroll handling for mobile keyboards
         overflowY: 'auto',
         display: (isOpen || isClosing) ? 'flex' : 'none',
-        // Using margin: auto on the child handles centering + scrolling correctly
+        alignItems: 'center',
+        justifyContent: 'center',
         padding: '20px',
       }}
       onClick={handleCancel}
@@ -76,6 +76,8 @@ const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) =>
           opacity: isClosing ? 0 : 1,
           transition: 'transform 0.3s ease-out, opacity 0.3s ease-out',
           margin: 'auto', // Centers the modal and allows scrolling
+          maxHeight: '80vh',
+          overflowY: 'auto',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -152,10 +154,30 @@ const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) =>
 
 export default function Subscriptions({ subscriptions, loading, error, onDelete, onUpdate, composerProps }) {
   const [showAddModal, setShowAddModal] = useState(false);
+  const [isFabVisible, setIsFabVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
   const toggleModal = () => {
     setShowAddModal(!showAddModal);
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Hide FAB when scrolling down, show when scrolling up
+      if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+        setIsFabVisible(false);
+      } else {
+        setIsFabVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <>
@@ -166,36 +188,44 @@ export default function Subscriptions({ subscriptions, loading, error, onDelete,
           {!loading && <SubscriptionList subscriptions={subscriptions} onDelete={onDelete} onUpdate={onUpdate} />}
         </div>
 
-        {/* Floating action button */}
-        <button
-          onClick={toggleModal}
+        {/* Floating action button container for slide animation */}
+        <div
           style={{
             position: 'fixed',
             bottom: '20px',
             right: '20px',
-            width: '56px',
-            height: '56px',
-            borderRadius: '50%',
-            backgroundColor: '#A8C7FA',
-            color: '#003355',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '24px',
-            fontWeight: 'bold',
             zIndex: 20,
-            boxShadow: '0 4px 12px rgba(168, 199, 250, 0.4)',
-            transition: 'background-color 0.2s, transform 0.1s',
+            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: isFabVisible ? 'translateY(0)' : 'translateY(100px)',
+            pointerEvents: isFabVisible ? 'auto' : 'none',
           }}
-          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#C2E7FF')}
-          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#A8C7FA')}
-          onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.95)')}
-          onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
         >
-          +
-        </button>
+          <button
+            onClick={toggleModal}
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              backgroundColor: '#A8C7FA',
+              color: '#003355',
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '24px',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 12px rgba(168, 199, 250, 0.4)',
+              transition: 'background-color 0.2s, transform 0.1s',
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#C2E7FF')}
+            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#A8C7FA')}
+            onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.95)')}
+            onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+          >
+            +
+          </button>
+        </div>
       </div>
 
       {/* Reuse Add Subscription Modal */}

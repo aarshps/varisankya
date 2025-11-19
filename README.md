@@ -83,6 +83,8 @@ This application implements:
 - **Comprehensive API**: Full CRUD operations with proper error handling and validation.
 - **Smart Progress Logic**: Improved calculation for 'Last Paid' (fixed 1-month cycle) and 'Next Due' dates.
 - **Polished Interactions**: Removed mobile tap highlights and improved focus states for a cleaner experience.
+- **Enhanced Mobile Modal**: Fixed centering and scrolling issues when mobile keyboard is active.
+- **Scroll-aware FAB**: Floating action button slides out of view when scrolling down and reappears when scrolling up.
 
 ## Business Flows
 
