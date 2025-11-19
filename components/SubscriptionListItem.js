@@ -186,7 +186,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-          <div style={{ flex: 1, paddingLeft: '10px', paddingRight: '10px' }}>
+          <div style={{ flex: 1, paddingLeft: '15px', paddingRight: '10px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', fontWeight: '500' }}>{subscription.name}</span>
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', color: '#C4C7C5' }}>{label}</span>
