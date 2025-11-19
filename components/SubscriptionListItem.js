@@ -15,7 +15,7 @@ const useButtonAnim = () => {
   return { onPress, onRelease };
 };
 
-export default function SubscriptionListItem({ subscription, onDelete, onUpdate, isExpanded, onExpand, onCollapse }) {
+const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, onExpand, onCollapse }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -420,4 +420,28 @@ export default function SubscriptionListItem({ subscription, onDelete, onUpdate,
       )}
     </>
   );
-}
+};
+
+// Memoize the SubscriptionListItem component
+// This will prevent re-renders when parent re-renders (e.g., for notifications)
+// but still update when subscription data changes
+const MemoizedSubscriptionListItem = React.memo(SubscriptionListItem, (prevProps, nextProps) => {
+  // Only re-render if the subscription data has actually changed
+  // Also re-render if the expansion state changes, or if delete/update callbacks change
+  return (
+    prevProps.subscription._id === nextProps.subscription._id &&
+    prevProps.subscription.name === nextProps.subscription.name &&
+    prevProps.subscription.lastPaidDate === nextProps.subscription.lastPaidDate &&
+    prevProps.subscription.nextDueDate === nextProps.subscription.nextDueDate &&
+    prevProps.subscription.status === nextProps.subscription.status &&
+    prevProps.subscription.createdAt === nextProps.subscription.createdAt &&
+    prevProps.subscription.updatedAt === nextProps.subscription.updatedAt &&
+    prevProps.isExpanded === nextProps.isExpanded &&
+    prevProps.onDelete === nextProps.onDelete &&
+    prevProps.onUpdate === nextProps.onUpdate &&
+    prevProps.onExpand === nextProps.onExpand &&
+    prevProps.onCollapse === nextProps.onCollapse
+  );
+});
+
+export default MemoizedSubscriptionListItem;
