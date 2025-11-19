@@ -4,14 +4,45 @@ import styles from '../styles/Home.module.css';
 
 // Reusable modal component for adding new subscriptions
 const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) => {
-  if (!isOpen) return null;
+  const [isClosing, setIsClosing] = useState(false);
+
+  if (!isOpen && !isClosing) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (value.trim()) {
+      setIsClosing(true);
       onSubmit(e);
+      // Close modal after a delay to allow optimistic UI to work
+      setTimeout(() => {
+        setIsClosing(false);
+        onClose();
+      }, 300);
     }
   };
+
+  const handleCancel = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 300);
+  };
+
+  // Hook for M3E button press animation (consistent with other buttons)
+  const useButtonAnim = () => {
+    const onPress = (e) => {
+      e.currentTarget.style.transform = 'scale(0.98)';
+      e.currentTarget.style.transition = 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)';
+    };
+    const onRelease = (e) => {
+      e.currentTarget.style.transform = 'scale(1)';
+      e.currentTarget.style.transition = 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)';
+    };
+    return { onPress, onRelease };
+  };
+
+  const { onPress, onRelease } = useButtonAnim();
 
   return (
     <div
@@ -21,14 +52,15 @@ const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) =>
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
+        backgroundColor: isClosing ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.7)',
+        display: (isOpen || isClosing) ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1000,
-        animation: `${styles.fadeIn} 0.3s ease-out`,
+        opacity: isClosing ? 0 : 1,
+        transition: 'background-color 0.3s ease-out, opacity 0.3s ease-out',
       }}
-      onClick={onClose}
+      onClick={handleCancel}
     >
       <div
         style={{
@@ -38,7 +70,9 @@ const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) =>
           width: '90%',
           maxWidth: '500px',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
-          animation: `${styles.scaleIn} 0.3s ease-out`,
+          transform: isClosing ? 'scale(0.95)' : 'scale(1)',
+          opacity: isClosing ? 0 : 1,
+          transition: 'transform 0.3s ease-out, opacity 0.3s ease-out',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -61,7 +95,7 @@ const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) =>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleCancel}
               style={{
                 padding: '12px 24px',
                 borderRadius: '24px',
@@ -72,8 +106,11 @@ const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) =>
                 fontFamily: "'Google Sans Flex', sans-serif",
                 fontSize: '15px',
                 fontWeight: '500',
-                transition: 'background-color 0.2s, transform 0.1s',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
               }}
+              onMouseDown={onPress}
+              onMouseUp={onRelease}
+              onMouseLeave={onRelease}
               onMouseOver={(e) => (e.currentTarget.style.background = '#2D2D2D')}
               onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
             >
@@ -92,9 +129,12 @@ const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) =>
                 cursor: !value.trim() ? 'not-allowed' : 'pointer',
                 fontFamily: "'Google Sans Flex', sans-serif",
                 fontSize: '15px',
-                transition: 'background-color 0.2s, transform 0.1s',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                 boxShadow: !value.trim() ? 'none' : '0 2px 8px rgba(168, 199, 250, 0.4)',
               }}
+              onMouseDown={!value.trim() ? undefined : onPress}
+              onMouseUp={!value.trim() ? undefined : onRelease}
+              onMouseLeave={!value.trim() ? undefined : onRelease}
               onMouseOver={(e) => !value.trim() || (e.currentTarget.style.background = '#C2E7FF')}
               onMouseOut={(e) => !value.trim() || (e.currentTarget.style.background = '#A8C7FA')}
             >
