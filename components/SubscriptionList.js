@@ -1,8 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import SubscriptionListItem from './SubscriptionListItem';
 
-export default function SubscriptionList({ subscriptions, onDelete, onUpdate }) {
+const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
   const [expandedId, setExpandedId] = useState(null);
+
+  const handleExpand = useCallback((id) => {
+    setExpandedId(id);
+  }, []);
+
+  const handleCollapse = useCallback(() => {
+    setExpandedId(null);
+  }, []);
 
   if (!subscriptions || subscriptions.length === 0) {
     return (
@@ -29,10 +37,19 @@ export default function SubscriptionList({ subscriptions, onDelete, onUpdate }) 
           onDelete={onDelete}
           onUpdate={onUpdate}
           isExpanded={expandedId === s._id}
-          onExpand={(id) => setExpandedId(id)}
-          onCollapse={() => setExpandedId(null)}
+          onExpand={handleExpand}
+          onCollapse={handleCollapse}
         />
       ))}
     </ul>
   );
-}
+}, (prevProps, nextProps) => {
+  // Only re-render if subscriptions array, onDelete, or onUpdate have changed
+  return (
+    prevProps.subscriptions === nextProps.subscriptions &&
+    prevProps.onDelete === nextProps.onDelete &&
+    prevProps.onUpdate === nextProps.onUpdate
+  );
+});
+
+export default SubscriptionList;
