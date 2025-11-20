@@ -246,6 +246,7 @@ When the **Paid** button is clicked:
     -   If paying **before** the due date: The system calculates the *next* cycle date (e.g., skips to next month) and sets it as `Next Due Date`.
     -   If paying **on/after** the due date: `Next Due Date` is set to **NULL** (forcing a standard recalculation based on the new `Last Paid Date`).
 3.  **Recalculate**: The UI updates immediately (optimistic update) to reflect the new status.
+4.  **Disabled State**: The button is disabled if no dates are currently set for the subscription.
 
 ### Visual Feedback
 -   **Progress Bar**:

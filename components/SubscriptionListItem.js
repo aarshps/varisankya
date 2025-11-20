@@ -284,8 +284,19 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     }
 
     // Optimistic update
+    // Optimistic update
     onUpdate({ ...subscription, lastPaidDate: nowISO, nextDueDate: nextDueDate });
   };
+
+  const normalizeDate = (d) => d ? new Date(d).toISOString().split('T')[0] : '';
+
+  const hasChanges =
+    editForm.name !== subscription.name ||
+    editForm.status !== subscription.status ||
+    editForm.recurrenceType !== subscription.recurrenceType ||
+    String(editForm.recurrenceValue) !== String(subscription.recurrenceValue) ||
+    normalizeDate(editForm.lastPaidDate) !== normalizeDate(subscription.lastPaidDate) ||
+    normalizeDate(editForm.nextDueDate) !== normalizeDate(subscription.nextDueDate);
 
   return (
     <>
@@ -411,22 +422,24 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               </button>
               <button
                 onClick={handlePaid}
+                disabled={!hasDates}
                 style={{
                   padding: '8px 24px',
                   borderRadius: '20px',
                   border: 'none',
-                  background: '#206C45',
-                  color: '#E3E3E3',
+                  background: !hasDates ? '#444746' : '#206C45',
+                  color: !hasDates ? '#8E918F' : '#E3E3E3',
                   fontFamily: "'Google Sans Flex', sans-serif",
                   fontSize: '14px',
                   fontWeight: '500',
+                  cursor: !hasDates ? 'not-allowed' : 'pointer',
                   ...buttonStyle,
                 }}
-                onMouseDown={onPress}
-                onMouseUp={onRelease}
-                onMouseLeave={onRelease}
-                onMouseOver={(e) => (e.currentTarget.style.background = '#2B8A5A')}
-                onMouseOut={(e) => (e.currentTarget.style.background = '#206C45')}
+                onMouseDown={hasDates ? onPress : undefined}
+                onMouseUp={hasDates ? onRelease : undefined}
+                onMouseLeave={hasDates ? onRelease : undefined}
+                onMouseOver={(e) => hasDates && (e.currentTarget.style.background = '#2B8A5A')}
+                onMouseOut={(e) => hasDates && (e.currentTarget.style.background = '#206C45')}
               >
                 Paid
               </button>
@@ -673,25 +686,25 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 </button>
                 <button
                   onClick={handleSave}
-                  disabled={isSaving}
+                  disabled={isSaving || !hasChanges}
                   style={{
                     padding: '12px 32px',
                     borderRadius: '24px',
                     border: 'none',
-                    background: isSaving ? '#80A3D4' : '#A8C7FA',
-                    color: '#003355',
+                    background: isSaving || !hasChanges ? '#444746' : '#A8C7FA',
+                    color: isSaving || !hasChanges ? '#8E918F' : '#003355',
                     fontWeight: '500',
-                    cursor: isSaving ? 'not-allowed' : 'pointer',
+                    cursor: isSaving || !hasChanges ? 'not-allowed' : 'pointer',
                     fontFamily: "'Google Sans Flex', sans-serif",
                     fontSize: '15px',
                     transition: 'background-color 0.2s, transform 0.1s',
-                    boxShadow: '0 2px 8px rgba(168, 199, 250, 0.4)',
+                    boxShadow: isSaving || !hasChanges ? 'none' : '0 2px 8px rgba(168, 199, 250, 0.4)',
                   }}
-                  onMouseDown={!isSaving ? onPress : undefined}
-                  onMouseUp={!isSaving ? onRelease : undefined}
-                  onMouseLeave={!isSaving ? onRelease : undefined}
-                  onMouseOver={(e) => !isSaving && (e.currentTarget.style.background = '#C2E7FF')}
-                  onMouseOut={(e) => !isSaving && (e.currentTarget.style.background = '#A8C7FA')}
+                  onMouseDown={!isSaving && hasChanges ? onPress : undefined}
+                  onMouseUp={!isSaving && hasChanges ? onRelease : undefined}
+                  onMouseLeave={!isSaving && hasChanges ? onRelease : undefined}
+                  onMouseOver={(e) => !isSaving && hasChanges && (e.currentTarget.style.background = '#C2E7FF')}
+                  onMouseOut={(e) => !isSaving && hasChanges && (e.currentTarget.style.background = '#A8C7FA')}
                 >
                   {isSaving ? 'Saving...' : 'Save'}
                 </button>
@@ -701,7 +714,8 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             </div>
           </div>
         </div>
-      )}
+      )
+      }
 
       <Modal
         isOpen={showDeleteModal}
