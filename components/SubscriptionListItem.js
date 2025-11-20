@@ -160,8 +160,10 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     // If daysLeftRaw < 0 (overdue), elapsed > total -> progress 100%
     const progress = Math.max(0, Math.min(100, (elapsed / total) * 100));
 
-    return { progress, daysLeft, label: `${daysLeft} days left` };
-    return { progress, daysLeft, label: `${daysLeft} days left`, targetDate };
+    const formattedTargetDate = targetDate ? targetDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+    const displayLabel = targetDate ? `${daysLeft} days left (${formattedTargetDate})` : label;
+
+    return { progress, daysLeft, label: displayLabel, targetDate };
   }, [subscription]);
 
   const getMaxDays = (month) => {
@@ -402,10 +404,12 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Last Paid:</span>
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{subscription.lastPaidDate ? new Date(subscription.lastPaidDate).toLocaleDateString() : '-'}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Next Due:</span>
-              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{subscription.nextDueDate ? new Date(subscription.nextDueDate).toLocaleDateString() : '-'}</span>
-            </div>
+            {subscription.recurrenceType === 'manual' && (
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Next Due:</span>
+                <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{subscription.nextDueDate ? new Date(subscription.nextDueDate).toLocaleDateString() : '-'}</span>
+              </div>
+            )}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
               <button
                 onClick={() => {

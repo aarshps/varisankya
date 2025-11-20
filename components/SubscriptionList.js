@@ -95,6 +95,10 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
   };
 
   const sortedSubscriptions = [...subscriptions].sort((a, b) => {
+    // Inactive items always go to the bottom
+    if (a.status === 'Inactive' && b.status !== 'Inactive') return 1;
+    if (a.status !== 'Inactive' && b.status === 'Inactive') return -1;
+
     const progressA = getProgress(a);
     const progressB = getProgress(b);
     return progressB - progressA; // Descending order (bigger progress bar at top)
