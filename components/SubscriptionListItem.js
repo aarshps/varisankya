@@ -290,6 +290,14 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
 
   const normalizeDate = (d) => d ? new Date(d).toISOString().split('T')[0] : '';
 
+  const getTodayString = () => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const hasChanges =
     editForm.name !== subscription.name ||
     editForm.status !== subscription.status ||
@@ -602,7 +610,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Last Paid</label>
                   <input
                     type="date"
-                    max={new Date().toISOString().split('T')[0]}
+                    max={getTodayString()}
                     className={styles.composerInput}
                     style={{
                       borderRadius: '12px',
