@@ -3,7 +3,7 @@ import { authOptions } from '../auth/[...nextauth]';
 import { getUserDatabase } from '../../../lib/databaseFactory';
 import { validateUserDatabase } from '../../../lib/dbValidation';
 import { ObjectId } from 'mongodb';
-import config from '../../../lib/config';
+import appConfig from '../../../lib/config';
 
 export default async function handler(req, res) {
   // Check if user is authenticated
@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     db = await getUserDatabase(username);
 
     // Log and validate the database name being used
-    const expectedDbName = config.getDatabaseName(username);
+    const expectedDbName = appConfig.getDatabaseName(username);
     console.log(`[Subscriptions API] Expected database: ${expectedDbName}, Using database: ${db.databaseName} for user: ${username}`);
 
     // Validate that we're using the correct database
