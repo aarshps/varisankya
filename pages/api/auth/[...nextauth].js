@@ -74,6 +74,8 @@ export const authOptions = {
       // Include username in the session for database access
       if (token && token.username) {
         session.user.username = token.username;
+        // Add database name to session for UI display
+        session.user.databaseName = config.getDatabaseName(token.username);
       }
 
       // Always perform a non-creating validation on session creation/refresh

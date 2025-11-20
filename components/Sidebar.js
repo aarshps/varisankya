@@ -11,7 +11,7 @@ export default function Sidebar({ open, sidebarRef, onClose, session, onSignOut 
       <div style={{ flex: 1 }} />
       <div style={{ padding: '16px', borderTop: '1px solid #444746' }}>
         <div style={{ fontSize: '14px', color: '#E3E3E3', marginBottom: '8px', paddingLeft: '12px' }}>{session?.user?.email}</div>
-        <div style={{ fontSize: '12px', color: '#C4C7C5', marginBottom: '12px', paddingLeft: '12px' }}>{`DB: vari_${session?.user?.username || session?.user?.email.split('@')[0]}_${process.env.NODE_ENV || 'development'}`}</div>
+        <div style={{ fontSize: '12px', color: '#C4C7C5', marginBottom: '12px', paddingLeft: '12px' }}>{`DB: ${session?.user?.databaseName || 'Loading...'}`}</div>
         <button
           onClick={onSignOut}
           style={{ width: '100%', padding: '12px', backgroundColor: 'transparent', color: '#F2B8B5', border: '1px solid #8C1D18', borderRadius: '24px', cursor: 'pointer', fontWeight: '500', fontFamily: "'Google Sans Flex', sans-serif" }}
