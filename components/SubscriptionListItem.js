@@ -211,10 +211,10 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   const hasDates = subscription.nextDueDate || subscription.lastPaidDate;
   const isOverdue = daysLeft <= 0 && subscription.status !== 'Inactive' && hasDates;
 
-  // Determine status color based on progress
-  let statusColor = '#81C995'; // Green (default/safe)
-  if (progress > 85) statusColor = '#F2B8B5'; // Red (danger/overdue)
-  else if (progress > 50) statusColor = '#A8C7FA'; // Blue (warning/approaching)
+  // Determine status color based on progress (kept for reference if needed, but unused for bubble now)
+  let statusColor = '#81C995';
+  if (progress > 85) statusColor = '#F2B8B5';
+  else if (progress > 50) statusColor = '#A8C7FA';
 
   const { onPress, onRelease } = useButtonAnim();
 
@@ -350,7 +350,17 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           <div style={{ flex: 1, paddingLeft: '12px', paddingRight: '10px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', fontWeight: '500' }}>{subscription.name}</span>
-              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', color: '#C4C7C5' }}>{label}</span>
+              <span style={{
+                fontFamily: "'Google Sans Flex', sans-serif",
+                fontSize: '11px',
+                color: '#C4C7C5',
+                backgroundColor: 'transparent',
+                border: '1px solid #444746',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                fontWeight: '500',
+                display: 'inline-block'
+              }}>{label}</span>
             </div>
             <ProgressBar
               progress={progress}
