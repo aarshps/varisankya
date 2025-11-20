@@ -476,7 +476,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Name</label>
                 <input
                   className={styles.composerInput}
-                  style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px' }}
+                  style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px', boxSizing: 'border-box', maxWidth: '100%', appearance: 'none', WebkitAppearance: 'none' }}
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                   placeholder="Subscription name"
@@ -508,7 +508,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                     <input
                       type="number"
                       className={styles.composerInput}
-                      style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px' }}
+                      style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px', boxSizing: 'border-box', maxWidth: '100%', appearance: 'none', WebkitAppearance: 'none' }}
                       value={editForm.recurrenceValue}
                       onChange={(e) => setEditForm({ ...editForm, recurrenceValue: e.target.value })}
                       placeholder="e.g. 30"
@@ -525,7 +525,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                       min="1"
                       max="31"
                       className={styles.composerInput}
-                      style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px' }}
+                      style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px', boxSizing: 'border-box', maxWidth: '100%', appearance: 'none', WebkitAppearance: 'none' }}
                       value={editForm.recurrenceValue}
                       onChange={(e) => {
                         let val = parseInt(e.target.value);
@@ -561,7 +561,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                           min="1"
                           max={getMaxDays(String(editForm.recurrenceValue || '01-01').split('-')[0])}
                           className={styles.composerInput}
-                          style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px' }}
+                          style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px', boxSizing: 'border-box', maxWidth: '100%', appearance: 'none', WebkitAppearance: 'none' }}
                           value={parseInt(String(editForm.recurrenceValue || '01-01').split('-')[1])}
                           onChange={(e) => {
                             const currentMonth = String(editForm.recurrenceValue || '01-01').split('-')[0];
@@ -598,6 +598,10 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                       width: '100%',
                       colorScheme: 'dark',
                       cursor: 'pointer',
+                      boxSizing: 'border-box',
+                      maxWidth: '100%',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
                     }}
                     value={editForm.lastPaidDate ? new Date(editForm.lastPaidDate).toISOString().split('T')[0] : ''}
                     onChange={(e) => setEditForm({ ...editForm, lastPaidDate: e.target.value })}
@@ -621,6 +625,10 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                         width: '100%',
                         colorScheme: 'dark',
                         cursor: 'pointer',
+                        boxSizing: 'border-box',
+                        maxWidth: '100%',
+                        appearance: 'none',
+                        WebkitAppearance: 'none',
                       }}
                       value={editForm.nextDueDate ? new Date(editForm.nextDueDate).toISOString().split('T')[0] : ''}
                       onChange={(e) => setEditForm({ ...editForm, nextDueDate: e.target.value })}
