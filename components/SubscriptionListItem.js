@@ -638,6 +638,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                     <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Next Due</label>
                     <input
                       type="date"
+                      min={getTodayString()}
                       className={styles.composerInput}
                       style={{
                         borderRadius: '12px',
