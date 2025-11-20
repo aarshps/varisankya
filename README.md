@@ -23,9 +23,13 @@ Welcome to Varisankya! This guide will help you get the most out of the applicat
 
 #### Editing Details
 Tap on any subscription in the list to expand it. Here you can manage all details:
-*   **Name**: Tap the name to correct typos or rename it.
+*   **Name**: Tap the name to correct typos or rename it. Long names wrap automatically to fit the layout.
 *   **Save Button**: The "Save" button remains disabled until you make a change, preventing accidental or unnecessary updates.
 *   **Status**: Toggle between **Active** (currently paying) and **Inactive** (cancelled/paused). Inactive items move to the bottom of your list.
+*   **Actions**:
+    *   **Delete**: Click the red trash icon on the left to remove the subscription.
+    *   **Edit**: Click the blue pencil icon to modify details.
+    *   **Paid**: Click the green check icon to mark as paid. This button is disabled if no dates are set.
 *   **Dates**:
     *   **Last Paid**: Select the date you last made a payment. The app assumes a monthly cycle and calculates the next due date automatically.
     *   **Next Due**: Manually set the next payment date if it differs from the monthly cycle.
@@ -33,8 +37,9 @@ Tap on any subscription in the list to expand it. Here you can manage all detail
 
 #### Deleting a Subscription
 1.  Tap the subscription to expand it.
-2.  Tap the **Delete** (trash can) icon.
-3.  The item is immediately removed from your dashboard.
+2.  Tap the **Delete** (red trash can) icon on the left side.
+3.  Confirm the deletion in the modal.
+4.  The item is immediately removed from your dashboard.
 
 ### 3. Understanding the Dashboard
 
@@ -259,3 +264,10 @@ When the **Paid** button is clicked:
     -   **50-85%**: Blue (Approaching).
     -   **85-100%**: Red (Due Soon/Overdue).
 -   **Sorting**: Items with the highest progress (most urgent) float to the top.
+-   **Status Label**: The "days left" indicator features a subtle bubble background for clear visibility against the dark theme.
+
+### UI Refinements
+-   **Typography**: The app uses **Google Sans Flex** throughout for a modern, friendly aesthetic.
+-   **Layout**: Optimized for all screen sizes, with special attention to mobile safe areas and touch targets.
+-   **Animations**: Smooth transitions for expanding items, modal interactions, and button presses.
+-   **Iconography**: Clean, consistent icons for all actions, with color-coding to match the application's status logic.

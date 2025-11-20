@@ -28,7 +28,8 @@ const ProgressBar = React.memo(({ progress, color = '#A8C7FA' }) => {
             backgroundColor: '#444746', // M3 Dark Surface Variant
             borderRadius: '2px',
             overflow: 'hidden',
-            marginTop: '8px'
+            borderRadius: '2px',
+            overflow: 'hidden',
         }}>
             <div style={{
                 width: `${width}%`,

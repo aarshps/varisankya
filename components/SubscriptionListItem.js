@@ -211,10 +211,10 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   const hasDates = subscription.nextDueDate || subscription.lastPaidDate;
   const isOverdue = daysLeft <= 0 && subscription.status !== 'Inactive' && hasDates;
 
-  // Determine status color based on progress (kept for reference if needed, but unused for bubble now)
-  let statusColor = '#81C995';
-  if (progress > 85) statusColor = '#F2B8B5';
-  else if (progress > 50) statusColor = '#A8C7FA';
+  // Determine status color based on progress
+  let statusColor = '#81C995'; // Green (default/safe)
+  if (progress > 85) statusColor = '#F2B8B5'; // Red (danger/overdue)
+  else if (progress > 50) statusColor = '#A8C7FA'; // Blue (warning/approaching)
 
   const { onPress, onRelease } = useButtonAnim();
 
@@ -335,6 +335,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           alignItems: 'stretch',
           cursor: isEditing ? 'default' : 'pointer',
           transition: 'background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)',
+          position: 'relative',
         }}
         onMouseDown={(e) => {
           e.currentTarget.style.transform = 'scale(0.99)';
@@ -346,20 +347,20 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           e.currentTarget.style.transform = 'scale(1)';
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-          <div style={{ flex: 1, paddingLeft: '12px', paddingRight: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', fontWeight: '500' }}>{subscription.name}</span>
+        <div style={{ width: '100%', boxSizing: 'border-box' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '8px', marginBottom: '8px' }}>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', fontWeight: '500', whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: '1.3' }}>{subscription.name}</span>
               <span style={{
                 fontFamily: "'Google Sans Flex', sans-serif",
-                fontSize: '11px',
-                color: '#C4C7C5',
-                backgroundColor: 'transparent',
-                border: '1px solid #444746',
-                padding: '2px 8px',
+                fontSize: '12px',
+                color: '#E3E3E3',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+                backgroundColor: '#3E3E3E',
+                padding: '4px 8px',
                 borderRadius: '12px',
-                fontWeight: '500',
-                display: 'inline-block'
+                marginBottom: '2px'
               }}>{label}</span>
             </div>
             <ProgressBar
@@ -371,20 +372,20 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               }
             />
           </div>
-          <button
-            onClick={handleDeleteClick}
-            className={styles.removeButton}
-            aria-label="Delete subscription"
-            style={{ ...buttonStyle, paddingRight: '10px' }}
-            onMouseDown={onPress}
-            onMouseUp={onRelease}
-            onMouseLeave={onRelease}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="currentColor" />
-            </svg>
-          </button>
         </div>
+        <button
+          onClick={handleDeleteClick}
+          className={styles.removeButton}
+          aria-label="Delete subscription"
+          style={{ ...buttonStyle, position: 'absolute', top: '12px', right: '16px', display: 'none' }} // Hide in main view
+          onMouseDown={onPress}
+          onMouseUp={onRelease}
+          onMouseLeave={onRelease}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="currentColor" />
+          </svg>
+        </button>
 
         <div
           style={{
@@ -420,54 +421,88 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{subscription.nextDueDate ? new Date(subscription.nextDueDate).toLocaleDateString() : '-'}</span>
               </div>
             )}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
               <button
-                onClick={() => {
-                  setIsEditing(true);
-                  setExpanded(false); // Collapse the expanded view when edit is clicked
-                  if (onCollapse) onCollapse();
-                }}
+                onClick={handleDeleteClick}
                 style={{
-                  padding: '8px 24px',
-                  borderRadius: '20px',
-                  border: '1px solid #444746',
-                  background: 'transparent',
-                  color: '#A8C7FA',
-                  fontFamily: "'Google Sans Flex', sans-serif",
-                  fontSize: '14px',
-                  fontWeight: '500',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: '#3E3E3E', // Slightly lighter grey
+                  color: '#F2B8B5', // Error Red
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  marginRight: 'auto', // Push to left
                   ...buttonStyle,
                 }}
                 onMouseDown={onPress}
                 onMouseUp={onRelease}
                 onMouseLeave={onRelease}
-                onMouseOver={(e) => (e.currentTarget.style.background = '#2D2D2D')}
-                onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
+                onMouseOver={(e) => (e.currentTarget.style.background = '#4E4E4E')}
+                onMouseOut={(e) => (e.currentTarget.style.background = '#3E3E3E')}
               >
-                Edit
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="currentColor" />
+                </svg>
+              </button>
+              <button
+                onClick={() => {
+                  setIsEditing(true);
+                  setExpanded(false);
+                  if (onCollapse) onCollapse();
+                }}
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: '#3E3E3E', // Slightly lighter grey
+                  color: '#A8C7FA', // Primary Blue
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  ...buttonStyle,
+                }}
+                onMouseDown={onPress}
+                onMouseUp={onRelease}
+                onMouseLeave={onRelease}
+                onMouseOver={(e) => (e.currentTarget.style.background = '#4E4E4E')}
+                onMouseOut={(e) => (e.currentTarget.style.background = '#3E3E3E')}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" fill="currentColor" />
+                </svg>
               </button>
               <button
                 onClick={handlePaid}
                 disabled={!hasDates}
                 style={{
-                  padding: '8px 24px',
-                  borderRadius: '20px',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
                   border: 'none',
-                  background: !hasDates ? '#444746' : '#206C45',
-                  color: !hasDates ? '#8E918F' : '#E3E3E3',
-                  fontFamily: "'Google Sans Flex', sans-serif",
-                  fontSize: '14px',
-                  fontWeight: '500',
+                  background: !hasDates ? '#1E1E1E' : '#3E3E3E', // Slightly lighter grey
+                  color: !hasDates ? '#444746' : '#81C995', // Success Green
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   cursor: !hasDates ? 'not-allowed' : 'pointer',
+                  border: !hasDates ? '1px solid #444746' : 'none',
                   ...buttonStyle,
                 }}
                 onMouseDown={hasDates ? onPress : undefined}
                 onMouseUp={hasDates ? onRelease : undefined}
                 onMouseLeave={hasDates ? onRelease : undefined}
-                onMouseOver={(e) => hasDates && (e.currentTarget.style.background = '#2B8A5A')}
-                onMouseOut={(e) => hasDates && (e.currentTarget.style.background = '#206C45')}
+                onMouseOver={(e) => hasDates && (e.currentTarget.style.background = '#4E4E4E')}
+                onMouseOut={(e) => hasDates && (e.currentTarget.style.background = '#3E3E3E')}
               >
-                Paid
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 16.2L4.8 12L3.4 13.4L9 19L21 7L19.6 5.6L9 16.2Z" fill="currentColor" />
+                </svg>
               </button>
             </div>
           </div>
