@@ -118,6 +118,10 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         if (targetDate <= lastPaid) {
           targetDate.setFullYear(targetDate.getFullYear() + 1);
         }
+      } else if (subscription.recurrenceType === 'manual') {
+        // Manual recurrence: If nextDueDate is not set (which is why we are here in the else-if block),
+        // we should NOT auto-calculate anything based on lastPaidDate.
+        return { progress: 0, daysLeft: 0, label: 'No due date', targetDate: null };
       } else {
         // Default 'days' logic
         const daysToAdd = parseInt(subscription.recurrenceValue) || 30;
