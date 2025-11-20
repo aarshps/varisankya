@@ -260,10 +260,9 @@ When the **Paid** button is clicked:
 
 ### Visual Feedback
 -   **Progress Bar**:
-    -   **0-50%**: Green (Safe).
-    -   **50-85%**: Blue (Approaching).
-    -   **85-100%**: Red (Due Soon/Overdue).
--   **Sorting**: Items with the highest progress (most urgent) float to the top.
+    -   **0-70%**: Blue (Safe/Approaching).
+    -   **70-100%**: Red (Urgent/Overdue).
+-   **Sorting**: Items are sorted by absolute days left (ascending), with the most urgent items at the top.
 -   **Status Label**: The "days left" indicator features a subtle bubble background for clear visibility against the dark theme.
 
 ### UI Refinements

@@ -29,12 +29,12 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
   }
 
   // Helper to calculate days left for sorting
-  const getProgress = (subscription) => {
+  const getDaysLeft = (subscription) => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
     let targetDate;
-    if (subscription.status === 'Inactive') return 0;
+    if (subscription.status === 'Inactive') return 9999; // Inactive at bottom
 
     if (subscription.nextDueDate) {
       targetDate = new Date(subscription.nextDueDate);
@@ -63,35 +63,22 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
         if (targetDate <= lastPaid) {
           targetDate.setFullYear(targetDate.getFullYear() + 1);
         }
+      } else if (subscription.recurrenceType === 'manual') {
+        return 9998; // No dates for manual
       } else {
         // Default 'days' logic
         const daysToAdd = parseInt(subscription.recurrenceValue) || 30;
         targetDate.setDate(lastPaid.getDate() + daysToAdd);
       }
-    } else if (subscription.nextDueDate) {
-      targetDate = new Date(subscription.nextDueDate);
     } else {
-      return 0;
+      return 9998; // No dates set
     }
 
     targetDate.setHours(0, 0, 0, 0);
     const diff = targetDate - now;
     const daysLeftRaw = Math.ceil(diff / (1000 * 60 * 60 * 24));
 
-    let total = 30;
-    if (subscription.recurrenceType === 'days') {
-      total = parseInt(subscription.recurrenceValue) || 30;
-    } else if (subscription.recurrenceType === 'monthly') {
-      total = 30;
-    } else if (subscription.recurrenceType === 'yearly') {
-      total = 365;
-    }
-
-    const elapsed = total - daysLeftRaw;
-    // Calculate progress percentage
-    // If daysLeftRaw < 0 (overdue), elapsed > total -> progress > 100
-    const progress = (elapsed / total) * 100;
-    return progress;
+    return daysLeftRaw;
   };
 
   const sortedSubscriptions = [...subscriptions].sort((a, b) => {
@@ -99,9 +86,9 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
     if (a.status === 'Inactive' && b.status !== 'Inactive') return 1;
     if (a.status !== 'Inactive' && b.status === 'Inactive') return -1;
 
-    const progressA = getProgress(a);
-    const progressB = getProgress(b);
-    return progressB - progressA; // Descending order (bigger progress bar at top)
+    const daysLeftA = getDaysLeft(a);
+    const daysLeftB = getDaysLeft(b);
+    return daysLeftA - daysLeftB; // Ascending order (fewer days = higher priority)
   });
 
   return (

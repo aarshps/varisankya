@@ -143,27 +143,16 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     // For display, we don't show negative days
     const daysLeft = Math.max(0, daysLeftRaw);
 
-    // Calculate total cycle length for progress
-    let total = 30;
-    if (subscription.recurrenceType === 'days') {
-      total = parseInt(subscription.recurrenceValue) || 30;
-    } else if (subscription.recurrenceType === 'monthly') {
-      total = 30; // Approx
-    } else if (subscription.recurrenceType === 'yearly') {
-      total = 365;
-    }
-
-    const elapsed = total - daysLeftRaw;
-
-    // Calculate progress
-    // If daysLeftRaw > total (e.g. due in 2 months), elapsed is negative -> progress 0%
-    // If daysLeftRaw < 0 (overdue), elapsed > total -> progress 100%
-    const progress = Math.max(0, Math.min(100, (elapsed / total) * 100));
+    // NEW: Progress based on absolute days left, not percentage of cycle
+    // Cap visualization at 30 days for consistency across all recurrence types
+    // 0 days = 100% (urgent), 30+ days = 0% (safe)
+    const cappedDays = Math.min(Math.max(daysLeftRaw, 0), 30);
+    const progress = ((30 - cappedDays) / 30) * 100;
 
     const formattedTargetDate = targetDate ? targetDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
     const displayLabel = targetDate ? `${daysLeft} days left (${formattedTargetDate})` : label;
 
-    return { progress, daysLeft, label: displayLabel, targetDate };
+    return { progress, daysLeft, daysLeftRaw, label: displayLabel, targetDate };
   }, [subscription]);
 
   const getMaxDays = (month) => {
@@ -212,9 +201,14 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   const isOverdue = daysLeft <= 0 && subscription.status !== 'Inactive' && hasDates;
 
   // Determine status color based on progress
-  let statusColor = '#81C995'; // Green (default/safe)
-  if (progress > 85) statusColor = '#F2B8B5'; // Red (danger/overdue)
-  else if (progress > 50) statusColor = '#A8C7FA'; // Blue (warning/approaching)
+  // Only use blue (safe/approaching) and red (urgent/overdue)
+  // Use grey for inactive or no dates
+  let statusColor = '#A8C7FA'; // Blue (default/safe)
+  if (subscription.status === 'Inactive' || !hasDates) {
+    statusColor = '#8E918F'; // Grey for inactive/no dates
+  } else if (progress > 70) {
+    statusColor = '#F2B8B5'; // Red (urgent/overdue)
+  }
 
   const { onPress, onRelease } = useButtonAnim();
 
@@ -365,11 +359,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             </div>
             <ProgressBar
               progress={progress}
-              color={
-                progress > 85 ? '#F2B8B5' : // Red
-                  progress > 50 ? '#A8C7FA' : // Blue
-                    '#81C995'                   // Green
-              }
+              color={statusColor}
             />
           </div>
         </div>

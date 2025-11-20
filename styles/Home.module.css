@@ -143,7 +143,8 @@
   padding-bottom: max(16px, env(safe-area-inset-bottom));
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
   max-width: 600px;
-  margin: 0 auto; /* Center the composer */
+  margin: 0 auto;
+  /* Center the composer */
 }
 
 .composerInner {
@@ -216,17 +217,16 @@
   border: 1px solid #444746;
   border-radius: 16px;
   /* M3 rounded corners */
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
   color: #E3E3E3;
 }
 
-.subscriptionItem:hover {
-  background-color: #2D2D2D;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.subscriptionItem:active {
-  transform: scale(0.99);
+/* Only apply hover on non-touch devices */
+@media (hover: hover) and (pointer: fine) {
+  .subscriptionItem:hover {
+    background-color: #2D2D2D;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .removeButton {
@@ -305,8 +305,10 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
-    max-height: 300px; /* Adjust as needed */
+    max-height: 300px;
+    /* Adjust as needed */
     opacity: 1;
     transform: translateY(0);
   }
@@ -314,10 +316,12 @@
 
 @keyframes slideUp {
   from {
-    max-height: 300px; /* Adjust as needed */
+    max-height: 300px;
+    /* Adjust as needed */
     opacity: 1;
     transform: translateY(0);
   }
+
   to {
     max-height: 0;
     opacity: 0;
