@@ -520,6 +520,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                     <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Days Cycle</label>
                     <input
                       type="number"
+                      min="1"
                       className={styles.composerInput}
                       style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px', boxSizing: 'border-box', maxWidth: '100%', appearance: 'none', WebkitAppearance: 'none' }}
                       value={editForm.recurrenceValue}
@@ -601,6 +602,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Last Paid</label>
                   <input
                     type="date"
+                    max={new Date().toISOString().split('T')[0]}
                     className={styles.composerInput}
                     style={{
                       borderRadius: '12px',
