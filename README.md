@@ -242,7 +242,7 @@ The application calculates the **Next Due Date** and **Progress** dynamically ba
 | Scenario | Action | Result | Real-World Fit |
 | :--- | :--- | :--- | :--- |
 | **Irregular Bill** | User sets Next Due: Dec 1. | System counts down to Dec 1. | ✅ Ad-hoc payments, friends owing money. |
-| **Paid Action** | User clicks **Paid**. | `Last Paid` updates to Today. `Next Due` is cleared (`-`). | ✅ Correct. The item becomes "completed" until the user manually sets a new date. |
+| **Paid Action** | User clicks **Paid**. | `Last Paid` updates to Today. `Next Due` is cleared (`-`). Status shows "No due date". | ✅ Correct. The item becomes "completed" until the user manually sets a new date. Prevents auto-calculation. |
 
 ### "Paid" Button Behavior
 When the **Paid** button is clicked:
