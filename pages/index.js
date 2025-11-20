@@ -392,7 +392,7 @@ export default function Home() {
           setSidebarOpen(false);
           await signOut({ callbackUrl: '/' });
         }}
-        composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription }}
+        composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription, onCancel: () => setNewSubscription('') }}
       >
         <div className={styles.content}>
           <Subscriptions
@@ -401,7 +401,7 @@ export default function Home() {
             error={null} // Using notifications instead of inline error
             onDelete={handleDeleteSubscription}
             onUpdate={handleUpdateSubscription}
-            composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription }}
+            composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription, onCancel: () => setNewSubscription('') }}
           />
         </div>
 

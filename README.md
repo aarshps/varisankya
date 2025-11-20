@@ -181,3 +181,75 @@ If your app icon appears small with white padding on Android:
 *   **Data Isolation**: User data is strictly separated at the database level.
 *   **Protected Routes**: Middleware ensures only authenticated requests reach the API.
 *   **Input Validation**: All incoming data is sanitized and validated.
+
+---
+
+## 🧠 Application Logic & Scenarios
+
+This section details the logical behavior of the Varisankya subscription tracker, explaining how each recurrence type functions, how the "Paid" action affects them, and analyzing real-world scenarios.
+
+### Core Concept
+The application calculates the **Next Due Date** and **Progress** dynamically based on two key pieces of data:
+1.  **Last Paid Date**: The timestamp of the last successful payment.
+2.  **Recurrence Configuration**: The rules defining the cycle.
+
+### 1. Fixed Days Recurrence (`Every X Days`)
+**Logic**: The cycle is a simple fixed duration.
+-   **Formula**: `Next Due` = `Last Paid Date` + `X Days`.
+-   **Progress**: Percentage of time passed within the `X Days` window.
+
+#### Scenarios
+| Scenario | Action | Result | Real-World Fit |
+| :--- | :--- | :--- | :--- |
+| **Standard** | Cycle: 30 Days. Last Paid: Nov 1. | Next Due: Dec 1 (Nov 1 + 30). Days Left: Calculated from today. | ✅ Perfect for prepaid plans (e.g., mobile data, gym). |
+| **Early Payment** | Due: Dec 1. User clicks **Paid** on Nov 28. | `Last Paid` becomes Nov 28. Next Due becomes Dec 28 (Nov 28 + 30). | ✅ Correct. The new cycle starts immediately from payment. |
+| **Late Payment** | Due: Dec 1. User clicks **Paid** on Dec 5. | `Last Paid` becomes Dec 5. Next Due becomes Jan 4 (Dec 5 + 30). | ✅ Correct. Service usually resumes/renews from payment date. |
+
+### 2. Monthly Recurrence (`Monthly on the Xth`)
+**Logic**: The due date is anchored to a specific day of the month.
+-   **Formula**: Find the next occurrence of day `X` that is **strictly after** the `Last Paid Date`.
+-   **Rollover**: If the current month doesn't have day `X` (e.g., 31st in Feb), it clamps to the last day of that month.
+
+#### Scenarios
+| Scenario | Action | Result | Real-World Fit |
+| :--- | :--- | :--- | :--- |
+| **Standard** | Cycle: 15th. Last Paid: Oct 15. Today: Nov 1. | Next 15th after Oct 15 is **Nov 15**. Status: Active. | ✅ Standard monthly bill (rent, Netflix). |
+| **Late Payment** | Due: Nov 15. User clicks **Paid** on Nov 20. | `Last Paid` becomes Nov 20. Logic looks for next 15th after Nov 20 -> **Dec 15**. | ✅ Correct. You paid the Nov bill; next is Dec. |
+| **Early Payment** | Due: Nov 15. User clicks **Paid** on Nov 10. | `Last Paid` becomes Nov 10. **Logic**: System detects early payment (before due date) and skips current cycle. Next Due -> **Dec 15**. | ✅ Correct. Prevents "Due in 5 days" immediately after paying early. |
+| **Short Month** | Cycle: 31st. Last Paid: Jan 31. | Next 31st after Jan 31 is Feb 31 (Invalid) -> Clamps to **Feb 28/29**. | ✅ Correct. Handles calendar quirks automatically. |
+
+### 3. Yearly Recurrence (`Yearly on MM-DD`)
+**Logic**: The due date is anchored to a specific date every year.
+-   **Formula**: Find the next occurrence of `MM-DD` that is **strictly after** the `Last Paid Date`.
+
+#### Scenarios
+| Scenario | Action | Result | Real-World Fit |
+| :--- | :--- | :--- | :--- |
+| **Standard** | Cycle: Dec 25. Last Paid: Dec 25, 2023. | Next occurrence after Dec 25, 2023 is **Dec 25, 2024**. | ✅ Annual subscriptions (Amazon Prime, Insurance). |
+| **Late Payment** | Due: Dec 25, 2024. User clicks **Paid** on Jan 5, 2025. | `Last Paid` becomes Jan 5, 2025. Next occurrence is **Dec 25, 2025**. | ✅ Correct. |
+| **Early Payment** | Due: Dec 25, 2024. User clicks **Paid** on Dec 20, 2024. | `Last Paid` becomes Dec 20, 2024. **Logic**: System detects early payment and skips current cycle. Next Due -> **Dec 25, 2025**. | ✅ Correct. |
+
+### 4. Manual Recurrence (`Manual`)
+**Logic**: The user explicitly sets the `Next Due Date`. The `Last Paid Date` is recorded but does not automatically calculate the next due date.
+-   **Formula**: `Next Due` = User Input.
+
+#### Scenarios
+| Scenario | Action | Result | Real-World Fit |
+| :--- | :--- | :--- | :--- |
+| **Irregular Bill** | User sets Next Due: Dec 1. | System counts down to Dec 1. | ✅ Ad-hoc payments, friends owing money. |
+| **Paid Action** | User clicks **Paid**. | `Last Paid` updates to Today. `Next Due` is cleared (`-`). | ✅ Correct. The item becomes "completed" until the user manually sets a new date. |
+
+### "Paid" Button Behavior
+When the **Paid** button is clicked:
+1.  **Update**: `Last Paid Date` is set to **NOW**.
+2.  **Early Payment Check**:
+    -   If paying **before** the due date: The system calculates the *next* cycle date (e.g., skips to next month) and sets it as `Next Due Date`.
+    -   If paying **on/after** the due date: `Next Due Date` is set to **NULL** (forcing a standard recalculation based on the new `Last Paid Date`).
+3.  **Recalculate**: The UI updates immediately (optimistic update) to reflect the new status.
+
+### Visual Feedback
+-   **Progress Bar**:
+    -   **0-50%**: Green (Safe).
+    -   **50-85%**: Blue (Approaching).
+    -   **85-100%**: Red (Due Soon/Overdue).
+-   **Sorting**: Items with the highest progress (most urgent) float to the top.

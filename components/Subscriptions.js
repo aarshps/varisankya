@@ -5,7 +5,7 @@ import styles from '../styles/Home.module.css';
 import Modal, { ModalButton } from './Modal';
 
 // Reusable modal component for adding new subscriptions
-const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) => {
+const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange, onCancel }) => {
   const [isClosing, setIsClosing] = useState(false);
 
   const handleSubmit = (e) => {
@@ -25,6 +25,7 @@ const AddSubscriptionModal = ({ isOpen, onClose, onSubmit, value, onChange }) =>
     setTimeout(() => {
       setIsClosing(false);
       onClose();
+      if (onCancel) onCancel();
     }, 300);
   };
 
@@ -147,6 +148,7 @@ export default function Subscriptions({ subscriptions, loading, error, onDelete,
         onSubmit={composerProps.onSubmit}
         value={composerProps.value}
         onChange={composerProps.onChange}
+        onCancel={composerProps.onCancel}
       />
     </>
   );

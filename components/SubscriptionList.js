@@ -29,34 +29,75 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
   }
 
   // Helper to calculate days left for sorting
-  const getDaysLeft = (subscription) => {
-    if (subscription.status === 'Inactive') return 9999; // Push to bottom
-
+  const getProgress = (subscription) => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
     let targetDate;
+    if (subscription.status === 'Inactive') return 0;
+
     if (subscription.nextDueDate) {
       targetDate = new Date(subscription.nextDueDate);
     } else if (subscription.lastPaidDate) {
       const lastPaid = new Date(subscription.lastPaidDate);
       targetDate = new Date(lastPaid);
-      targetDate.setMonth(lastPaid.getMonth() + 1);
+
+      if (subscription.recurrenceType === 'monthly') {
+        const dayOfMonth = parseInt(subscription.recurrenceValue) || 1;
+        targetDate.setDate(dayOfMonth);
+        if (targetDate.getDate() !== dayOfMonth) {
+          targetDate.setDate(0);
+        }
+        if (targetDate <= lastPaid) {
+          targetDate = new Date(lastPaid);
+          targetDate.setMonth(targetDate.getMonth() + 1);
+          targetDate.setDate(dayOfMonth);
+          if (targetDate.getDate() !== dayOfMonth) {
+            targetDate.setDate(0);
+          }
+        }
+      } else if (subscription.recurrenceType === 'yearly') {
+        const [month, day] = String(subscription.recurrenceValue || '01-01').split('-').map(Number);
+        targetDate.setMonth(month - 1);
+        targetDate.setDate(day);
+        if (targetDate <= lastPaid) {
+          targetDate.setFullYear(targetDate.getFullYear() + 1);
+        }
+      } else {
+        // Default 'days' logic
+        const daysToAdd = parseInt(subscription.recurrenceValue) || 30;
+        targetDate.setDate(lastPaid.getDate() + daysToAdd);
+      }
+    } else if (subscription.nextDueDate) {
+      targetDate = new Date(subscription.nextDueDate);
     } else {
-      return 9998; // No dates set, push to bottom but above Inactive
+      return 0;
     }
 
     targetDate.setHours(0, 0, 0, 0);
     const diff = targetDate - now;
-    const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    return daysLeft; // Return raw value for sorting (negative means overdue/fullest)
+    const daysLeftRaw = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+    let total = 30;
+    if (subscription.recurrenceType === 'days') {
+      total = parseInt(subscription.recurrenceValue) || 30;
+    } else if (subscription.recurrenceType === 'monthly') {
+      total = 30;
+    } else if (subscription.recurrenceType === 'yearly') {
+      total = 365;
+    }
+
+    const elapsed = total - daysLeftRaw;
+    // Calculate progress percentage
+    // If daysLeftRaw < 0 (overdue), elapsed > total -> progress > 100
+    const progress = (elapsed / total) * 100;
+    return progress;
   };
 
-  // Sort subscriptions: Fullest (lowest days left) first
   const sortedSubscriptions = [...subscriptions].sort((a, b) => {
-    const daysA = getDaysLeft(a);
-    const daysB = getDaysLeft(b);
-    return daysA - daysB;
+    const progressA = getProgress(a);
+    const progressB = getProgress(b);
+    return progressB - progressA; // Descending order (bigger progress bar at top)
   });
 
   return (

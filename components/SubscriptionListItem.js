@@ -2,15 +2,19 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styles from '../styles/Home.module.css';
 import ProgressBar from './ProgressBar';
 import StatusSelect from './StatusSelect';
+import RecurrenceSelect from './RecurrenceSelect';
+import MonthSelect from './MonthSelect';
 import Modal, { ModalButton } from './Modal';
 
 // Hook for M3E button press animation
 const useButtonAnim = () => {
   const onPress = (e) => {
-    e.currentTarget.style.transform = 'scale(0.98)';
+    e.stopPropagation();
+    e.currentTarget.style.transform = 'scale(0.90)'; // More noticeable scale for buttons
     e.currentTarget.style.transition = 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)';
   };
   const onRelease = (e) => {
+    e.stopPropagation();
     e.currentTarget.style.transform = 'scale(1)';
     e.currentTarget.style.transition = 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)';
   };
@@ -23,12 +27,12 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   const [isEditing, setIsEditing] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [editForm, setEditForm] = useState({ ...subscription });
+  const [editForm, setEditForm] = useState({ ...subscription, recurrenceType: subscription.recurrenceType || 'days', recurrenceValue: subscription.recurrenceValue || 30 });
   const [showDeleteModal, setShowDeleteModal] = useState(false); // New state for delete modal
 
   // Keep edit form in sync with prop changes
   useEffect(() => {
-    setEditForm({ ...subscription });
+    setEditForm({ ...subscription, recurrenceType: subscription.recurrenceType || 'days', recurrenceValue: subscription.recurrenceValue || 30 });
   }, [subscription]);
 
   // Sync local expanded state with parent's expanded state
@@ -36,13 +40,13 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     setExpanded(isExpanded);
   }, [isExpanded]);
 
-  // Auto‑collapse after a period of inactivity (8 s) or after a successful save
+  // Auto‑collapse after a period of inactivity (60 s) or after a successful save
   useEffect(() => {
     if (!expanded) return undefined;
     const timer = setTimeout(() => {
       setExpanded(false);
       if (onCollapse) onCollapse();
-    }, 8000);
+    }, 60000);
     return () => clearTimeout(timer);
   }, [expanded, onCollapse]);
 
@@ -58,8 +62,13 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    // Add a small delay before attaching the listener to avoid catching the click that opened it
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 100);
+
     return () => {
+      clearTimeout(timeoutId);
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [expanded, onCollapse, subscription._id]);
@@ -71,17 +80,54 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     now.setHours(0, 0, 0, 0); // Normalize today to midnight
 
     let targetDate;
-    if (subscription.status === 'Inactive') return { progress: 0, daysLeft: 0, label: 'Inactive' };
+    if (subscription.status === 'Inactive') return { progress: 0, daysLeft: 0, label: 'Inactive', targetDate: null };
 
     if (subscription.nextDueDate) {
       targetDate = new Date(subscription.nextDueDate);
     } else if (subscription.lastPaidDate) {
-      // If only Last Paid is set, target is exactly one month after
       const lastPaid = new Date(subscription.lastPaidDate);
       targetDate = new Date(lastPaid);
-      targetDate.setMonth(lastPaid.getMonth() + 1);
+
+      if (subscription.recurrenceType === 'monthly') {
+        // Set to specific day of current month (relative to last paid)
+        const dayOfMonth = parseInt(subscription.recurrenceValue) || 1;
+        targetDate.setDate(dayOfMonth);
+
+        // Handle month rollover (e.g. setting Feb 30 -> Mar 2)
+        // We want to clamp to the last day of the month if needed
+        if (targetDate.getDate() !== dayOfMonth) {
+          targetDate.setDate(0);
+        }
+
+        // If the calculated date is before or same as last paid, move to next month
+        if (targetDate <= lastPaid) {
+          targetDate = new Date(lastPaid);
+          targetDate.setMonth(targetDate.getMonth() + 1);
+          targetDate.setDate(dayOfMonth);
+          if (targetDate.getDate() !== dayOfMonth) {
+            targetDate.setDate(0);
+          }
+        }
+      } else if (subscription.recurrenceType === 'yearly') {
+        // Set to specific date this year (relative to last paid)
+        const [month, day] = String(subscription.recurrenceValue || '01-01').split('-').map(Number);
+        targetDate.setMonth(month - 1);
+        targetDate.setDate(day);
+
+        // If the calculated date is before or same as last paid, move to next year
+        if (targetDate <= lastPaid) {
+          targetDate.setFullYear(targetDate.getFullYear() + 1);
+        }
+      } else {
+        // Default 'days' logic
+        const daysToAdd = parseInt(subscription.recurrenceValue) || 30;
+        targetDate.setDate(lastPaid.getDate() + daysToAdd);
+      }
+    } else if (subscription.nextDueDate) {
+      // Fallback if only next due date is present and not manual
+      targetDate = new Date(subscription.nextDueDate);
     } else {
-      return { progress: 0, daysLeft: 0, label: 'No dates set' };
+      return { progress: 0, daysLeft: 0, label: 'No dates set', targetDate: null };
     }
 
     // Normalize target to midnight
@@ -93,19 +139,76 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     // For display, we don't show negative days
     const daysLeft = Math.max(0, daysLeftRaw);
 
-    // Assume a 30-day cycle for progress calculation
-    const total = 30;
+    // Calculate total cycle length for progress
+    let total = 30;
+    if (subscription.recurrenceType === 'days') {
+      total = parseInt(subscription.recurrenceValue) || 30;
+    } else if (subscription.recurrenceType === 'monthly') {
+      total = 30; // Approx
+    } else if (subscription.recurrenceType === 'yearly') {
+      total = 365;
+    }
+
     const elapsed = total - daysLeftRaw;
 
     // Calculate progress
-    // If daysLeftRaw > 30 (e.g. due in 2 months), elapsed is negative -> progress 0%
-    // If daysLeftRaw < 0 (overdue), elapsed > 30 -> progress 100%
+    // If daysLeftRaw > total (e.g. due in 2 months), elapsed is negative -> progress 0%
+    // If daysLeftRaw < 0 (overdue), elapsed > total -> progress 100%
     const progress = Math.max(0, Math.min(100, (elapsed / total) * 100));
 
     return { progress, daysLeft, label: `${daysLeft} days left` };
+    return { progress, daysLeft, label: `${daysLeft} days left`, targetDate };
   }, [subscription]);
 
-  const { progress, daysLeft, label } = calculateProgress();
+  const getMaxDays = (month) => {
+    if (!month) return 31;
+    const m = parseInt(month);
+    if (m === 2) return 29; // Allow 29 for leap years
+    if ([4, 6, 9, 11].includes(m)) return 30;
+    return 31;
+  };
+
+  const getRecurrenceLabel = () => {
+    const type = subscription.recurrenceType || 'days';
+    const value = subscription.recurrenceValue;
+
+    switch (type) {
+      case 'days':
+        return `Every ${value || 30} Days`;
+      case 'monthly':
+        return `Monthly (${value || 1}${getOrdinalSuffix(value || 1)})`;
+      case 'yearly':
+        return `Yearly (${value || '01-01'})`;
+      case 'manual':
+        return 'Manual';
+      default:
+        return 'Every 30 Days';
+    }
+  };
+
+  const getOrdinalSuffix = (i) => {
+    const j = i % 10,
+      k = i % 100;
+    if (j === 1 && k !== 11) {
+      return 'st';
+    }
+    if (j === 2 && k !== 12) {
+      return 'nd';
+    }
+    if (j === 3 && k !== 13) {
+      return 'rd';
+    }
+    return 'th';
+  };
+
+  const { progress, daysLeft, label, targetDate } = calculateProgress();
+  const hasDates = subscription.nextDueDate || subscription.lastPaidDate;
+  const isOverdue = daysLeft <= 0 && subscription.status !== 'Inactive' && hasDates;
+
+  // Determine status color based on progress
+  let statusColor = '#81C995'; // Green (default/safe)
+  if (progress > 85) statusColor = '#F2B8B5'; // Red (danger/overdue)
+  else if (progress > 50) statusColor = '#A8C7FA'; // Blue (warning/approaching)
 
   const { onPress, onRelease } = useButtonAnim();
 
@@ -124,17 +227,16 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     onDelete(subscription._id);
   };
 
-  const handleSave = async (e) => {
+  const handleSave = (e) => {
     e.stopPropagation();
-    setIsSaving(true);
-    await onUpdate({ ...editForm, _id: subscription._id });
-    setIsSaving(false);
-    // Animate modal close
+    // Optimistic update: Fire and forget
+    onUpdate({ ...editForm, _id: subscription._id });
+
+    // Animate modal close immediately
     setIsClosing(true);
     setTimeout(() => {
       setIsEditing(false);
       setIsClosing(false);
-      setExpanded(false);
       if (onCollapse) onCollapse();
     }, 350); // Slightly longer than the CSS transition
   };
@@ -149,6 +251,40 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
       setIsClosing(false);
       if (onCollapse) onCollapse();
     }, 350); // Slightly longer than the CSS transition
+  };
+
+  const handlePaid = (e) => {
+    e.stopPropagation();
+    const now = new Date();
+    const nowISO = now.toISOString();
+
+    // Check for early payment
+    let nextDueDate = null;
+
+    // If targetDate is in the future (and valid), we are paying early!
+    if (targetDate && targetDate > now) {
+      // Calculate the NEXT cycle after the current target date
+      const nextCycle = new Date(targetDate);
+
+      if (subscription.recurrenceType === 'monthly') {
+        nextCycle.setMonth(nextCycle.getMonth() + 1);
+        // Handle rollover
+        const dayOfMonth = parseInt(subscription.recurrenceValue) || 1;
+        if (nextCycle.getDate() !== dayOfMonth) {
+          nextCycle.setDate(0); // Clamp to end of month
+        }
+      } else if (subscription.recurrenceType === 'yearly') {
+        nextCycle.setFullYear(nextCycle.getFullYear() + 1);
+      } else if (subscription.recurrenceType === 'days') {
+        const daysToAdd = parseInt(subscription.recurrenceValue) || 30;
+        nextCycle.setDate(nextCycle.getDate() + daysToAdd);
+      }
+
+      nextDueDate = nextCycle.toISOString();
+    }
+
+    // Optimistic update
+    onUpdate({ ...subscription, lastPaidDate: nowISO, nextDueDate: nextDueDate });
   };
 
   return (
@@ -191,13 +327,20 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', fontWeight: '500' }}>{subscription.name}</span>
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', color: '#C4C7C5' }}>{label}</span>
             </div>
-            <ProgressBar progress={progress} color={daysLeft < 3 ? '#F2B8B5' : '#A8C7FA'} />
+            <ProgressBar
+              progress={progress}
+              color={
+                progress > 85 ? '#F2B8B5' : // Red
+                  progress > 50 ? '#A8C7FA' : // Blue
+                    '#81C995'                   // Green
+              }
+            />
           </div>
           <button
             onClick={handleDeleteClick}
             className={styles.removeButton}
             aria-label="Delete subscription"
-            style={{...buttonStyle, paddingRight: '10px'}}
+            style={{ ...buttonStyle, paddingRight: '10px' }}
             onMouseDown={onPress}
             onMouseUp={onRelease}
             onMouseLeave={onRelease}
@@ -220,11 +363,17 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             transition: 'max-height 0.3s ease-out, opacity 0.3s ease-out, margin-top 0.3s ease-out, padding-top 0.3s ease-out, border-top 0.3s ease-out',
           }}
           onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseUp={(e) => e.stopPropagation()}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Status:</span>
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500', color: subscription.status === 'Inactive' ? '#F2B8B5' : '#C2E7FF' }}>{subscription.status || 'Active'}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Recurrence:</span>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{getRecurrenceLabel()}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Last Paid:</span>
@@ -259,6 +408,27 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
               >
                 Edit
+              </button>
+              <button
+                onClick={handlePaid}
+                style={{
+                  padding: '8px 24px',
+                  borderRadius: '20px',
+                  border: 'none',
+                  background: '#206C45',
+                  color: '#E3E3E3',
+                  fontFamily: "'Google Sans Flex', sans-serif",
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  ...buttonStyle,
+                }}
+                onMouseDown={onPress}
+                onMouseUp={onRelease}
+                onMouseLeave={onRelease}
+                onMouseOver={(e) => (e.currentTarget.style.background = '#2B8A5A')}
+                onMouseOut={(e) => (e.currentTarget.style.background = '#206C45')}
+              >
+                Paid
               </button>
             </div>
           </div>
@@ -313,34 +483,132 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   disabled={isSaving}
                 />
               </div>
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: '1 1 150px' }}>
-                  <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Last Paid</label>
-                  <div style={{ position: 'relative' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Recurrence Type */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Recurrence</label>
+                  <RecurrenceSelect
+                    value={editForm.recurrenceType}
+                    onChange={(value) => {
+                      let newValue = editForm.recurrenceValue;
+                      if (value === 'days') newValue = 30;
+                      else if (value === 'monthly') newValue = 1;
+                      else if (value === 'yearly') newValue = '01-01';
+
+                      setEditForm({ ...editForm, recurrenceType: value, recurrenceValue: newValue });
+                    }}
+                    disabled={isSaving}
+                  />
+                </div>
+
+                {/* Dynamic Recurrence Value Input */}
+                {editForm.recurrenceType === 'days' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Days Cycle</label>
                     <input
-                      type="date"
+                      type="number"
                       className={styles.composerInput}
-                      style={{
-                        borderRadius: '12px',
-                        fontFamily: "'Google Sans Flex', sans-serif",
-                        fontSize: '16px',
-                        padding: '14px 40px 14px 44px',
-                        height: '48px',
-                        width: '100%',
-                        colorScheme: 'dark',
-                      }}
-                      value={editForm.lastPaidDate ? new Date(editForm.lastPaidDate).toISOString().split('T')[0] : ''}
-                      onChange={(e) => setEditForm({ ...editForm, lastPaidDate: e.target.value })}
+                      style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px' }}
+                      value={editForm.recurrenceValue}
+                      onChange={(e) => setEditForm({ ...editForm, recurrenceValue: e.target.value })}
+                      placeholder="e.g. 30"
                       disabled={isSaving}
                     />
-                    <svg style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M19 4H18V2H16V4H8V2H6V4H5C3.89 4 3.01 4.9 3.01 6L3 20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V10H19V20ZM19 8H5V6H19V8Z" fill="#A8C7FA" />
-                    </svg>
                   </div>
+                )}
+
+                {editForm.recurrenceType === 'monthly' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Day of Month</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="31"
+                      className={styles.composerInput}
+                      style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px' }}
+                      value={editForm.recurrenceValue}
+                      onChange={(e) => {
+                        let val = parseInt(e.target.value);
+                        if (val > 31) val = 31;
+                        if (val < 1) val = 1;
+                        setEditForm({ ...editForm, recurrenceValue: val });
+                      }}
+                      placeholder="e.g. 15"
+                      disabled={isSaving}
+                    />
+                  </div>
+                )}
+
+                {editForm.recurrenceType === 'yearly' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date</label>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <div style={{ flex: 2 }}>
+                        <MonthSelect
+                          value={String(editForm.recurrenceValue || '01-01').split('-')[0]}
+                          onChange={(newMonth) => {
+                            const currentDay = parseInt(String(editForm.recurrenceValue || '01-01').split('-')[1]);
+                            const maxDays = getMaxDays(newMonth);
+                            const newDay = currentDay > maxDays ? maxDays : currentDay;
+                            setEditForm({ ...editForm, recurrenceValue: `${newMonth}-${String(newDay).padStart(2, '0')}` });
+                          }}
+                          disabled={isSaving}
+                        />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <input
+                          type="number"
+                          min="1"
+                          max={getMaxDays(String(editForm.recurrenceValue || '01-01').split('-')[0])}
+                          className={styles.composerInput}
+                          style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px' }}
+                          value={parseInt(String(editForm.recurrenceValue || '01-01').split('-')[1])}
+                          onChange={(e) => {
+                            const currentMonth = String(editForm.recurrenceValue || '01-01').split('-')[0];
+                            let val = parseInt(e.target.value);
+                            if (isNaN(val)) {
+                              setEditForm({ ...editForm, recurrenceValue: `${currentMonth}-01` }); // Reset to 01 if cleared
+                              return;
+                            }
+                            const max = getMaxDays(currentMonth);
+                            if (val > max) val = max;
+                            if (val < 1) val = 1;
+                            const newDay = String(val).padStart(2, '0');
+                            setEditForm({ ...editForm, recurrenceValue: `${currentMonth}-${newDay}` });
+                          }}
+                          placeholder="Day"
+                          disabled={isSaving}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Last Paid</label>
+                  <input
+                    type="date"
+                    className={styles.composerInput}
+                    style={{
+                      borderRadius: '12px',
+                      fontFamily: "'Google Sans Flex', sans-serif",
+                      fontSize: '16px',
+                      padding: '14px 16px',
+                      height: '48px',
+                      width: '100%',
+                      colorScheme: 'dark',
+                      cursor: 'pointer',
+                    }}
+                    value={editForm.lastPaidDate ? new Date(editForm.lastPaidDate).toISOString().split('T')[0] : ''}
+                    onChange={(e) => setEditForm({ ...editForm, lastPaidDate: e.target.value })}
+                    onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                    disabled={isSaving}
+                  />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: '1 1 150px' }}>
-                  <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Next Due</label>
-                  <div style={{ position: 'relative' }}>
+
+                {editForm.recurrenceType === 'manual' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Next Due</label>
                     <input
                       type="date"
                       className={styles.composerInput}
@@ -348,20 +616,19 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                         borderRadius: '12px',
                         fontFamily: "'Google Sans Flex', sans-serif",
                         fontSize: '16px',
-                        padding: '14px 40px 14px 44px',
+                        padding: '14px 16px',
                         height: '48px',
                         width: '100%',
                         colorScheme: 'dark',
+                        cursor: 'pointer',
                       }}
                       value={editForm.nextDueDate ? new Date(editForm.nextDueDate).toISOString().split('T')[0] : ''}
                       onChange={(e) => setEditForm({ ...editForm, nextDueDate: e.target.value })}
+                      onClick={(e) => e.target.showPicker && e.target.showPicker()}
                       disabled={isSaving}
                     />
-                    <svg style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M19 4H18V2H16V4H8V2H6V4H5C3.89 4 3.01 4.9 3.01 6L3 20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V10H19V20ZM19 8H5V6H19V8Z" fill="#A8C7FA" />
-                    </svg>
                   </div>
-                </div>
+                )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</label>
@@ -422,33 +689,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 </button>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #444746' }}>
-                <button
-                  className={styles.deleteButton}
-                  onClick={handleDeleteClick}
-                  disabled={isSaving}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: isSaving ? 'not-allowed' : 'pointer',
-                    padding: '8px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#ffb4ab',
-                    transition: 'background-color 0.2s',
-                    opacity: isSaving ? 0.5 : 1,
-                  }}
-                  onMouseOver={(e) => !isSaving && (e.currentTarget.style.backgroundColor = 'rgba(255, 180, 171, 0.1)')}
-                  onMouseOut={(e) => !isSaving && (e.currentTarget.style.backgroundColor = 'transparent')}
-                  title="Delete subscription"
-                >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="currentColor" />
-                  </svg>
-                </button>
-              </div>
+
             </div>
           </div>
         </div>
@@ -491,6 +732,8 @@ const MemoizedSubscriptionListItem = React.memo(SubscriptionListItem, (prevProps
     prevProps.subscription.status === nextProps.subscription.status &&
     prevProps.subscription.createdAt === nextProps.subscription.createdAt &&
     prevProps.subscription.updatedAt === nextProps.subscription.updatedAt &&
+    prevProps.subscription.recurrenceType === nextProps.subscription.recurrenceType &&
+    prevProps.subscription.recurrenceValue === nextProps.subscription.recurrenceValue &&
     prevProps.isExpanded === nextProps.isExpanded &&
     prevProps.onDelete === nextProps.onDelete &&
     prevProps.onUpdate === nextProps.onUpdate &&
