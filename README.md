@@ -24,6 +24,7 @@ Welcome to Varisankya! This guide will help you get the most out of the applicat
 #### Editing Details
 Tap on any subscription in the list to expand it. Here you can manage all details:
 *   **Name**: Tap the name to correct typos or rename it.
+*   **Save Button**: The "Save" button remains disabled until you make a change, preventing accidental or unnecessary updates.
 *   **Status**: Toggle between **Active** (currently paying) and **Inactive** (cancelled/paused). Inactive items move to the bottom of your list.
 *   **Dates**:
     *   **Last Paid**: Select the date you last made a payment. The app assumes a monthly cycle and calculates the next due date automatically.
@@ -181,6 +182,10 @@ If your app icon appears small with white padding on Android:
 *   **Data Isolation**: User data is strictly separated at the database level.
 *   **Protected Routes**: Middleware ensures only authenticated requests reach the API.
 *   **Input Validation**: All incoming data is sanitized and validated.
+    *   **Date Logic**:
+        *   **Last Paid Date**: Cannot be in the future (max = today).
+        *   **Next Due Date**: Cannot be in the past (min = today).
+        *   **Local Time**: Validations respect the user's local device time to ensure accuracy.
 
 ---
 
