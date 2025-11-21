@@ -253,40 +253,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     }, 350); // Slightly longer than the CSS transition
   };
 
-  const handlePaid = (e) => {
-    e.stopPropagation();
-    const now = new Date();
-    const nowISO = now.toISOString();
 
-    // Check for early payment
-    let nextDueDate = null;
-
-    // If targetDate is in the future (and valid), we are paying early!
-    if (targetDate && targetDate > now) {
-      // Calculate the NEXT cycle after the current target date
-      const nextCycle = new Date(targetDate);
-
-      if (subscription.recurrenceType === 'monthly') {
-        nextCycle.setMonth(nextCycle.getMonth() + 1);
-        // Handle rollover
-        const dayOfMonth = parseInt(subscription.recurrenceValue) || 1;
-        if (nextCycle.getDate() !== dayOfMonth) {
-          nextCycle.setDate(0); // Clamp to end of month
-        }
-      } else if (subscription.recurrenceType === 'yearly') {
-        nextCycle.setFullYear(nextCycle.getFullYear() + 1);
-      } else if (subscription.recurrenceType === 'days') {
-        const daysToAdd = parseInt(subscription.recurrenceValue) || 30;
-        nextCycle.setDate(nextCycle.getDate() + daysToAdd);
-      }
-
-      nextDueDate = nextCycle.toISOString();
-    }
-
-    // Optimistic update
-    // Optimistic update
-    onUpdate({ ...subscription, lastPaidDate: nowISO, nextDueDate: nextDueDate });
-  };
 
   const normalizeDate = (d) => d ? new Date(d).toISOString().split('T')[0] : '';
 
@@ -348,10 +315,10 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               <span style={{
                 fontFamily: "'Google Sans Flex', sans-serif",
                 fontSize: '12px',
-                color: '#E3E3E3',
+                color: statusColor === '#F2B8B5' ? '#F2B8B5' : '#E3E3E3',
                 whiteSpace: 'nowrap',
                 flexShrink: 0,
-                backgroundColor: '#3E3E3E',
+                backgroundColor: statusColor === '#F2B8B5' ? 'rgba(242, 184, 181, 0.12)' : '#3E3E3E',
                 padding: '4px 8px',
                 borderRadius: '12px',
                 marginBottom: '2px'
@@ -467,33 +434,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   <path d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" fill="currentColor" />
                 </svg>
               </button>
-              <button
-                onClick={handlePaid}
-                disabled={!hasDates}
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  border: 'none',
-                  background: !hasDates ? '#1E1E1E' : '#3E3E3E', // Slightly lighter grey
-                  color: !hasDates ? '#444746' : '#81C995', // Success Green
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: !hasDates ? 'not-allowed' : 'pointer',
-                  border: !hasDates ? '1px solid #444746' : 'none',
-                  ...buttonStyle,
-                }}
-                onMouseDown={hasDates ? onPress : undefined}
-                onMouseUp={hasDates ? onRelease : undefined}
-                onMouseLeave={hasDates ? onRelease : undefined}
-                onMouseOver={(e) => hasDates && (e.currentTarget.style.background = '#4E4E4E')}
-                onMouseOut={(e) => hasDates && (e.currentTarget.style.background = '#3E3E3E')}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 16.2L4.8 12L3.4 13.4L9 19L21 7L19.6 5.6L9 16.2Z" fill="currentColor" />
-                </svg>
-              </button>
+
             </div>
           </div>
         </div>
