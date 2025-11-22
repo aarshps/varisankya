@@ -67,16 +67,25 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   }, [subscription.nextDueDate]);
 
   const handleSave = async () => {
+    // Optimistic UI: Update immediately
+    const updatedSubscription = {
+      ...subscription,
+      name: editedName,
+      nextDueDate: editedDate || null,
+    };
+
+    // Collapse immediately for smooth UX
+    setExpanded(false);
+    if (onCollapse) onCollapse();
+
+    // Sync with API in background
     try {
-      await onUpdate({
-        ...subscription,
-        name: editedName,
-        nextDueDate: editedDate || null,
-      });
-      setExpanded(false);
-      if (onCollapse) onCollapse();
+      await onUpdate(updatedSubscription);
     } catch (error) {
       console.error('Failed to update:', error);
+      // If API fails, re-expand to let user retry
+      setExpanded(true);
+      if (onExpand) onExpand(subscription._id);
     }
   };
 
@@ -103,10 +112,16 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   };
 
   const handleDeleteConfirm = async () => {
+    // Optimistic UI: Close modal and trigger delete immediately
+    setShowDeleteModal(false);
+
+    // Delete in background
     try {
       await onDelete(subscription._id);
     } catch (error) {
       console.error('Failed to delete:', error);
+      // If API fails, show modal again
+      setShowDeleteModal(true);
     }
   };
 
@@ -180,7 +195,9 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             maxHeight: expanded ? '500px' : '0',
             opacity: expanded ? 1 : 0,
             overflow: 'hidden',
-            transition: 'all 0.3s cubic-bezier(0.2, 0, 0, 1)',
+            transition: expanded
+              ? 'all 0.3s cubic-bezier(0.2, 0, 0, 1)'
+              : 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
             transform: expanded ? 'translateY(0)' : 'translateY(-10px)'
           }}
         >
