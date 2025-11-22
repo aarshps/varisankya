@@ -51,50 +51,96 @@ export default function Home() {
     }
   }, [status, fetchSubscriptions]);
 
+  // Bubble Animation State
+  const [isAnimatingAdd, setIsAnimatingAdd] = useState(false);
+  const [bubbleStyle, setBubbleStyle] = useState({});
+  const fabRef = useRef(null);
+  const listRef = useRef(null);
+
   // Subscription handlers
   const handleAddSubscription = async () => {
-    // Optimistic UI: Create a temporary blank subscription
-    const tempId = 'temp-' + Date.now();
-    const newSub = {
-      _id: tempId,
-      name: '', // Blank name
-      cost: 0,
-      currency: 'USD',
-      billingCycle: 'monthly',
-      startDate: new Date().toISOString(),
-      nextDueDate: null,
-      active: true,
-      isNew: true // Flag to indicate this is a new item to auto-expand
-    };
+    if (isAnimatingAdd) return;
 
-    // Add to top of list immediately
-    setSubscriptions([newSub, ...subscriptions]);
+    // 1. Start Animation
+    setIsAnimatingAdd(true);
 
-    try {
-      console.log('[Frontend] Adding subscription...');
-      const res = await fetch('/api/subscriptions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'New Subscription' }), // Default name for DB, user will edit
+    // Get positions
+    const fabRect = fabRef.current?.getBoundingClientRect();
+    const listRect = listRef.current?.getBoundingClientRect();
+
+    if (fabRect && listRect) {
+      // Initial State (at FAB)
+      setBubbleStyle({
+        top: fabRect.top,
+        left: fabRect.left,
+        width: fabRect.width,
+        height: fabRect.height,
+        borderRadius: '24px',
+        opacity: 1,
+        transform: 'scale(1)'
       });
 
-      if (!res.ok) throw new Error('Failed to add subscription');
-
-      const createdSub = await res.json();
-      console.log('[Frontend] Added subscription:', createdSub);
-
-      // Replace temp item with actual item from DB
-      setSubscriptions(prev => prev.map(sub =>
-        sub._id === tempId ? { ...createdSub, isNew: true } : sub
-      ));
-
-      // We don't show a notification here to keep it seamless, or maybe a subtle one
-    } catch (error) {
-      console.error('[Frontend] Error adding subscription:', error);
-      setNotification({ type: 'error', message: 'Failed to add subscription' });
-      // Remove temp item on error
-      setSubscriptions(prev => prev.filter(sub => sub._id !== tempId));
+      // Trigger Move to Top (next frame)
+      requestAnimationFrame(() => {
+        setBubbleStyle({
+          top: listRect.top + 80, // Approximate top of list
+          left: listRect.left + 16, // Margin
+          width: listRect.width - 32, // Full width minus margins
+          height: '80px', // Approx item height
+          borderRadius: '24px',
+          opacity: 0.5, // Fade out as it morphs
+          transform: 'scale(1)'
+        });
+      });
     }
+
+    // 2. Wait for animation (500ms) then add item
+    setTimeout(async () => {
+      setIsAnimatingAdd(false);
+
+      // Optimistic UI: Create a temporary blank subscription
+      const tempId = 'temp-' + Date.now();
+      const newSub = {
+        _id: tempId,
+        name: '', // Blank name
+        cost: 0,
+        currency: 'USD',
+        billingCycle: 'monthly',
+        startDate: new Date().toISOString(),
+        nextDueDate: null,
+        active: true,
+        isNew: true // Flag to indicate this is a new item to auto-expand
+      };
+
+      // Add to top of list immediately
+      setSubscriptions([newSub, ...subscriptions]);
+
+      try {
+        console.log('[Frontend] Adding subscription...');
+        const res = await fetch('/api/subscriptions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: 'New Subscription' }), // Default name for DB, user will edit
+        });
+
+        if (!res.ok) throw new Error('Failed to add subscription');
+
+        const createdSub = await res.json();
+        console.log('[Frontend] Added subscription:', createdSub);
+
+        // Replace temp item with actual item from DB
+        setSubscriptions(prev => prev.map(sub =>
+          sub._id === tempId ? { ...createdSub, isNew: true } : sub
+        ));
+
+        // We don't show a notification here to keep it seamless, or maybe a subtle one
+      } catch (error) {
+        console.error('[Frontend] Error adding subscription:', error);
+        setNotification({ type: 'error', message: 'Failed to add subscription' });
+        // Remove temp item on error
+        setSubscriptions(prev => prev.filter(sub => sub._id !== tempId));
+      }
+    }, 400); // Slightly less than transition time to feel snappy
   };
 
   const handleUpdateSubscription = async (updatedSub) => {
@@ -245,7 +291,7 @@ export default function Home() {
     }
 
     return (
-      <div className={styles.appMain}>
+      <div className={styles.appMain} ref={listRef}>
         <div className={styles.content}>
           <Subscriptions
             subscriptions={subscriptions}
@@ -309,11 +355,21 @@ export default function Home() {
       {/* Render content based on current state */}
       {renderContent()}
 
+      {/* Bubble Animation */}
+      {isAnimatingAdd && (
+        <div
+          className={styles.bubble}
+          style={bubbleStyle}
+        />
+      )}
+
       {/* Floating Action Button for Add */}
       {status === 'authenticated' && (
         <button
+          ref={fabRef}
           className={`${styles.fab} ${!isFabVisible ? styles.hidden : ''}`}
           onClick={handleAddSubscription}
+          style={{ opacity: isAnimatingAdd ? 0 : 1 }} // Hide FAB during animation
         >
           Add
         </button>

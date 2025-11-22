@@ -331,6 +331,18 @@
 
 .dateInput:focus {
   border-color: #A8C7FA;
+  outline: none;
+  /* Ensure no outline */
+}
+
+/* Bubble Animation */
+.bubble {
+  position: fixed;
+  background-color: #A8C7FA;
+  border-radius: 24px;
+  z-index: 9999;
+  pointer-events: none;
+  transition: all 0.5s cubic-bezier(0.2, 0, 0, 1);
 }
 
 /* Subscription Items */

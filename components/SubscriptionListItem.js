@@ -169,7 +169,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           position: 'relative',
         }}
       >
-        <div style={{ width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ width: '100%', boxSizing: 'border-box', position: 'relative', zIndex: 2, backgroundColor: '#1E1E1E', borderRadius: '24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '8px', marginBottom: '8px' }}>
               <input
@@ -219,9 +219,14 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             maxHeight: expanded ? '400px' : '0',
             opacity: expanded ? 1 : 0,
             overflow: 'hidden',
-            marginTop: expanded ? '16px' : '0',
-            paddingTop: expanded ? '16px' : '0',
-            borderTop: expanded ? `1px solid ${COLORS.border}` : 'none',
+            marginTop: expanded ? '0' : '-20px', // Slide up/down effect
+            paddingTop: expanded ? '24px' : '0', // Add padding to separate from main row
+            paddingBottom: expanded ? '8px' : '0',
+            transform: expanded ? 'translateY(0)' : 'translateY(-20px)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            position: 'relative',
+            zIndex: 1, // Behind main row
+            width: '100%'
           }}
           onClick={(e) => e.stopPropagation()}
         >
