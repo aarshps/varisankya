@@ -57,8 +57,14 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const subscriptions = await collection.find({}).toArray();
-      // Normalize `_id` to string for client consumption and consistency with POST responses
-      const normalized = subscriptions.map(s => ({ ...s, _id: s._id.toString() }));
+      // Normalize `_id` to string and sanitize fields
+      const normalized = subscriptions.map(s => ({
+        _id: s._id.toString(),
+        name: s.name,
+        nextDueDate: s.nextDueDate,
+        createdAt: s.createdAt,
+        updatedAt: s.updatedAt
+      }));
       res.status(200).json(normalized);
     } catch (error) {
       console.error('Error fetching subscriptions:', error);
@@ -101,9 +107,24 @@ export default async function handler(req, res) {
       // Remove undefined fields
       Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
 
+      // Fields to remove from the document (legacy fields)
+      const unsetFields = {
+        lastPaidDate: "",
+        recurrenceType: "",
+        recurrenceValue: "",
+        status: "",
+        cost: "",
+        currency: "",
+        billingCycle: "",
+        startDate: ""
+      };
+
       const result = await collection.updateOne(
         { _id: new ObjectId(id) },
-        { $set: updateData }
+        {
+          $set: updateData,
+          $unset: unsetFields
+        }
       );
 
       if (result.matchedCount === 0) {
