@@ -170,16 +170,6 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           </div>
         </div>
 
-        {/* Separator Line */}
-        {expanded && (
-          <div style={{
-            height: '1px',
-            backgroundColor: COLORS.surfaceVariant,
-            margin: '12px 0',
-            width: '100%'
-          }} />
-        )}
-
         {/* Expanded View */}
         <div
           style={{
@@ -193,7 +183,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           {expanded && (
             <div
               style={{
-                paddingTop: '8px',
+                paddingTop: '4px',
                 width: '100%'
               }}
               onClick={(e) => e.stopPropagation()}
