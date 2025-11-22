@@ -48,8 +48,7 @@ export default function Sidebar({ open, sidebarRef, onClose, session, onSignOut,
       </div>
       <div style={{ flex: 1 }} />
       <div style={{ padding: '16px', borderTop: '1px solid #444746' }}>
-        <div style={{ fontSize: '14px', color: '#E3E3E3', marginBottom: '8px', paddingLeft: '12px' }}>{session?.user?.email}</div>
-        <div style={{ fontSize: '12px', color: '#C4C7C5', marginBottom: '12px', paddingLeft: '12px' }}>{`DB: ${session?.user?.databaseName || 'Loading...'}`}</div>
+        <div style={{ fontSize: '14px', color: '#E3E3E3', marginBottom: '16px', paddingLeft: '12px' }}>{session?.user?.email}</div>
         <button
           onClick={onSignOut}
           onMouseDown={handlePress}
