@@ -147,147 +147,178 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         }}
       >
         {/* Collapsed View */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px',
-          width: '100%',
-          maxHeight: expanded ? '0' : '100px',
-          opacity: expanded ? 0 : 1,
-          overflow: 'hidden',
-          transition: 'all 0.3s cubic-bezier(0.2, 0, 0, 1)'
-        }}>
-          {/* Name */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <span style={{
-              fontFamily: "'Google Sans Flex', sans-serif",
-              fontSize: '17px',
-              fontWeight: '500',
-              color: COLORS.textPrimary,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              display: 'block'
-            }}>
-              {subscription.name || 'New Subscription'}
-            </span>
-          </div>
-
-          {/* Days Left */}
+        {!expanded && (
           <div style={{
-            flexShrink: 0
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+            width: '100%'
           }}>
-            <span style={{
-              fontFamily: "'Google Sans Flex', sans-serif",
-              fontSize: '13px',
-              color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
-              whiteSpace: 'nowrap'
+            {/* Name */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span style={{
+                fontFamily: "'Google Sans Flex', sans-serif",
+                fontSize: '17px',
+                fontWeight: '500',
+                color: COLORS.textPrimary,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                display: 'block'
+              }}>
+                {subscription.name || 'New Subscription'}
+              </span>
+            </div>
+
+            {/* Days Left */}
+            <div style={{
+              flexShrink: 0
             }}>
-              {label}
-            </span>
+              <span style={{
+                fontFamily: "'Google Sans Flex', sans-serif",
+                fontSize: '13px',
+                color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
+                whiteSpace: 'nowrap'
+              }}>
+                {label}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Expanded View */}
-        <div
-          style={{
-            maxHeight: expanded ? '500px' : '0',
-            opacity: expanded ? 1 : 0,
-            overflow: 'hidden',
-            transition: expanded
-              ? 'all 0.3s cubic-bezier(0.2, 0, 0, 1)'
-              : 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: expanded ? 'translateY(0)' : 'translateY(-10px)'
-          }}
-        >
-          {expanded && (
-            <div
-              style={{
-                width: '100%'
-              }}
-              onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {/* Name and Date in 2 columns */}
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <input
-                    type="text"
-                    className={styles.dateInput}
-                    value={editedName}
-                    onChange={(e) => setEditedName(e.target.value)}
-                    placeholder="Subscription Name"
-                    onClick={(e) => e.stopPropagation()}
-                    style={{ flex: '2 1 0', minWidth: 0 }}
-                  />
-                  <input
-                    type="date"
-                    className={styles.dateInput}
-                    value={editedDate}
-                    onChange={(e) => setEditedDate(e.target.value)}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.target.showPicker && e.target.showPicker();
-                    }}
-                    style={{ flex: '1 1 0', minWidth: 0 }}
-                  />
-                </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {/* Name and Date in 2 columns */}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input
+              type="text"
+              className={styles.dateInput}
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+              placeholder="Subscription Name"
+              onClick={(e) => e.stopPropagation()}
+              style={{ flex: '2 1 0', minWidth: 0 }}
+            />
+            <input
+              type="date"
+              className={styles.dateInput}
+              value={editedDate}
+              onChange={(e) => setEditedDate(e.target.value)}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.target.showPicker && e.target.showPicker();
+              }}
+              style={{ flex: '1 1 0', minWidth: 0 }}
+            />
+          </div>
 
-                {/* Action Buttons */}
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}>
-                  <Button onClick={handleDeleteClick} variant="destructive">
-                    Delete
-                  </Button>
+          {/* Action Buttons */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <Button onClick={handleDeleteClick} variant="destructive">
+              Delete
+            </Button>
 
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCancel();
-                      }}
-                      variant="neutral"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleSave();
-                      }}
-                      variant="success"
-                      disabled={!isModified}
-                    >
-                      Save
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCancel();
+                }}
+                variant="neutral"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSave();
+                  {
+                    expanded && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {/* Name and Date in 2 columns */}
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                          <input
+                            type="text"
+                            className={styles.dateInput}
+                            value={editedName}
+                            onChange={(e) => setEditedName(e.target.value)}
+                            placeholder="Subscription Name"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ flex: '2 1 0', minWidth: 0 }}
+                          />
+                          <input
+                            type="date"
+                            className={styles.dateInput}
+                            value={editedDate}
+                            onChange={(e) => setEditedDate(e.target.value)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.target.showPicker && e.target.showPicker();
+                            }}
+                            style={{ flex: '1 1 0', minWidth: 0 }}
+                          />
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}>
+                          <Button onClick={handleDeleteClick} variant="destructive">
+                            Delete
+                          </Button>
+
+                          <div style={{ display: 'flex', gap: '12px' }}>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCancel();
+                              }}
+                              variant="neutral"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSave();
+                              }}
+                              variant="success"
+                              disabled={!isModified}
+                            >
+                              Save
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  }
       </li>
 
-      {/* Delete Modal */}
-      < Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Subscription" >
-        <p style={{
-          fontFamily: "'Google Sans Flex', sans-serif",
-          fontSize: '16px',
-          color: COLORS.textPrimary,
-          margin: '0 0 24px 0'
-        }}>
-          Are you sure you want to delete <strong>{subscription.name}</strong>?
-        </p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-          <ModalButton onClick={() => setShowDeleteModal(false)} variant="secondary">Cancel</ModalButton>
-          <ModalButton onClick={handleDeleteConfirm} variant="danger">Delete</ModalButton>
-        </div>
-      </Modal >
-    </>
-  );
+            {/* Delete Modal */}
+            <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Subscription" >
+              <p style={{
+                fontFamily: "'Google Sans Flex', sans-serif",
+                fontSize: '16px',
+                color: COLORS.textPrimary,
+                margin: '0 0 24px 0'
+              }}>
+                Are you sure you want to delete <strong>{subscription.name}</strong>?
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                <ModalButton onClick={() => setShowDeleteModal(false)} variant="secondary">Cancel</ModalButton>
+                <ModalButton onClick={handleDeleteConfirm} variant="danger">Delete</ModalButton>
+              </div>
+            </Modal >
+          </>
+          );
 };
 
-export default React.memo(SubscriptionListItem);
+          export default React.memo(SubscriptionListItem);
