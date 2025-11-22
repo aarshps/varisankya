@@ -126,10 +126,10 @@
 }
 
 .sidebarItem.selected {
-  background-color: #004A77;
-  /* M3 Dark Primary Container */
-  color: #C2E7FF;
-  /* M3 Dark On Primary Container */
+  background-color: rgba(168, 199, 250, 0.16);
+  /* Same blue as + button, with transparency */
+  color: #A8C7FA;
+  /* M3 Blue */
 }
 
 /* Composer */
