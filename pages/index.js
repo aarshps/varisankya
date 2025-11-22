@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import styles from '../styles/Home.module.css';
 import Subscriptions from '../components/Subscriptions';
 import Header from '../components/Header';
@@ -25,7 +25,7 @@ export default function Home() {
   }, []);
 
   // Fetch subscriptions
-  const fetchSubscriptions = async () => {
+  const fetchSubscriptions = useCallback(async () => {
     if (status !== 'authenticated') return;
 
     try {
@@ -41,13 +41,13 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [status]);
 
   useEffect(() => {
     if (status === 'authenticated' && !hasFetched.current) {
       fetchSubscriptions();
     }
-  }, [status]);
+  }, [status, fetchSubscriptions]);
 
   // Subscription handlers
   const handleAddSubscription = async () => {

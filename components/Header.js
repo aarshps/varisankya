@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React from 'react';
 import styles from '../styles/Home.module.css';
 import { COLORS } from '../lib/colors';

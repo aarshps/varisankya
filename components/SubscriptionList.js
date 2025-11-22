@@ -4,6 +4,22 @@ import SubscriptionListItem from './SubscriptionListItem';
 const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
   const [expandedId, setExpandedId] = useState(null);
 
+  // Auto-expand and scroll to new subscription
+  React.useEffect(() => {
+    if (!subscriptions) return;
+    const newSub = subscriptions.find(s => s.isNew);
+    if (newSub) {
+      setExpandedId(newSub._id);
+      // Small timeout to allow render
+      setTimeout(() => {
+        const element = document.querySelector(`[data-subscription-id="${newSub._id}"]`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
+  }, [subscriptions]);
+
   const handleExpand = useCallback((id) => {
     setExpandedId(id);
   }, []);
@@ -28,6 +44,8 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
     );
   }
 
+
+
   // Ultra-simple helper - only Next Due Date
   const getDaysLeft = (subscription) => {
     if (!subscription.nextDueDate) return 9999; // No date set - bottom
@@ -42,13 +60,17 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
   };
 
   const sortedSubscriptions = [...subscriptions].sort((a, b) => {
+    // New items always on top
+    if (a.isNew && !b.isNew) return -1;
+    if (!a.isNew && b.isNew) return 1;
+
     const daysLeftA = getDaysLeft(a);
     const daysLeftB = getDaysLeft(b);
     return daysLeftA - daysLeftB; // Ascending order (fewer days = higher priority)
   });
 
   return (
-    <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
+    <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%', paddingBottom: '100px' }}>
       {sortedSubscriptions.map((s) => (
         <SubscriptionListItem
           key={s.localId || s._id}
