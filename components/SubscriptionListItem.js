@@ -168,7 +168,13 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           position: 'relative',
         }}
       >
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', position: 'relative', zIndex: 2 }}>
+        <div style={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
           {/* Subscription Name */}
           <span style={{
             fontFamily: "'Google Sans Flex', sans-serif",
@@ -177,8 +183,9 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             color: COLORS.textPrimary,
             whiteSpace: 'normal',
             wordBreak: 'break-word',
-            lineHeight: '1.3',
-            flex: 1
+            lineHeight: '1.4',
+            flex: 1,
+            minWidth: 0 // Allow text to shrink properly
           }}>
             {subscription.name || 'New Subscription'}
           </span>
@@ -191,11 +198,19 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               fontSize: '12px',
               color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
               whiteSpace: 'nowrap',
-              textAlign: 'right'
+              textAlign: 'right',
+              lineHeight: '1.2'
             }}>{label}</span>
 
             {/* Circular Progress */}
-            <svg width="36" height="36" style={{ transform: 'rotate(-90deg)' }}>
+            <svg
+              width="36"
+              height="36"
+              style={{
+                transform: 'rotate(-90deg)',
+                flexShrink: 0
+              }}
+            >
               {/* Background Circle */}
               <circle
                 cx="18"
@@ -214,10 +229,11 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 stroke={statusColor}
                 strokeWidth="3"
                 strokeDasharray={`${2 * Math.PI * 16}`}
-                strokeDashoffset={`${2 * Math.PI * 16 * (1 - progress / 100)}`}
+                strokeDashoffset={`${2 * Math.PI * 16 * (1 - Math.min(progress, 100) / 100)}`}
                 strokeLinecap="round"
                 style={{
-                  transition: 'stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease'
+                  transition: 'stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease',
+                  animation: progress >= 100 ? 'pulseRed 1.5s ease-in-out infinite' : 'none'
                 }}
               />
             </svg>
