@@ -256,19 +256,20 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           </div>
         </div>
 
+
         {/* Expanded View */}
         <div
           style={{
             maxHeight: expanded ? '400px' : '0',
             opacity: expanded ? 1 : 0,
             overflow: 'hidden',
-            marginTop: expanded ? '0' : '-20px', // Slide up/down effect
-            paddingTop: expanded ? '24px' : '0', // Add padding to separate from main row
-            paddingBottom: expanded ? '8px' : '0',
+            marginTop: expanded ? '0' : '-20px',
+            paddingTop: expanded ? '32px' : '0', // Increased top padding to match bottom
+            paddingBottom: expanded ? '0' : '0', // Bottom padding handled by item padding
             transform: expanded ? 'translateY(0)' : 'translateY(-20px)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
-            zIndex: 1, // Behind main row
+            zIndex: 1,
             width: '100%'
           }}
           onClick={(e) => e.stopPropagation()}
