@@ -198,7 +198,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                     onChange={(e) => setEditedName(e.target.value)}
                     placeholder="Subscription Name"
                     onClick={(e) => e.stopPropagation()}
-                    style={{ flex: '0 0 65%' }}
+                    style={{ flex: '2 1 0', minWidth: 0 }}
                   />
                   <input
                     type="date"
@@ -209,7 +209,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                       e.stopPropagation();
                       e.target.showPicker && e.target.showPicker();
                     }}
-                    style={{ flex: '0 0 35%' }}
+                    style={{ flex: '1 1 0', minWidth: 0 }}
                   />
                 </div>
 
