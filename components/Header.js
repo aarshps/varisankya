@@ -28,19 +28,18 @@ export default function Header({ session, onSignOut, onAddClick }) {
           <>
             <div style={{
               position: 'absolute',
-              right: '4px', // Start from behind the profile pic
+              right: '48px',
               top: 0,
               height: '36px',
-              display: 'flex',
+              display: showLogout ? 'flex' : 'none',
               alignItems: 'center',
-              transform: showLogout ? 'translateX(-44px)' : 'translateX(0)', // Slide out to left
-              opacity: showLogout ? 1 : 0,
-              zIndex: 0, // Behind profile
-              transition: 'all 0.4s cubic-bezier(0.2, 0, 0, 1)',
-              pointerEvents: showLogout ? 'auto' : 'none'
+              zIndex: 0
             }}>
               <Button
-                onClick={onSignOut}
+                onClick={() => {
+                  setShowLogout(false);
+                  onSignOut();
+                }}
                 variant="destructive"
                 style={{ height: '36px', padding: '0 16px' }}
               >
@@ -59,7 +58,6 @@ export default function Header({ session, onSignOut, onAddClick }) {
                   marginLeft: '4px',
                   border: `2px solid ${COLORS.surfaceVariant}`,
                   cursor: 'pointer',
-                  transition: 'transform 0.2s',
                   position: 'relative',
                   zIndex: 10, // Always on top
                   backgroundColor: '#1E1E1E' // Ensure opaque background
@@ -73,6 +71,6 @@ export default function Header({ session, onSignOut, onAddClick }) {
           </>
         )}
       </div>
-    </header>
+    </header >
   );
 }

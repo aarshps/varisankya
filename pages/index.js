@@ -5,6 +5,8 @@ import styles from '../styles/Home.module.css';
 import Subscriptions from '../components/Subscriptions';
 import Header from '../components/Header';
 import Loader from '../components/Loader';
+import Modal from '../components/Modal';
+import SubscriptionForm from '../components/SubscriptionForm';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -14,6 +16,14 @@ export default function Home() {
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [urlError, setUrlError] = useState(null);
   const hasFetched = useRef(false);
+
+  // Add Subscription Modal State
+  const [isAddingSubscription, setIsAddingSubscription] = useState(false);
+
+  // Undo Delete State
+  const [deletedItem, setDeletedItem] = useState(null);
+  const [showUndo, setShowUndo] = useState(false);
+  const undoTimerRef = useRef(null);
 
   // Check for error in URL query params
   useEffect(() => {
@@ -51,96 +61,57 @@ export default function Home() {
     }
   }, [status, fetchSubscriptions]);
 
-  // Bubble Animation State
-  const [isAnimatingAdd, setIsAnimatingAdd] = useState(false);
-  const [bubbleStyle, setBubbleStyle] = useState({});
-  const fabRef = useRef(null);
-  const listRef = useRef(null);
-
   // Subscription handlers
-  const handleAddSubscription = async () => {
-    if (isAnimatingAdd) return;
+  const handleAddSubscription = () => {
+    setIsAddingSubscription(true);
+  };
 
-    // 1. Start Animation
-    setIsAnimatingAdd(true);
+  const handleSaveNewSubscription = async ({ name, date }) => {
+    setIsAddingSubscription(false);
 
-    // Get positions
-    const fabRect = fabRef.current?.getBoundingClientRect();
-    const listRect = listRef.current?.getBoundingClientRect();
+    // Optimistic UI: Create a temporary blank subscription
+    const tempId = 'temp-' + Date.now();
+    const newSub = {
+      _id: tempId,
+      localId: tempId, // Stable ID for React key
+      name: name,
+      cost: 0,
+      currency: 'USD',
+      billingCycle: 'monthly',
+      startDate: new Date().toISOString(),
+      nextDueDate: date || null,
+      active: true,
+      isNew: true // Flag to indicate this is a new item to auto-expand
+    };
 
-    if (fabRect && listRect) {
-      // Initial State (at FAB)
-      setBubbleStyle({
-        top: fabRect.top,
-        left: fabRect.left,
-        width: fabRect.width,
-        height: fabRect.height,
-        borderRadius: '24px',
-        opacity: 1,
-        transform: 'scale(1)'
+    // Add to top of list immediately
+    setSubscriptions([newSub, ...subscriptions]);
+
+    try {
+      console.log('[Frontend] Adding subscription...');
+      const res = await fetch('/api/subscriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, nextDueDate: date }),
       });
 
-      // Trigger Move to Top (next frame)
-      requestAnimationFrame(() => {
-        setBubbleStyle({
-          top: listRect.top + 80, // Approximate top of list
-          left: listRect.left + 16, // Margin
-          width: listRect.width - 32, // Full width minus margins
-          height: '80px', // Approx item height
-          borderRadius: '24px',
-          opacity: 0.5, // Fade out as it morphs
-          transform: 'scale(1)'
-        });
-      });
+      if (!res.ok) throw new Error('Failed to add subscription');
+
+      const createdSub = await res.json();
+      console.log('[Frontend] Added subscription:', createdSub);
+
+      // Replace temp item with actual item from DB, but keep localId
+      setSubscriptions(prev => prev.map(sub =>
+        sub._id === tempId ? { ...createdSub, localId: tempId, isNew: true } : sub
+      ));
+
+      setNotification({ type: 'success', message: 'Subscription added successfully' });
+    } catch (error) {
+      console.error('[Frontend] Error adding subscription:', error);
+      setNotification({ type: 'error', message: 'Failed to add subscription' });
+      // Remove temp item on error
+      setSubscriptions(prev => prev.filter(sub => sub._id !== tempId));
     }
-
-    // 2. Wait for animation (500ms) then add item
-    setTimeout(async () => {
-      setIsAnimatingAdd(false);
-
-      // Optimistic UI: Create a temporary blank subscription
-      const tempId = 'temp-' + Date.now();
-      const newSub = {
-        _id: tempId,
-        name: '', // Blank name
-        cost: 0,
-        currency: 'USD',
-        billingCycle: 'monthly',
-        startDate: new Date().toISOString(),
-        nextDueDate: null,
-        active: true,
-        isNew: true // Flag to indicate this is a new item to auto-expand
-      };
-
-      // Add to top of list immediately
-      setSubscriptions([newSub, ...subscriptions]);
-
-      try {
-        console.log('[Frontend] Adding subscription...');
-        const res = await fetch('/api/subscriptions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: 'New Subscription' }), // Default name for DB, user will edit
-        });
-
-        if (!res.ok) throw new Error('Failed to add subscription');
-
-        const createdSub = await res.json();
-        console.log('[Frontend] Added subscription:', createdSub);
-
-        // Replace temp item with actual item from DB
-        setSubscriptions(prev => prev.map(sub =>
-          sub._id === tempId ? { ...createdSub, isNew: true } : sub
-        ));
-
-        // We don't show a notification here to keep it seamless, or maybe a subtle one
-      } catch (error) {
-        console.error('[Frontend] Error adding subscription:', error);
-        setNotification({ type: 'error', message: 'Failed to add subscription' });
-        // Remove temp item on error
-        setSubscriptions(prev => prev.filter(sub => sub._id !== tempId));
-      }
-    }, 400); // Slightly less than transition time to feel snappy
   };
 
   const handleUpdateSubscription = async (updatedSub) => {
@@ -175,8 +146,23 @@ export default function Home() {
   };
 
   const handleDeleteSubscription = async (id) => {
-    // Optimistic delete
+    // Store item for undo
     const subToDelete = subscriptions.find(sub => sub._id === id);
+    if (subToDelete) {
+      setDeletedItem(subToDelete);
+      setShowUndo(true);
+
+      // Clear previous timer if any
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+
+      // Set timer to hide undo button
+      undoTimerRef.current = setTimeout(() => {
+        setShowUndo(false);
+        setDeletedItem(null);
+      }, 5000);
+    }
+
+    // Optimistic delete
     setSubscriptions(subscriptions.filter(sub => sub._id !== id));
 
     try {
@@ -186,7 +172,7 @@ export default function Home() {
 
       if (!res.ok) throw new Error('Failed to delete subscription');
 
-      setNotification({ type: 'success', message: 'Subscription deleted' });
+      // setNotification({ type: 'success', message: 'Subscription deleted' }); // Removed to reduce noise with Undo
     } catch (error) {
       console.error('Error deleting subscription:', error);
       setNotification({ type: 'error', message: 'Failed to delete subscription' });
@@ -195,6 +181,49 @@ export default function Home() {
         setSubscriptions(prev => [...prev, subToDelete]);
       }
     }
+  };
+
+  const handleUndoDelete = async () => {
+    if (!deletedItem) return;
+
+    // Restore item
+    setSubscriptions(prev => [deletedItem, ...prev]);
+    setShowUndo(false);
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+
+    // Re-create on server
+    try {
+      // We need to re-create it because the delete API call likely succeeded
+      // We can't just "undo" a delete API call usually, so we POST it again
+      // Or if we delayed the delete call, we could just cancel it.
+      // Here we assume immediate delete, so we re-create.
+      // Ideally we should keep the same ID if possible, but MongoDB IDs are generated.
+      // If we want to truly restore, we might need soft-deletes or a delay mechanism.
+      // For now, let's re-create with the same data.
+      const { _id, ...dataToRestore } = deletedItem;
+
+      const res = await fetch('/api/subscriptions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToRestore),
+      });
+
+      if (!res.ok) throw new Error('Failed to restore subscription');
+      const restoredSub = await res.json();
+
+      // Update the restored item with the new ID from server
+      setSubscriptions(prev => prev.map(sub =>
+        sub._id === deletedItem._id ? { ...restoredSub, localId: deletedItem.localId || restoredSub._id } : sub
+      ));
+
+      setNotification({ type: 'success', message: 'Subscription restored' });
+    } catch (error) {
+      console.error('Error restoring subscription:', error);
+      setNotification({ type: 'error', message: 'Failed to restore subscription' });
+      // Remove again if failed
+      setSubscriptions(prev => prev.filter(sub => sub._id !== deletedItem._id));
+    }
+    setDeletedItem(null);
   };
 
   // Clear notification after 3 seconds
@@ -291,7 +320,7 @@ export default function Home() {
     }
 
     return (
-      <div className={styles.appMain} ref={listRef}>
+      <div className={styles.appMain}>
         <div className={styles.content}>
           <Subscriptions
             subscriptions={subscriptions}
@@ -304,25 +333,6 @@ export default function Home() {
       </div>
     );
   };
-
-  // Scroll detection for FAB
-  const [isFabVisible, setIsFabVisible] = useState(true);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY.current) {
-        setIsFabVisible(false); // Hide on scroll down
-      } else {
-        setIsFabVisible(true); // Show on scroll up
-      }
-      lastScrollY.current = currentScrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <div className={status === 'unauthenticated' ? styles.appContainer : styles.container}>
@@ -355,24 +365,49 @@ export default function Home() {
       {/* Render content based on current state */}
       {renderContent()}
 
-      {/* Bubble Animation */}
-      {isAnimatingAdd && (
-        <div
-          className={styles.bubble}
-          style={bubbleStyle}
+      {/* Add Subscription Modal */}
+      <Modal
+        isOpen={isAddingSubscription}
+        onClose={() => setIsAddingSubscription(false)}
+        title="Add Subscription"
+      >
+        <SubscriptionForm
+          onSave={handleSaveNewSubscription}
+          onCancel={() => setIsAddingSubscription(false)}
+          showDelete={false}
         />
-      )}
+      </Modal>
 
       {/* Floating Action Button for Add */}
       {status === 'authenticated' && (
-        <button
-          ref={fabRef}
-          className={`${styles.fab} ${!isFabVisible ? styles.hidden : ''}`}
-          onClick={handleAddSubscription}
-          style={{ opacity: isAnimatingAdd ? 0 : 1 }} // Hide FAB during animation
-        >
-          Add
-        </button>
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 100,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          {/* Undo Button */}
+          {showUndo && (
+            <button
+              className={styles.undoButton}
+              onClick={handleUndoDelete}
+            >
+              Undo
+            </button>
+          )}
+
+          {/* Add Button */}
+          <button
+            className={styles.fab}
+            onClick={handleAddSubscription}
+          >
+            Add
+          </button>
+        </div>
       )}
     </div>
   );

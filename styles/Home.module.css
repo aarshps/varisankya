@@ -289,7 +289,7 @@
   /* Solid color for FAB */
   color: #003355;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.3s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   font-size: 14px;
   font-weight: 600;
   border: none;
@@ -306,11 +306,23 @@
   transform: translateX(-50%) scale(0.95);
 }
 
-.fab.hidden {
-  transform: translate(-50%, 100px);
-  /* Slide down to hide */
-  opacity: 0;
-  pointer-events: none;
+.undoButton {
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 24px;
+  background-color: #2D2D2D;
+  /* Surface Variant */
+  color: #E3E3E3;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid #444746;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.undoButton:hover {
+  background-color: #444746;
 }
 
 .dateInput {
@@ -350,16 +362,6 @@
   50% {
     opacity: 0.4;
   }
-}
-
-/* Bubble Animation */
-.bubble {
-  position: fixed;
-  background-color: #A8C7FA;
-  border-radius: 24px;
-  z-index: 9999;
-  pointer-events: none;
-  transition: all 0.5s cubic-bezier(0.2, 0, 0, 1);
 }
 
 /* Subscription Items */
