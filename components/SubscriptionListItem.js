@@ -168,8 +168,9 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           position: 'relative',
         }}
       >
-        <div style={{ width: '100%', boxSizing: 'border-box', position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', minHeight: '36px' }}>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative', zIndex: 2 }}>
+          {/* Name and Label Row */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
             <span style={{
               fontFamily: "'Google Sans Flex', sans-serif",
               fontSize: '16px',
@@ -199,8 +200,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             height: '4px',
             backgroundColor: '#2D2D2D',
             borderRadius: '2px',
-            overflow: 'hidden',
-            position: 'relative'
+            overflow: 'hidden'
           }}>
             <div style={{
               width: `${progress}%`,
