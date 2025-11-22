@@ -5,6 +5,7 @@ import styles from '../styles/Home.module.css';
 import Subscriptions from '../components/Subscriptions';
 import Header from '../components/Header';
 import Loader from '../components/Loader';
+import AddSubscriptionModal from '../components/AddSubscriptionModal';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -14,6 +15,7 @@ export default function Home() {
   const [newSubscription, setNewSubscription] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [urlError, setUrlError] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
   const hasFetched = useRef(false);
 
   // Check for error in URL query params
@@ -64,7 +66,7 @@ export default function Home() {
       const newSub = await res.json();
       setSubscriptions([...subscriptions, newSub]);
       setNotification({ type: 'success', message: 'Subscription added' });
-      setNewSubscription('');
+      setShowAddModal(false); // Close modal on successful add
     } catch (error) {
       console.error('Error adding subscription:', error);
       setNotification({ type: 'error', message: 'Failed to add subscription' });
@@ -209,7 +211,6 @@ export default function Home() {
             error={null}
             onDelete={handleDeleteSubscription}
             onUpdate={handleUpdateSubscription}
-            composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription, onCancel: () => setNewSubscription('') }}
           />
         </div>
       </div>
@@ -232,7 +233,18 @@ export default function Home() {
         <link rel="manifest" href="/site.webmanifest" />
       </Head>
 
-      <Header session={session} onSignOut={handleSignOut} />
+      <Header
+        session={session}
+        onSignOut={handleSignOut}
+        onAddClick={() => setShowAddModal(true)}
+      />
+
+      {/* Add Subscription Modal */}
+      <AddSubscriptionModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onAdd={handleAddSubscription}
+      />
 
       {/* Notification Toast */}
       {notification && (
