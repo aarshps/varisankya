@@ -28,57 +28,31 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
     );
   }
 
-  // Helper to calculate days left for sorting
+  // Simplified helper to calculate days left for sorting
   const getDaysLeft = (subscription) => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
-    let targetDate;
     if (subscription.status === 'Inactive') return 9999; // Inactive at bottom
 
+    let targetDate = null;
+
+    // Priority 1: Use Next Due Date if set
     if (subscription.nextDueDate) {
       targetDate = new Date(subscription.nextDueDate);
-    } else if (subscription.lastPaidDate) {
+    }
+    // Priority 2: Calculate from Last Paid + Recurring Days
+    else if (subscription.lastPaidDate && subscription.recurringDays) {
       const lastPaid = new Date(subscription.lastPaidDate);
       targetDate = new Date(lastPaid);
-
-      if (subscription.recurrenceType === 'monthly') {
-        const dayOfMonth = parseInt(subscription.recurrenceValue) || 1;
-        targetDate.setDate(dayOfMonth);
-        if (targetDate.getDate() !== dayOfMonth) {
-          targetDate.setDate(0);
-        }
-        if (targetDate <= lastPaid) {
-          targetDate = new Date(lastPaid);
-          targetDate.setMonth(targetDate.getMonth() + 1);
-          targetDate.setDate(dayOfMonth);
-          if (targetDate.getDate() !== dayOfMonth) {
-            targetDate.setDate(0);
-          }
-        }
-      } else if (subscription.recurrenceType === 'yearly') {
-        const [month, day] = String(subscription.recurrenceValue || '01-01').split('-').map(Number);
-        targetDate.setMonth(month - 1);
-        targetDate.setDate(day);
-        if (targetDate <= lastPaid) {
-          targetDate.setFullYear(targetDate.getFullYear() + 1);
-        }
-      } else if (subscription.recurrenceType === 'manual') {
-        return 9998; // No dates for manual
-      } else {
-        // Default 'days' logic
-        const daysToAdd = parseInt(subscription.recurrenceValue) || 30;
-        targetDate.setDate(lastPaid.getDate() + daysToAdd);
-      }
-    } else {
-      return 9998; // No dates set
+      targetDate.setDate(lastPaid.getDate() + parseInt(subscription.recurringDays));
     }
+
+    if (!targetDate) return 9998; // No dates set
 
     targetDate.setHours(0, 0, 0, 0);
     const diff = targetDate - now;
-    const daysLeftRaw = Math.ceil(diff / (1000 * 60 * 60 * 24));
-
-    return daysLeftRaw;
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
   const sortedSubscriptions = [...subscriptions].sort((a, b) => {

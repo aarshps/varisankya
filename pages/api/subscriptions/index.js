@@ -66,7 +66,7 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to fetch subscriptions' });
     }
   } else if (req.method === 'POST') {
-    const { name, lastPaidDate, nextDueDate, status, recurrenceType, recurrenceValue } = req.body;
+    const { name, lastPaidDate, nextDueDate, status, recurringDays } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Subscription name is required' });
@@ -78,8 +78,7 @@ export default async function handler(req, res) {
         lastPaidDate: lastPaidDate ? new Date(lastPaidDate) : null,
         nextDueDate: nextDueDate ? new Date(nextDueDate) : null,
         status: status || 'Active',
-        recurrenceType: recurrenceType || 'days',
-        recurrenceValue: recurrenceValue || 30,
+        recurringDays: recurringDays || 30,
         createdAt: new Date(),
       };
 
@@ -90,7 +89,7 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to add subscription' });
     }
   } else if (req.method === 'PUT') {
-    const { id, name, lastPaidDate, nextDueDate, status, recurrenceType, recurrenceValue } = req.body;
+    const { id, name, lastPaidDate, nextDueDate, status, recurringDays } = req.body;
 
     if (!id) {
       return res.status(400).json({ error: 'Subscription ID is required' });
@@ -102,8 +101,7 @@ export default async function handler(req, res) {
         lastPaidDate: lastPaidDate ? new Date(lastPaidDate) : null,
         nextDueDate: nextDueDate ? new Date(nextDueDate) : null,
         status: status || 'Active',
-        recurrenceType,
-        recurrenceValue,
+        recurringDays,
         updatedAt: new Date(),
       };
 

@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styles from '../styles/Home.module.css';
 import ProgressBar from './ProgressBar';
 import CustomSelect from './CustomSelect';
-import RecurrenceSelect from './RecurrenceSelect';
-import MonthSelect from './MonthSelect';
+// Removed: RecurrenceSelect and MonthSelect (simplified to recurringDays)
 import Modal, { ModalButton } from './Modal';
 import IconButton from './IconButton';
 import Button from './Button';
@@ -29,12 +28,12 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   const [isEditing, setIsEditing] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [editForm, setEditForm] = useState({ ...subscription, recurrenceType: subscription.recurrenceType || 'days', recurrenceValue: subscription.recurrenceValue || 30 });
+  const [editForm, setEditForm] = useState({ ...subscription, recurringDays: subscription.recurringDays || 30 });
   const [showDeleteModal, setShowDeleteModal] = useState(false); // New state for delete modal
 
   // Keep edit form in sync with prop changes
   useEffect(() => {
-    setEditForm({ ...subscription, recurrenceType: subscription.recurrenceType || 'days', recurrenceValue: subscription.recurrenceValue || 30 });
+    setEditForm({ ...subscription, recurringDays: subscription.recurringDays || 30 });
   }, [subscription]);
 
   // Sync local expanded state with parent's expanded state
@@ -75,64 +74,30 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     };
   }, [expanded, onCollapse, subscription._id]);
 
-  // Ensure elapsed days never go negative
-  // Ensure elapsed days never go negative
+  // Simplified progress calculation - 3-field system
   const calculateProgress = useCallback(() => {
     const now = new Date();
     now.setHours(0, 0, 0, 0); // Normalize today to midnight
 
-    let targetDate;
-    if (subscription.status === 'Inactive') return { progress: 0, daysLeft: 0, label: 'Inactive', targetDate: null };
+    if (subscription.status === 'Inactive') {
+      return { progress: 0, daysLeft: 0, label: 'Inactive', targetDate: null };
+    }
 
+    let targetDate = null;
+
+    // Priority 1: Use Next Due Date if set
     if (subscription.nextDueDate) {
       targetDate = new Date(subscription.nextDueDate);
-    } else if (subscription.lastPaidDate) {
+    }
+    // Priority 2: Calculate from Last Paid + Recurring Days
+    else if (subscription.lastPaidDate && subscription.recurringDays) {
       const lastPaid = new Date(subscription.lastPaidDate);
       targetDate = new Date(lastPaid);
+      targetDate.setDate(lastPaid.getDate() + parseInt(subscription.recurringDays));
+    }
 
-      if (subscription.recurrenceType === 'monthly') {
-        // Set to specific day of current month (relative to last paid)
-        const dayOfMonth = parseInt(subscription.recurrenceValue) || 1;
-        targetDate.setDate(dayOfMonth);
-
-        // Handle month rollover (e.g. setting Feb 30 -> Mar 2)
-        // We want to clamp to the last day of the month if needed
-        if (targetDate.getDate() !== dayOfMonth) {
-          targetDate.setDate(0);
-        }
-
-        // If the calculated date is before or same as last paid, move to next month
-        if (targetDate <= lastPaid) {
-          targetDate = new Date(lastPaid);
-          targetDate.setMonth(targetDate.getMonth() + 1);
-          targetDate.setDate(dayOfMonth);
-          if (targetDate.getDate() !== dayOfMonth) {
-            targetDate.setDate(0);
-          }
-        }
-      } else if (subscription.recurrenceType === 'yearly') {
-        // Set to specific date this year (relative to last paid)
-        const [month, day] = String(subscription.recurrenceValue || '01-01').split('-').map(Number);
-        targetDate.setMonth(month - 1);
-        targetDate.setDate(day);
-
-        // If the calculated date is before or same as last paid, move to next year
-        if (targetDate <= lastPaid) {
-          targetDate.setFullYear(targetDate.getFullYear() + 1);
-        }
-      } else if (subscription.recurrenceType === 'manual') {
-        // Manual recurrence: If nextDueDate is not set (which is why we are here in the else-if block),
-        // we should NOT auto-calculate anything based on lastPaidDate.
-        return { progress: 0, daysLeft: 0, label: 'No due date', targetDate: null };
-      } else {
-        // Default 'days' logic
-        const daysToAdd = parseInt(subscription.recurrenceValue) || 30;
-        targetDate.setDate(lastPaid.getDate() + daysToAdd);
-      }
-    } else if (subscription.nextDueDate) {
-      // Fallback if only next due date is present and not manual
-      targetDate = new Date(subscription.nextDueDate);
-    } else {
+    // No dates set
+    if (!targetDate) {
       return { progress: 0, daysLeft: 0, label: 'No dates set', targetDate: null };
     }
 
@@ -145,58 +110,17 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     // For display, we don't show negative days
     const daysLeft = Math.max(0, daysLeftRaw);
 
-    // NEW: Progress based on absolute days left, not percentage of cycle
-    // Cap visualization at 30 days for consistency across all recurrence types
+    // Progress based on 30-day window
     // 0 days = 100% (urgent), 30+ days = 0% (safe)
     const cappedDays = Math.min(Math.max(daysLeftRaw, 0), 30);
     const progress = ((30 - cappedDays) / 30) * 100;
 
     const formattedTargetDate = targetDate ? targetDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
-    const displayLabel = targetDate ? `${daysLeft} days left (${formattedTargetDate})` : label;
+    const displayLabel = targetDate ? `${daysLeft} days left (${formattedTargetDate})` : 'No dates set';
 
     return { progress, daysLeft, daysLeftRaw, label: displayLabel, targetDate };
   }, [subscription]);
 
-  const getMaxDays = (month) => {
-    if (!month) return 31;
-    const m = parseInt(month);
-    if (m === 2) return 29; // Allow 29 for leap years
-    if ([4, 6, 9, 11].includes(m)) return 30;
-    return 31;
-  };
-
-  const getRecurrenceLabel = () => {
-    const type = subscription.recurrenceType || 'days';
-    const value = subscription.recurrenceValue;
-
-    switch (type) {
-      case 'days':
-        return `Every ${value || 30} Days`;
-      case 'monthly':
-        return `Monthly (${value || 1}${getOrdinalSuffix(value || 1)})`;
-      case 'yearly':
-        return `Yearly (${value || '01-01'})`;
-      case 'manual':
-        return 'Manual';
-      default:
-        return 'Every 30 Days';
-    }
-  };
-
-  const getOrdinalSuffix = (i) => {
-    const j = i % 10,
-      k = i % 100;
-    if (j === 1 && k !== 11) {
-      return 'st';
-    }
-    if (j === 2 && k !== 12) {
-      return 'nd';
-    }
-    if (j === 3 && k !== 13) {
-      return 'rd';
-    }
-    return 'th';
-  };
 
   const { progress, daysLeft, label, targetDate } = calculateProgress();
   const hasDates = subscription.nextDueDate || subscription.lastPaidDate;
@@ -270,8 +194,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   const hasChanges =
     editForm.name !== subscription.name ||
     editForm.status !== subscription.status ||
-    editForm.recurrenceType !== subscription.recurrenceType ||
-    String(editForm.recurrenceValue) !== String(subscription.recurrenceValue) ||
+    String(editForm.recurringDays) !== String(subscription.recurringDays) ||
     normalizeDate(editForm.lastPaidDate) !== normalizeDate(subscription.lastPaidDate) ||
     normalizeDate(editForm.nextDueDate) !== normalizeDate(subscription.nextDueDate);
 
@@ -464,109 +387,11 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {/* Recurrence Type */}
+                {/* Simplified 3-Field System */}
+
+                {/* Last Paid Date */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Recurrence</label>
-                  <RecurrenceSelect
-                    value={editForm.recurrenceType}
-                    onChange={(value) => {
-                      let newValue = editForm.recurrenceValue;
-                      if (value === 'days') newValue = 30;
-                      else if (value === 'monthly') newValue = 1;
-                      else if (value === 'yearly') newValue = '01-01';
-
-                      setEditForm({ ...editForm, recurrenceType: value, recurrenceValue: newValue });
-                    }}
-                    disabled={isSaving}
-                  />
-                </div>
-
-                {/* Dynamic Recurrence Value Input */}
-                {editForm.recurrenceType === 'days' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Days Cycle</label>
-                    <input
-                      type="number"
-                      min="1"
-                      className={styles.composerInput}
-                      style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px', boxSizing: 'border-box', maxWidth: '100%', appearance: 'none', WebkitAppearance: 'none' }}
-                      value={editForm.recurrenceValue}
-                      onChange={(e) => setEditForm({ ...editForm, recurrenceValue: e.target.value })}
-                      placeholder="e.g. 30"
-                      disabled={isSaving}
-                    />
-                  </div>
-                )}
-
-                {editForm.recurrenceType === 'monthly' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Day of Month</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="31"
-                      className={styles.composerInput}
-                      style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px', boxSizing: 'border-box', maxWidth: '100%', appearance: 'none', WebkitAppearance: 'none' }}
-                      value={editForm.recurrenceValue}
-                      onChange={(e) => {
-                        let val = parseInt(e.target.value);
-                        if (val > 31) val = 31;
-                        if (val < 1) val = 1;
-                        setEditForm({ ...editForm, recurrenceValue: val });
-                      }}
-                      placeholder="e.g. 15"
-                      disabled={isSaving}
-                    />
-                  </div>
-                )}
-
-                {editForm.recurrenceType === 'yearly' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Date</label>
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                      <div style={{ flex: 2 }}>
-                        <MonthSelect
-                          value={String(editForm.recurrenceValue || '01-01').split('-')[0]}
-                          onChange={(newMonth) => {
-                            const currentDay = parseInt(String(editForm.recurrenceValue || '01-01').split('-')[1]);
-                            const maxDays = getMaxDays(newMonth);
-                            const newDay = currentDay > maxDays ? maxDays : currentDay;
-                            setEditForm({ ...editForm, recurrenceValue: `${newMonth}-${String(newDay).padStart(2, '0')}` });
-                          }}
-                          disabled={isSaving}
-                        />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <input
-                          type="number"
-                          min="1"
-                          max={getMaxDays(String(editForm.recurrenceValue || '01-01').split('-')[0])}
-                          className={styles.composerInput}
-                          style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px', boxSizing: 'border-box', maxWidth: '100%', appearance: 'none', WebkitAppearance: 'none' }}
-                          value={parseInt(String(editForm.recurrenceValue || '01-01').split('-')[1])}
-                          onChange={(e) => {
-                            const currentMonth = String(editForm.recurrenceValue || '01-01').split('-')[0];
-                            let val = parseInt(e.target.value);
-                            if (isNaN(val)) {
-                              setEditForm({ ...editForm, recurrenceValue: `${currentMonth}-01` }); // Reset to 01 if cleared
-                              return;
-                            }
-                            const max = getMaxDays(currentMonth);
-                            if (val > max) val = max;
-                            if (val < 1) val = 1;
-                            const newDay = String(val).padStart(2, '0');
-                            setEditForm({ ...editForm, recurrenceValue: `${currentMonth}-${newDay}` });
-                          }}
-                          placeholder="Day"
-                          disabled={isSaving}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Last Paid</label>
+                  <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Last Paid Date (Optional)</label>
                   <input
                     type="date"
                     max={getTodayString()}
@@ -586,40 +411,80 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                       WebkitAppearance: 'none',
                     }}
                     value={editForm.lastPaidDate ? new Date(editForm.lastPaidDate).toISOString().split('T')[0] : ''}
-                    onChange={(e) => setEditForm({ ...editForm, lastPaidDate: e.target.value })}
+                    onChange={(e) => setEditForm({ ...editForm, lastPaidDate: e.target.value, nextDueDate: editForm.nextDueDate ? '' : editForm.nextDueDate })}
+                    onClick={(e) => e.target.showPicker && e.target.showPicker()}
+                    disabled={isSaving || editForm.nextDueDate}
+                  />
+                  {editForm.nextDueDate && (
+                    <span style={{ fontSize: '11px', color: '#8E918F', fontFamily: "'Google Sans Flex', sans-serif" }}>
+                      Disabled when Next Due is set
+                    </span>
+                  )}
+                </div>
+
+                {/* Recurring Days */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Recurring Days (Optional)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    className={styles.composerInput}
+                    style={{ borderRadius: '12px', width: '100%', fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', padding: '14px 16px', height: '48px', boxSizing: 'border-box', maxWidth: '100%', appearance: 'none', WebkitAppearance: 'none' }}
+                    value={editForm.recurringDays || ''}
+                    onChange={(e) => setEditForm({ ...editForm, recurringDays: e.target.value })}
+                    placeholder="e.g. 30 for monthly"
+                    disabled={isSaving || editForm.nextDueDate}
+                  />
+                  {editForm.nextDueDate && (
+                    <span style={{ fontSize: '11px', color: '#8E918F', fontFamily: "'Google Sans Flex', sans-serif" }}>
+                      Disabled when Next Due is set
+                    </span>
+                  )}
+                </div>
+
+                {/* OR Separator */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '4px 0' }}>
+                  <div style={{ flex: 1, height: '1px', backgroundColor: '#3E3E3E' }}></div>
+                  <span style={{ color: '#8E918F', fontSize: '12px', fontWeight: '500', fontFamily: "'Google Sans Flex', sans-serif" }}>OR</span>
+                  <div style={{ flex: 1, height: '1px', backgroundColor: '#3E3E3E' }}></div>
+                </div>
+
+                {/* Next Due Date */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Next Due Date (Optional)</label>
+                  <input
+                    type="date"
+                    className={styles.composerInput}
+                    style={{
+                      borderRadius: '12px',
+                      fontFamily: "'Google Sans Flex', sans-serif",
+                      fontSize: '16px',
+                      padding: '14px 16px',
+                      height: '48px',
+                      width: '100%',
+                      colorScheme: 'dark',
+                      cursor: 'pointer',
+                      boxSizing: 'border-box',
+                      maxWidth: '100%',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                    }}
+                    value={editForm.nextDueDate ? new Date(editForm.nextDueDate).toISOString().split('T')[0] : ''}
+                    onChange={(e) => {
+                      // If setting Next Due, clear Last Paid
+                      if (e.target.value) {
+                        setEditForm({ ...editForm, nextDueDate: e.target.value, lastPaidDate: '', recurringDays: '' });
+                      } else {
+                        setEditForm({ ...editForm, nextDueDate: '' });
+                      }
+                    }}
                     onClick={(e) => e.target.showPicker && e.target.showPicker()}
                     disabled={isSaving}
                   />
+                  <span style={{ fontSize: '11px', color: '#8E918F', fontFamily: "'Google Sans Flex', sans-serif" }}>
+                    Setting this will clear Last Paid + Recurring Days
+                  </span>
                 </div>
-
-                {editForm.recurrenceType === 'manual' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Next Due</label>
-                    <input
-                      type="date"
-                      min={getTodayString()}
-                      className={styles.composerInput}
-                      style={{
-                        borderRadius: '12px',
-                        fontFamily: "'Google Sans Flex', sans-serif",
-                        fontSize: '16px',
-                        padding: '14px 16px',
-                        height: '48px',
-                        width: '100%',
-                        colorScheme: 'dark',
-                        cursor: 'pointer',
-                        boxSizing: 'border-box',
-                        maxWidth: '100%',
-                        appearance: 'none',
-                        WebkitAppearance: 'none',
-                      }}
-                      value={editForm.nextDueDate ? new Date(editForm.nextDueDate).toISOString().split('T')[0] : ''}
-                      onChange={(e) => setEditForm({ ...editForm, nextDueDate: e.target.value })}
-                      onClick={(e) => e.target.showPicker && e.target.showPicker()}
-                      disabled={isSaving}
-                    />
-                  </div>
-                )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</label>
