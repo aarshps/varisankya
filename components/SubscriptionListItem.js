@@ -171,17 +171,18 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         {/* Main Content Row */}
         <div style={{
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'center', // Vertical center alignment
           justifyContent: 'space-between',
           width: '100%',
-          gap: '16px'
+          gap: '16px',
+          minHeight: '36px' // Ensure minimum height for alignment
         }}>
           {/* Subscription Name */}
           <div style={{
             flex: 1,
             minWidth: 0,
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center' // Vertical center
           }}>
             <span style={{
               fontFamily: "'Google Sans Flex', sans-serif",
@@ -190,7 +191,8 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               color: COLORS.textPrimary,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              lineHeight: '1.5'
             }}>
               {subscription.name || 'New Subscription'}
             </span>
@@ -199,7 +201,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           {/* Right Side: Days Left + Progress */}
           <div style={{
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'center', // Vertical center
             gap: '12px',
             flexShrink: 0
           }}>
@@ -208,7 +210,8 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               fontFamily: "'Google Sans Flex', sans-serif",
               fontSize: '12px',
               color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              lineHeight: '1.5'
             }}>
               {label}
             </span>
@@ -220,7 +223,8 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               viewBox="0 0 36 36"
               style={{
                 transform: 'rotate(-90deg)',
-                display: 'block'
+                display: 'block',
+                flexShrink: 0
               }}
             >
               {/* Background Circle */}
@@ -229,7 +233,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 cy="18"
                 r="16"
                 fill="none"
-                stroke="#2D2D2D"
+                stroke={COLORS.surfaceVariant}
                 strokeWidth="3"
               />
               {/* Progress Circle */}
