@@ -8,11 +8,18 @@ import { COLORS } from '../lib/colors';
 const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, onExpand, onCollapse }) => {
   const [expanded, setExpanded] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [editedName, setEditedName] = useState(subscription.name);
+  const [editedDate, setEditedDate] = useState(subscription.nextDueDate ? new Date(subscription.nextDueDate).toISOString().split('T')[0] : '');
 
   // Sync expanded state
   useEffect(() => {
     setExpanded(isExpanded);
-  }, [isExpanded]);
+    if (isExpanded) {
+      // Reset edit state when expanding
+      setEditedName(subscription.name);
+      setEditedDate(subscription.nextDueDate ? new Date(subscription.nextDueDate).toISOString().split('T')[0] : '');
+    }
+  }, [isExpanded, subscription]);
 
   // Auto-collapse after 60s
   useEffect(() => {
@@ -70,17 +77,26 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     return { progress, daysLeft, daysLeftRaw, label: displayLabel };
   }, [subscription.nextDueDate]);
 
-  const handleNextDueDateChange = async (e) => {
-    const newDate = e.target.value;
-
+  const handleSave = async () => {
     try {
       await onUpdate({
         ...subscription,
-        nextDueDate: newDate || null,
+        name: editedName,
+        nextDueDate: editedDate || null,
       });
+      setExpanded(false);
+      if (onCollapse) onCollapse();
     } catch (error) {
       console.error('Failed to update:', error);
     }
+  };
+
+  const handleCancel = () => {
+    // Reset to original values
+    setEditedName(subscription.name);
+    setEditedDate(subscription.nextDueDate ? new Date(subscription.nextDueDate).toISOString().split('T')[0] : '');
+    setExpanded(false);
+    if (onCollapse) onCollapse();
   };
 
   const handleDeleteClick = (e) => {
@@ -125,29 +141,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         <div style={{ width: '100%', boxSizing: 'border-box' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '8px', marginBottom: '8px' }}>
-              <input
-                type="text"
-                value={subscription.name}
-                onChange={(e) => onUpdate({ ...subscription, name: e.target.value })}
-                onClick={(e) => e.stopPropagation()}
-                placeholder="Subscription Name"
-                style={{
-                  fontFamily: "'Google Sans Flex', sans-serif",
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  whiteSpace: 'normal',
-                  wordBreak: 'break-word',
-                  lineHeight: '1.3',
-                  background: 'transparent',
-                  border: 'none',
-                  color: COLORS.textPrimary,
-                  width: '100%',
-                  padding: 0,
-                  margin: 0,
-                  outline: 'none',
-                  cursor: 'text'
-                }}
-              />
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', fontWeight: '500', whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: '1.3' }}>{subscription.name}</span>
               <span style={{
                 fontFamily: "'Google Sans Flex', sans-serif",
                 fontSize: '12px',
@@ -167,7 +161,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         {/* Expanded View */}
         <div
           style={{
-            maxHeight: expanded ? '300px' : '0',
+            maxHeight: expanded ? '400px' : '0',
             opacity: expanded ? 1 : 0,
             overflow: 'hidden',
             marginTop: expanded ? '16px' : '0',
@@ -177,7 +171,27 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           onClick={(e) => e.stopPropagation()}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Name Edit removed - editing is now inline in the header */}
+            {/* Name Edit */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Name</label>
+              <input
+                type="text"
+                className={styles.composerInput}
+                style={{
+                  borderRadius: '12px',
+                  fontFamily: "'Google Sans Flex', sans-serif",
+                  fontSize: '16px',
+                  padding: '14px 16px',
+                  height: '48px',
+                  width: '100%',
+                  colorScheme: 'dark',
+                  boxSizing: 'border-box',
+                }}
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                placeholder="Subscription Name"
+              />
+            </div>
 
             {/* Next Due Date Picker */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -196,8 +210,8 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   cursor: 'pointer',
                   boxSizing: 'border-box',
                 }}
-                value={subscription.nextDueDate ? new Date(subscription.nextDueDate).toISOString().split('T')[0] : ''}
-                onChange={handleNextDueDateChange}
+                value={editedDate}
+                onChange={(e) => setEditedDate(e.target.value)}
                 onClick={(e) => {
                   e.stopPropagation();
                   e.target.showPicker && e.target.showPicker();
@@ -224,11 +238,24 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               <IconButton
                 onClick={(e) => {
                   e.stopPropagation();
-                  // Save is handled by onUpdate calls on inputs, but this provides visual confirmation/action
-                  // In this implementation, updates are immediate via onChange, so this button is effectively a "Done" or explicit save
-                  // We can just collapse the item
-                  setExpanded(false);
-                  if (onCollapse) onCollapse();
+                  handleCancel();
+                }}
+                title="Cancel"
+                icon={
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor" />
+                  </svg>
+                }
+                style={{
+                  color: COLORS.neutral,
+                  backgroundColor: COLORS.surfaceHighlight,
+                  border: `1px solid ${COLORS.border}`,
+                }}
+              />
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSave();
                 }}
                 title="Save"
                 icon={
