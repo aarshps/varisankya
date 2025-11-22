@@ -36,7 +36,6 @@ export default async function handler(req, res) {
 
     // Log and validate the database name being used
     const expectedDbName = appConfig.getDatabaseName(username);
-    console.log(`[Subscriptions API] Expected database: ${expectedDbName}, Using database: ${db.databaseName} for user: ${username}`);
 
     // Validate that we're using the correct database
     if (db.databaseName !== expectedDbName) {

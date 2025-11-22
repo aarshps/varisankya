@@ -84,7 +84,6 @@ export const authOptions = {
           const dbValid = await validateUserDatabase(token.username);
           if (!dbValid) {
             // Invalidate the session to ensure client is logged out
-            console.log(`[NextAuth] Invalidating session for user: ${token.username} due to failed DB validation`);
             return null;
           }
           session.dbAccessValid = true;
