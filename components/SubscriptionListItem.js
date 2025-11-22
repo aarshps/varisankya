@@ -21,39 +21,6 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     }
   }, [isExpanded, subscription]);
 
-  // Auto-collapse after 3s of inactivity
-  useEffect(() => {
-    if (!expanded) return;
-
-    let timer;
-    const resetTimer = () => {
-      clearTimeout(timer);
-      timer = setTimeout(() => {
-        setExpanded(false);
-        if (onCollapse) onCollapse();
-      }, 3000);
-    };
-
-    resetTimer();
-    const handleInteraction = () => resetTimer();
-    const itemElement = document.querySelector(`[data-subscription-id="${subscription._id}"]`);
-
-    if (itemElement) {
-      itemElement.addEventListener('mousemove', handleInteraction);
-      itemElement.addEventListener('click', handleInteraction);
-      itemElement.addEventListener('keydown', handleInteraction);
-    }
-
-    return () => {
-      clearTimeout(timer);
-      if (itemElement) {
-        itemElement.removeEventListener('mousemove', handleInteraction);
-        itemElement.removeEventListener('click', handleInteraction);
-        itemElement.removeEventListener('keydown', handleInteraction);
-      }
-    };
-  }, [expanded, onCollapse, subscription._id]);
-
   // Collapse on outside click
   useEffect(() => {
     if (!expanded) return;
@@ -241,96 +208,108 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         </div>
 
         {/* Expanded View */}
-        {expanded && (
-          <div
-            style={{
-              paddingTop: '20px',
-              width: '100%'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {/* Name Input */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{
-                  fontFamily: "'Google Sans Flex', sans-serif",
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  color: COLORS.textSecondary,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Name
-                </label>
-                <input
-                  type="text"
-                  className={styles.dateInput}
-                  value={editedName}
-                  onChange={(e) => setEditedName(e.target.value)}
-                  placeholder="Subscription Name"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </div>
+        <div
+          style={{
+            maxHeight: expanded ? '500px' : '0',
+            opacity: expanded ? 1 : 0,
+            overflow: 'hidden',
+            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: expanded ? 'scaleY(1)' : 'scaleY(0.95)',
+            transformOrigin: 'top'
+          }}
+        >
+          {expanded && (
+            <div
+              style={{
+                paddingTop: '20px',
+                width: '100%',
+                animation: 'fadeIn 0.3s ease-out'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {/* Name Input */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{
+                    fontFamily: "'Google Sans Flex', sans-serif",
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    color: COLORS.textSecondary,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    className={styles.dateInput}
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    placeholder="Subscription Name"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
 
-              {/* Date Picker */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <label style={{
-                  fontFamily: "'Google Sans Flex', sans-serif",
-                  fontSize: '12px',
-                  fontWeight: '500',
-                  color: COLORS.textSecondary,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Next Due Date
-                </label>
-                <input
-                  type="date"
-                  className={styles.dateInput}
-                  value={editedDate}
-                  onChange={(e) => setEditedDate(e.target.value)}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.target.showPicker && e.target.showPicker();
-                  }}
-                />
-              </div>
-
-              {/* Action Buttons */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-              }}>
-                <Button onClick={handleDeleteClick} variant="destructive">
-                  Delete
-                </Button>
-
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <Button
+                {/* Date Picker */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{
+                    fontFamily: "'Google Sans Flex', sans-serif",
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    color: COLORS.textSecondary,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    Next Due Date
+                  </label>
+                  <input
+                    type="date"
+                    className={styles.dateInput}
+                    value={editedDate}
+                    onChange={(e) => setEditedDate(e.target.value)}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleCancel();
+                      e.target.showPicker && e.target.showPicker();
                     }}
-                    variant="neutral"
-                  >
-                    Cancel
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <Button onClick={handleDeleteClick} variant="destructive">
+                    Delete
                   </Button>
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSave();
-                    }}
-                    variant="success"
-                    disabled={!isModified}
-                  >
-                    Save
-                  </Button>
+
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCancel();
+                      }}
+                      variant="neutral"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSave();
+                      }}
+                      variant="success"
+                      disabled={!isModified}
+                    >
+                      Save
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </li>
 
       {/* Delete Modal */}

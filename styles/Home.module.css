@@ -375,7 +375,7 @@
   border: 1px solid #2D2D2D;
   /* surfaceVariant */
   border-radius: 16px;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   color: #E3E3E3;
   position: relative;
 }
@@ -387,6 +387,8 @@
     /* surfaceVariant */
     border-color: #444746;
     /* border */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 }
 
