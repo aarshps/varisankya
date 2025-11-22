@@ -1,244 +1,111 @@
-import { useSession, signIn, signOut } from 'next-auth/react';
 import Head from 'next/head';
+import { useSession, signIn, signOut } from 'next-auth/react';
+import { useState, useEffect, useRef } from 'react';
 import styles from '../styles/Home.module.css';
-import { useEffect, useState, useCallback, useRef } from 'react';
-import { useRouter } from 'next/router';
-import App from '../components/App';
 import Subscriptions from '../components/Subscriptions';
 import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
 import Loader from '../components/Loader';
-
 
 export default function Home() {
   const { data: session, status } = useSession();
-  const [mobile, setMobile] = useState(false);
   const [subscriptions, setSubscriptions] = useState([]);
-  const [newSubscription, setNewSubscription] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [currentView, setCurrentView] = useState('subscriptions');
-  const hasFetched = useRef(false);
-  const sidebarRef = useRef(null);
-  const hamburgerRef = useRef(null);
-  const router = useRouter();
-  const { error: urlError } = router.query;
+  const [newSubscription, setNewSubscription] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [urlError, setUrlError] = useState(null);
+  const hasFetched = useRef(false);
 
+  // Check for error in URL query params
   useEffect(() => {
-    // Check if device is mobile
-    const checkMobile = () => {
-      setMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+    if (error) {
+      setUrlError(error);
+    }
   }, []);
 
-  // Check if session has valid database access on page load and only once (no auto-refresh on window focus)
-  useEffect(() => {
-    if (session) {
-      if (session.dbAccessValid === false) {
-        // If DB access was already invalid, sign out the user
-        console.log('[Page Refresh] Session indicates invalid database access, signing out');
-        signOut({ callbackUrl: '/' });
-      } else if (session.user?.username) {
-        // Validate database access using lightweight endpoint to avoid fetching subscriptions
-        const validateDbAccess = async () => {
-          try {
-            console.log(`[Page Refresh] Validating database access for user: ${session.user.username}`);
-
-            // Use a lightweight endpoint that only validates DB existence
-            const response = await fetch('/api/db/validate');
-
-            if (response.status === 401) {
-              console.log('[Page Refresh] Database access failed (401), signing out user');
-              signOut({ callbackUrl: '/' });
-            } else if (!response.ok) {
-              console.log(`[Page Refresh] Database validation failed with status: ${response.status}, signing out user`);
-              signOut({ callbackUrl: '/' });
-            } else {
-              console.log('[Page Refresh] Database access validated successfully');
-            }
-          } catch (error) {
-            console.error('[Page Refresh] Database validation network error:', error);
-            signOut({ callbackUrl: '/' });
-          }
-        };
-
-        // Only validate once when session arrives, to avoid repeated DB calls on focus
-        validateDbAccess();
-      }
-    }
-  }, [session]);
-
-  const fetchSubscriptions = useCallback(async (force = false) => {
-    if (!session) return;
-    // Check database access validity from session
-    if (session.dbAccessValid === false) {
-      signOut({ callbackUrl: '/' });
-      return;
-    }
-
-    if (hasFetched.current && !force) return;
+  // Fetch subscriptions
+  const fetchSubscriptions = async () => {
+    if (status !== 'authenticated') return;
 
     try {
       setLoading(true);
-      const response = await fetch('/api/subscriptions');
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Session expired or invalid, redirect to sign out
-          signOut({ callbackUrl: '/' });
-          return;
-        }
-        throw new Error('Failed to fetch subscriptions');
-      }
-      const data = await response.json();
+      const res = await fetch('/api/subscriptions');
+      if (!res.ok) throw new Error('Failed to fetch subscriptions');
+      const data = await res.json();
       setSubscriptions(data);
       hasFetched.current = true;
-    } catch (err) {
-      console.error('Error fetching subscriptions:', err);
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error);
+      setNotification({ type: 'error', message: 'Failed to load subscriptions' });
     } finally {
       setLoading(false);
     }
-  }, [session]);
+  };
 
   useEffect(() => {
-    if (session) {
+    if (status === 'authenticated' && !hasFetched.current) {
       fetchSubscriptions();
     }
-    // Intentionally omit session here to avoid re-fetching on focus
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchSubscriptions]);
+  }, [status]);
 
-  const handleAddSubscription = async (e) => {
-    e.preventDefault();
-
-    if (!newSubscription.trim()) return;
-
-    // Optimistic update: add the subscription to the UI immediately
-    const tempId = Date.now().toString(); // Temporary ID for optimistic update
-    const optimisticSubscription = {
-      _id: tempId,
-      localId: tempId, // Stable ID for UI rendering to prevent re-animation
-      name: newSubscription.trim(),
-      createdAt: new Date().toISOString()
-    };
-
-    setSubscriptions(prev => [...prev, optimisticSubscription]);
-    setNewSubscription('');
-
+  // Subscription handlers
+  const handleAddSubscription = async (name) => {
     try {
-      const response = await fetch('/api/subscriptions', {
+      const res = await fetch('/api/subscriptions', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: optimisticSubscription.name }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
       });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          signOut({ callbackUrl: '/' });
-          return;
-        }
-        throw new Error('Failed to add subscription');
-      }
+      if (!res.ok) throw new Error('Failed to add subscription');
 
-      const actualSub = await response.json();
-
-      // Update the subscription with the actual ID from the server but keep localId
-      setSubscriptions(prev =>
-        prev.map(sub =>
-          sub._id === tempId ? { ...actualSub, localId: tempId } : sub
-        )
-      );
-
-      // Show success notification
-      setNotification({ type: 'success', message: 'Subscription added successfully!' });
-    } catch (err) {
-      // If there's an error, remove the optimistic subscription
-      setSubscriptions(prev => prev.filter(sub => sub._id !== tempId));
-      setNotification({ type: 'error', message: err.message });
-      console.error('Error adding subscription:', err);
+      const newSub = await res.json();
+      setSubscriptions([...subscriptions, newSub]);
+      setNotification({ type: 'success', message: 'Subscription added' });
+      setNewSubscription('');
+    } catch (error) {
+      console.error('Error adding subscription:', error);
+      setNotification({ type: 'error', message: 'Failed to add subscription' });
     }
   };
 
   const handleUpdateSubscription = async (updatedSub) => {
-    // Optimistic update
-    setSubscriptions(prev => prev.map(sub => sub._id === updatedSub._id ? updatedSub : sub));
-
     try {
-      const response = await fetch('/api/subscriptions', {
+      const res = await fetch('/api/subscriptions', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: updatedSub._id, ...updatedSub }),
+        body: JSON.stringify(updatedSub),
       });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          signOut({ callbackUrl: '/' });
-          return;
-        }
-        throw new Error('Failed to update subscription');
-      }
+      if (!res.ok) throw new Error('Failed to update subscription');
 
-      setNotification({ type: 'success', message: 'Subscription updated!' });
-    } catch (err) {
-      console.error('Error updating subscription:', err);
-      setNotification({ type: 'error', message: err.message });
-      fetchSubscriptions(true); // Revert on error
+      setSubscriptions(subscriptions.map(sub =>
+        sub._id === updatedSub._id ? updatedSub : sub
+      ));
+      setNotification({ type: 'success', message: 'Subscription updated' });
+    } catch (error) {
+      console.error('Error updating subscription:', error);
+      setNotification({ type: 'error', message: 'Failed to update subscription' });
     }
   };
 
   const handleDeleteSubscription = async (id) => {
-    // Optimistic update: remove the subscription from UI immediately
-    setSubscriptions(prev => prev.filter(sub => sub._id !== id));
-
     try {
-      const response = await fetch(`/api/subscriptions?id=${encodeURIComponent(id)}`, {
+      const res = await fetch(`/api/subscriptions?id=${id}`, {
         method: 'DELETE',
       });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          signOut({ callbackUrl: '/' });
-          return;
-        }
-        throw new Error('Failed to delete subscription');
-      }
+      if (!res.ok) throw new Error('Failed to delete subscription');
 
-      // Show success notification
-      setNotification({ type: 'success', message: 'Subscription deleted successfully!' });
-    } catch (err) {
-      // If there's an error, re-add the subscription to the UI
-      setNotification({ type: 'error', message: err.message });
-      console.error('Error deleting subscription:', err);
-      // Fetch subscriptions again to restore the list
-      fetchSubscriptions(true); // force refresh
+      setSubscriptions(subscriptions.filter(sub => sub._id !== id));
+      setNotification({ type: 'success', message: 'Subscription deleted' });
+    } catch (error) {
+      console.error('Error deleting subscription:', error);
+      setNotification({ type: 'error', message: 'Failed to delete subscription' });
     }
   };
-
-  // Close sidebar when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (sidebarOpen &&
-        sidebarRef.current &&
-        !sidebarRef.current.contains(event.target) &&
-        hamburgerRef.current &&
-        !hamburgerRef.current.contains(event.target)) {
-        setSidebarOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [sidebarOpen, sidebarRef, hamburgerRef]);
 
   // Clear notification after 3 seconds
   useEffect(() => {
@@ -253,42 +120,23 @@ export default function Home() {
   // Handle sign in
   const handleSignIn = () => {
     setIsSigningIn(true);
-    // Direct redirect to Google OAuth flow
     signIn('google', { callbackUrl: '/' });
+  };
+
+  // Handle sign out
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/' });
   };
 
   // Determine if we have a database-related error
   const hasDbError = urlError === 'db_not_found';
 
-  // Determine header props based on current state
-  const getHeaderProps = () => {
-    if (status === 'unauthenticated' || status === 'loading' || (status === 'authenticated' && loading && !hasFetched.current)) {
-      return {
-        session: null,
-        onHamburgerClick: () => { },
-        hamburgerRef: { current: null },
-        hideHamburger: true
-      };
-    }
-    return {
-      session,
-      onHamburgerClick: () => setSidebarOpen(!sidebarOpen),
-      hamburgerRef,
-      hideHamburger: false
-    };
-  };
-
-  const headerProps = getHeaderProps();
-
   // Render different content based on authentication status
   const renderContent = () => {
     if (status === 'unauthenticated') {
-      // Show login page for unauthenticated users
       return (
         <main className={`${styles.appMain} ${styles.centeredMain}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexDirection: 'column', paddingBottom: '10vh' }}>
           <div style={{ textAlign: 'center', maxWidth: '400px', width: '100%', padding: '20px' }}>
-
-            {/* Error message for database not found - shown inline on login page since notifications are for app errors */}
             {hasDbError && (
               <div style={{
                 color: '#d93025',
@@ -319,7 +167,7 @@ export default function Home() {
                   borderRadius: '24px',
                   cursor: isSigningIn ? 'not-allowed' : 'pointer',
                   fontWeight: '500',
-                  width: 'auto', // Not full width
+                  width: 'auto',
                   minWidth: '240px',
                   margin: '0 auto',
                   fontFamily: "'Google Sans Flex', sans-serif",
@@ -329,7 +177,6 @@ export default function Home() {
                 onMouseOver={(e) => !isSigningIn && (e.currentTarget.style.backgroundColor = '#f8f9fa', e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.12)')}
                 onMouseOut={(e) => !isSigningIn && (e.currentTarget.style.backgroundColor = '#ffffff', e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)')}
               >
-                {/* Google G Logo SVG */}
                 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ width: '20px', height: '20px', marginRight: '12px' }}>
                   <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
                   <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
@@ -345,7 +192,6 @@ export default function Home() {
       );
     }
 
-    // Show unified loading state for both session and subscriptions
     if (status === 'loading' || (status === 'authenticated' && loading && !hasFetched.current)) {
       return (
         <main className={styles.appMain} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -354,36 +200,19 @@ export default function Home() {
       );
     }
 
-    // User is authenticated, show the main content with subscription management
     return (
-      <>
-        <Sidebar
-          open={sidebarOpen}
-          sidebarRef={sidebarRef}
-          onClose={() => setSidebarOpen(false)}
-          session={session}
-          onSignOut={async () => {
-            // Optimistic UI: immediately close sidebar and start logout process
-            setSidebarOpen(false);
-            await signOut({ callbackUrl: '/' });
-          }}
-          currentView={currentView}
-          onChangeView={setCurrentView}
-        />
-        {sidebarOpen && <div className={styles.overlay} onClick={() => setSidebarOpen(false)} />}
-        <div className={`${styles.appMain} ${sidebarOpen ? styles.mainOpen : ''}`}>
-          <div className={styles.content}>
-            <Subscriptions
-              subscriptions={subscriptions}
-              loading={loading}
-              error={null} // Using notifications instead of inline error
-              onDelete={handleDeleteSubscription}
-              onUpdate={handleUpdateSubscription}
-              composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription, onCancel: () => setNewSubscription('') }}
-            />
-          </div>
+      <div className={styles.appMain}>
+        <div className={styles.content}>
+          <Subscriptions
+            subscriptions={subscriptions}
+            loading={loading}
+            error={null}
+            onDelete={handleDeleteSubscription}
+            onUpdate={handleUpdateSubscription}
+            composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription, onCancel: () => setNewSubscription('') }}
+          />
         </div>
-      </>
+      </div>
     );
   };
 
@@ -403,8 +232,7 @@ export default function Home() {
         <link rel="manifest" href="/site.webmanifest" />
       </Head>
 
-      {/* Static Header - always rendered at top level */}
-      <Header {...headerProps} />
+      <Header session={session} onSignOut={handleSignOut} />
 
       {/* Notification Toast */}
       {notification && (
