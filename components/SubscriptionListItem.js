@@ -189,18 +189,8 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               onClick={(e) => e.stopPropagation()}
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {/* Name Input */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{
-                    fontFamily: "'Google Sans Flex', sans-serif",
-                    fontSize: '13px',
-                    fontWeight: '500',
-                    color: COLORS.textSecondary,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
-                  }}>
-                    Name
-                  </label>
+                {/* Name and Date in 2 columns */}
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input
                     type="text"
                     className={styles.dateInput}
@@ -208,21 +198,8 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                     onChange={(e) => setEditedName(e.target.value)}
                     placeholder="Subscription Name"
                     onClick={(e) => e.stopPropagation()}
+                    style={{ flex: '0 0 65%' }}
                   />
-                </div>
-
-                {/* Date Picker */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <label style={{
-                    fontFamily: "'Google Sans Flex', sans-serif",
-                    fontSize: '12px',
-                    fontWeight: '500',
-                    color: COLORS.textSecondary,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
-                  }}>
-                    Next Due Date
-                  </label>
                   <input
                     type="date"
                     className={styles.dateInput}
@@ -232,6 +209,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                       e.stopPropagation();
                       e.target.showPicker && e.target.showPicker();
                     }}
+                    style={{ flex: '0 0 35%' }}
                   />
                 </div>
 
