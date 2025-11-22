@@ -105,7 +105,9 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'PUT') {
     console.log('[API] PUT /subscriptions - Body:', JSON.stringify(req.body, null, 2));
-    const { id, name, nextDueDate } = req.body;
+    // Accept either id or _id (MongoDB standard)
+    const id = req.body.id || req.body._id;
+    const { name, nextDueDate } = req.body;
 
     if (!id) {
       console.warn('[API] PUT /subscriptions - Missing ID');
