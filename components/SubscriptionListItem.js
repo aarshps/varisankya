@@ -155,11 +155,8 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             </span>
           </div>
 
-          {/* Days Left + Progress Circle */}
+          {/* Days Left */}
           <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
             flexShrink: 0
           }}>
             <span style={{
@@ -170,40 +167,6 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             }}>
               {label}
             </span>
-
-            <svg
-              width="36"
-              height="36"
-              viewBox="0 0 36 36"
-              style={{
-                transform: 'rotate(-90deg)',
-                flexShrink: 0
-              }}
-            >
-              <circle
-                cx="18"
-                cy="18"
-                r={circleRadius}
-                fill="none"
-                stroke={COLORS.surfaceVariant}
-                strokeWidth="3"
-              />
-              <circle
-                cx="18"
-                cy="18"
-                r={circleRadius}
-                fill="none"
-                stroke={statusColor}
-                strokeWidth="3"
-                strokeDasharray={circumference}
-                strokeDashoffset={circumference * (1 - Math.min(progress, 100) / 100)}
-                strokeLinecap="round"
-                style={{
-                  transition: 'stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease',
-                  animation: progress >= 100 ? 'pulseRed 1.5s ease-in-out infinite' : 'none'
-                }}
-              />
-            </svg>
           </div>
         </div>
 
@@ -212,7 +175,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           <div style={{
             height: '1px',
             backgroundColor: COLORS.surfaceVariant,
-            margin: '16px 0',
+            margin: '12px 0',
             width: '100%'
           }} />
         )}
@@ -235,7 +198,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {/* Name Input */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{
