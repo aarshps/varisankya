@@ -84,8 +84,6 @@ Varisankya is built with a modern stack focusing on performance and strictly iso
 - **Database**: [MongoDB](https://www.mongodb.com/)
 - **Authentication**: [NextAuth.js](https://next-auth.js.org/) with Google OAuth
 - **Styling**: CSS Modules with global styles, using **Google Sans Flex** font
-- **Charts**: [Recharts](https://recharts.org/) for analytics visualizations (optional feature)
-- **AI Integration**: Google Generative AI (Gemini) for subscription insights (optional feature)
 
 ### 🔐 Unique Database Architecture
 
@@ -101,7 +99,6 @@ Unlike typical multi-tenant apps that store all users' data in one table, Varisa
 ```
 varisankya/
 ├── components/              # UI Components
-│   ├── Analytics/          # Analytics & insights components
 │   ├── App.js              # Main app layout wrapper
 │   ├── Button.js           # Reusable M3E button component
 │   ├── CustomSelect.js     # Custom styled select dropdown
@@ -125,8 +122,7 @@ varisankya/
 │   │   ├── auth/           # NextAuth.js authentication
 │   │   ├── db/             # Database validation endpoints
 │   │   ├── subscriptions/  # CRUD operations for subscriptions
-│   │   ├── user/           # User management
-│   │   └── analytics/      # Analytics & insights (optional)
+│   │   └── user/           # User management
 │   └── index.js            # Main app page with unified loading
 ├── public/                  # Static Assets
 │   ├── android-logo.png    # App logo
@@ -179,9 +175,6 @@ varisankya/
    # Google OAuth Credentials
    CLIENT_ID=your_google_client_id.apps.googleusercontent.com
    CLIENT_SECRET=your_google_client_secret
-
-   # Optional: Google AI API Key (for insights feature)
-   GOOGLE_AI_API_KEY=your_gemini_api_key
    ```
 
 4. **Run Development Server**
@@ -320,11 +313,6 @@ The application includes:
 
 - `POST /api/user/create` - Create user database and initial data
 
-### Analytics (Optional)
-
-- `GET /api/analytics/data` - Get subscription analytics data
-- `POST /api/analytics/insight` - Generate AI insights for a subscription
-
 ---
 
 ## 🤝 Contributing
@@ -351,7 +339,6 @@ This project is private and not currently licensed for public use.
 - Styled with [Material Design 3](https://m3.material.io/) principles
 - Typography by [Google Fonts](https://fonts.google.com/)
 - Icons from Material Design Icons
-- AI powered by [Google Gemini](https://ai.google.dev/)
 
 ---
 
