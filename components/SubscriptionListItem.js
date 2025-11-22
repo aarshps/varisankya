@@ -290,19 +290,17 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500', color: subscription.status === 'Inactive' ? '#F2B8B5' : '#C2E7FF' }}>{subscription.status || 'Active'}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Recurrence:</span>
-              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{getRecurrenceLabel()}</span>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Recurring Days:</span>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{subscription.recurringDays ? `Every ${subscription.recurringDays} days` : '-'}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Last Paid:</span>
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{subscription.lastPaidDate ? new Date(subscription.lastPaidDate).toLocaleDateString() : '-'}</span>
             </div>
-            {subscription.recurrenceType === 'manual' && (
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Next Due:</span>
-                <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{subscription.nextDueDate ? new Date(subscription.nextDueDate).toLocaleDateString() : '-'}</span>
-              </div>
-            )}
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', color: '#C4C7C5' }}>Next Due:</span>
+              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '14px', fontWeight: '500' }}>{subscription.nextDueDate ? new Date(subscription.nextDueDate).toLocaleDateString() : (subscription.lastPaidDate && subscription.recurringDays ? 'Auto-calculated' : '-')}</span>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
               <IconButton
                 onClick={handleDeleteClick}

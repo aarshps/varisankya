@@ -36,19 +36,25 @@ Varisankya is a modern, mobile-first Progressive Web App (PWA) designed to help 
 
 #### Editing & Details
 
-Tap any subscription to expand it.
+Tap any subscription to expand it, then click the edit (pencil) icon to open the editor.
 
 - **Status**: Toggle between **Active** (paying) and **Inactive** (cancelled).
-- **Recurrence**:
-  - **Every X Days**: Fixed cycle (e.g., every 28 days).
-  - **Monthly**: Fixed day of the month (e.g., 15th). _Handles short months automatically._
-  - **Yearly**: Fixed date (e.g., Dec 25).
-  - **Manual**: You manually set the next due date.
-- **Dates**:
-  - **Last Paid**: The date you last paid.
-  - **Next Due**: Calculated automatically based on recurrence, or set manually.
-- **Edit**: Click the edit (pencil) icon to open a modal with all editable fields.
-- **Delete**: Click the delete (trash) icon to remove permanently after confirmation.
+- **Recurrence Fields** (choose ONE approach):
+  - **Option 1: Last Paid + Recurring Days**:
+    - **Last Paid Date**: When you last paid for this subscription
+    - **Recurring Days**: How many days until it recurs (e.g., 30 for monthly, 365 for yearly)
+    - Next Due is automatically calculated
+  - **Option 2: Next Due Date Only**:
+    - **Next Due Date**: Set the exact date when payment is due
+    - Use this for one-time payments or when you know the specific due date
+    - Setting this will disable Last Paid and Recurring Days fields
+
+**How it works**:
+- If **Next Due** is set → It's used directly (manual mode)
+- If **Last Paid + Recurring Days** are set → Next Due = Last Paid + Days
+- Update **Last Paid** when you pay (early or late) to recalculate Next Due
+- **Edit**: Click the edit (pencil) icon to modify any field
+- **Delete**: Click the delete (trash) icon to remove permanently after confirmation
 
 ### 3. Understanding the Dashboard
 
@@ -205,25 +211,38 @@ The app is ready for [Vercel](https://vercel.com/) deployment.
 
 ## 🧠 Logic & Calculations
 
-### Recurrence Logic
+### Simplified Recurrence System
 
-- **Monthly Rollover**: If a bill is due on the 31st, and the next month is February, the system automatically clamps the due date to Feb 28th (or 29th) to ensure valid dates.
-- **Calculation Priority**:
-  1. If `Next Due Date` is explicitly set by the user, it is used.
-  2. Otherwise, `Next Due Date` is calculated: `Last Paid Date` + `Recurrence Cycle`.
+The app uses a simple 3-field model:
+
+1. **Last Paid Date** (optional)
+2. **Recurring Days** (optional)
+3. **Next Due Date** (optional)
+
+**Priority Logic**:
+- If `Next Due Date` is set → Use it directly
+- If `Last Paid Date + Recurring Days` are set → Calculate: `Next Due = Last Paid + Recurring Days`
+- If neither is set → Show "No dates set"
+
+**Real-World Examples**:
+- **Monthly Netflix** ($15/month): Last Paid = Jan 15, Recurring Days = 30 → Next Due = Feb 14
+- **Annual Insurance** ($500/year): Last Paid = Dec 1, RecurringDays = 365 → Next Due = Nov 30 (next year)
+- **Credit Card** (known due date): Next Due = Feb 5 (set directly, no calculation)
+- **Early Payment**: Paid on Jan 10 instead of Jan 15 → Update Last Paid to Jan 10, Next Due recalculates to Feb 9
 
 ### Progress Calculation
 
 - **Formula**: `((30 - DaysRemaining) / 30) * 100`
+- **30-Day Window**: Progress bar fills as subscription approaches due date within 30 days
 - **Visualization**:
-  - The progress bar is capped at a 30-day window for consistency.
-  - If a bill is due in 45 days, the bar is empty (0%).
-  - As it enters the 30-day window, the bar starts filling.
-  - 0 days left (or overdue) = 100% full.
+  - 30+ days left → Bar empty (0%)
+  - 15 days left → Bar half full (50%)
+  - 0 days left → Bar full (100%)
+  - Overdue → Bar full, red color
 - **Color Coding**:
-  - **Blue** (`#A8C7FA`): Safe/approaching (0-70% full).
-  - **Red** (`#F2B8B5`): Urgent/overdue (>70% full).
-  - **Grey** (`#8E918F`): Inactive or no dates set.
+  - **Blue** (`#A8C7FA`): Safe (0-70% full)
+  - **Red** (`#F2B8B5`): Urgent/overdue (>70% full)
+  - **Grey** (`#8E918F`): Inactive or no dates set
 
 ### Sorting Algorithm
 
