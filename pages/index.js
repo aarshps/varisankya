@@ -115,6 +115,7 @@ export default function Home() {
 
       const result = await res.json();
       console.log('[Frontend] Updated subscription result:', result);
+      setNotification({ type: 'success', message: 'Subscription updated successfully' });
 
       // No need to update state again if successful as we did optimistic update
       // But we might want to sync back any server-side changes if needed

@@ -434,19 +434,19 @@
 }
 
 .notification--error {
-  background-color: #F2B8B5;
-  /* M3 Dark Error Container */
-  color: #601410;
-  /* M3 Dark On Error Container */
-  border: 1px solid #8C1D18;
+  background-color: #1E1E1E;
+  /* M3 Dark Surface */
+  color: #F2B8B5;
+  /* M3 Dark Error */
+  border: 1px solid #F2B8B5;
 }
 
 .notification--success {
-  background-color: #C2E7FF;
-  /* M3 Dark Primary Container */
-  color: #001D35;
-  /* M3 Dark On Primary Container */
-  border: 1px solid #004A77;
+  background-color: #1E1E1E;
+  /* M3 Dark Surface */
+  color: #81C995;
+  /* M3 Dark Success */
+  border: 1px solid #81C995;
 }
 
 @keyframes slideDown {
