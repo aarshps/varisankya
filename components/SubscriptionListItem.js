@@ -145,7 +145,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         {/* Expanded View */}
         <div
           style={{
-            maxHeight: expanded ? '200px' : '0',
+            maxHeight: expanded ? '300px' : '0',
             opacity: expanded ? 1 : 0,
             overflow: 'hidden',
             marginTop: expanded ? '16px' : '0',
@@ -155,6 +155,28 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           onClick={(e) => e.stopPropagation()}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Name Edit */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Name</label>
+              <input
+                type="text"
+                className={styles.composerInput}
+                style={{
+                  borderRadius: '12px',
+                  fontFamily: "'Google Sans Flex', sans-serif",
+                  fontSize: '16px',
+                  padding: '14px 16px',
+                  height: '48px',
+                  width: '100%',
+                  colorScheme: 'dark',
+                  boxSizing: 'border-box',
+                }}
+                value={subscription.name}
+                onChange={(e) => onUpdate({ ...subscription, name: e.target.value })}
+                placeholder="Subscription Name"
+              />
+            </div>
+
             {/* Next Due Date Picker */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Next Due Date</label>
@@ -181,8 +203,8 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               />
             </div>
 
-            {/* Delete Button */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            {/* Actions */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
               <IconButton
                 onClick={handleDeleteClick}
                 title="Delete"
@@ -195,6 +217,27 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   color: COLORS.destructive,
                   backgroundColor: COLORS.destructiveBg,
                   border: `1px solid ${COLORS.destructiveBorder}`,
+                }}
+              />
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  // Save is handled by onUpdate calls on inputs, but this provides visual confirmation/action
+                  // In this implementation, updates are immediate via onChange, so this button is effectively a "Done" or explicit save
+                  // We can just collapse the item
+                  setExpanded(false);
+                  if (onCollapse) onCollapse();
+                }}
+                title="Save"
+                icon={
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" fill="currentColor" />
+                  </svg>
+                }
+                style={{
+                  color: COLORS.success,
+                  backgroundColor: COLORS.successBg,
+                  border: `1px solid ${COLORS.successBorder}`,
                 }}
               />
             </div>

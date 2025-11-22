@@ -5,17 +5,14 @@ import styles from '../styles/Home.module.css';
 import Subscriptions from '../components/Subscriptions';
 import Header from '../components/Header';
 import Loader from '../components/Loader';
-import AddSubscriptionModal from '../components/AddSubscriptionModal';
 
 export default function Home() {
   const { data: session, status } = useSession();
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState(null);
-  const [newSubscription, setNewSubscription] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [urlError, setUrlError] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
   const hasFetched = useRef(false);
 
   // Check for error in URL query params
@@ -53,27 +50,55 @@ export default function Home() {
   }, [status]);
 
   // Subscription handlers
-  const handleAddSubscription = async (name) => {
+  const handleAddSubscription = async () => {
+    // Optimistic UI: Create a temporary blank subscription
+    const tempId = 'temp-' + Date.now();
+    const newSub = {
+      _id: tempId,
+      name: '', // Blank name
+      cost: 0,
+      currency: 'USD',
+      billingCycle: 'monthly',
+      startDate: new Date().toISOString(),
+      nextDueDate: null,
+      active: true,
+      isNew: true // Flag to indicate this is a new item to auto-expand
+    };
+
+    // Add to top of list immediately
+    setSubscriptions([newSub, ...subscriptions]);
+
     try {
       const res = await fetch('/api/subscriptions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name: 'New Subscription' }), // Default name for DB, user will edit
       });
 
       if (!res.ok) throw new Error('Failed to add subscription');
 
-      const newSub = await res.json();
-      setSubscriptions([...subscriptions, newSub]);
-      setNotification({ type: 'success', message: 'Subscription added' });
-      setShowAddModal(false); // Close modal on successful add
+      const createdSub = await res.json();
+
+      // Replace temp item with actual item from DB
+      setSubscriptions(prev => prev.map(sub =>
+        sub._id === tempId ? { ...createdSub, isNew: true } : sub
+      ));
+
+      // We don't show a notification here to keep it seamless, or maybe a subtle one
     } catch (error) {
       console.error('Error adding subscription:', error);
       setNotification({ type: 'error', message: 'Failed to add subscription' });
+      // Remove temp item on error
+      setSubscriptions(prev => prev.filter(sub => sub._id !== tempId));
     }
   };
 
   const handleUpdateSubscription = async (updatedSub) => {
+    // Optimistic update
+    setSubscriptions(subscriptions.map(sub =>
+      sub._id === updatedSub._id ? updatedSub : sub
+    ));
+
     try {
       const res = await fetch('/api/subscriptions', {
         method: 'PUT',
@@ -83,17 +108,22 @@ export default function Home() {
 
       if (!res.ok) throw new Error('Failed to update subscription');
 
-      setSubscriptions(subscriptions.map(sub =>
-        sub._id === updatedSub._id ? updatedSub : sub
-      ));
-      setNotification({ type: 'success', message: 'Subscription updated' });
+      // No need to update state again if successful as we did optimistic update
+      // But we might want to sync back any server-side changes if needed
     } catch (error) {
       console.error('Error updating subscription:', error);
       setNotification({ type: 'error', message: 'Failed to update subscription' });
+      // Revert changes? For now we just notify error.
+      // Ideally we would revert to previous state but that requires tracking it.
+      fetchSubscriptions(); // Refresh to ensure consistency
     }
   };
 
   const handleDeleteSubscription = async (id) => {
+    // Optimistic delete
+    const subToDelete = subscriptions.find(sub => sub._id === id);
+    setSubscriptions(subscriptions.filter(sub => sub._id !== id));
+
     try {
       const res = await fetch(`/api/subscriptions?id=${id}`, {
         method: 'DELETE',
@@ -101,11 +131,14 @@ export default function Home() {
 
       if (!res.ok) throw new Error('Failed to delete subscription');
 
-      setSubscriptions(subscriptions.filter(sub => sub._id !== id));
       setNotification({ type: 'success', message: 'Subscription deleted' });
     } catch (error) {
       console.error('Error deleting subscription:', error);
       setNotification({ type: 'error', message: 'Failed to delete subscription' });
+      // Revert delete
+      if (subToDelete) {
+        setSubscriptions(prev => [...prev, subToDelete]);
+      }
     }
   };
 
@@ -236,14 +269,7 @@ export default function Home() {
       <Header
         session={session}
         onSignOut={handleSignOut}
-        onAddClick={() => setShowAddModal(true)}
-      />
-
-      {/* Add Subscription Modal */}
-      <AddSubscriptionModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onAdd={handleAddSubscription}
+        onAddClick={handleAddSubscription}
       />
 
       {/* Notification Toast */}

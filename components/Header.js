@@ -12,7 +12,7 @@ export default function Header({ session, onSignOut, onAddClick }) {
       </div>
 
       {/* Actions Container */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         {session && (
           <>
             <IconButton
@@ -41,6 +41,15 @@ export default function Header({ session, onSignOut, onAddClick }) {
                 backgroundColor: 'transparent',
               }}
             />
+            {session.user?.image && (
+              <img
+                src={session.user.image}
+                alt="profile"
+                width={32}
+                height={32}
+                style={{ borderRadius: '50%', marginLeft: '4px' }}
+              />
+            )}
           </>
         )}
       </div>
