@@ -259,6 +259,25 @@ export default function Home() {
     );
   };
 
+  // Scroll detection for FAB
+  const [isFabVisible, setIsFabVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setIsFabVisible(false); // Hide on scroll down
+      } else {
+        setIsFabVisible(true); // Show on scroll up
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className={status === 'unauthenticated' ? styles.appContainer : styles.container}>
       <Head>
@@ -278,7 +297,6 @@ export default function Home() {
       <Header
         session={session}
         onSignOut={handleSignOut}
-        onAddClick={handleAddSubscription}
       />
 
       {/* Notification Toast */}
@@ -290,6 +308,16 @@ export default function Home() {
 
       {/* Render content based on current state */}
       {renderContent()}
+
+      {/* Floating Action Button for Add */}
+      {status === 'authenticated' && (
+        <button
+          className={`${styles.fab} ${!isFabVisible ? styles.hidden : ''}`}
+          onClick={handleAddSubscription}
+        >
+          Add
+        </button>
+      )}
     </div>
   );
 }

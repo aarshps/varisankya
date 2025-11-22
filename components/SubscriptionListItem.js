@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import styles from '../styles/Home.module.css';
 import ProgressBar from './ProgressBar';
 import Modal, { ModalButton } from './Modal';
-import IconButton from './IconButton';
+import Button from './Button';
 import { COLORS } from '../lib/colors';
 
 const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, onExpand, onCollapse }) => {
@@ -224,31 +224,34 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             </div>
 
             {/* Actions */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-              <button
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Button
                 onClick={handleDeleteClick}
-                className={`${styles.button} ${styles.buttonDestructive}`}
+                variant="destructive"
               >
                 Delete
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCancel();
-                }}
-                className={`${styles.button} ${styles.buttonGhost}`}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSave();
-                }}
-                className={`${styles.button} ${styles.buttonSuccess}`}
-              >
-                Save
-              </button>
+              </Button>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCancel();
+                  }}
+                  variant="neutral"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSave();
+                  }}
+                  variant="success"
+                >
+                  Save
+                </Button>
+              </div>
             </div>
           </div>
         </div>

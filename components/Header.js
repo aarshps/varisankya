@@ -2,7 +2,7 @@
 import React from 'react';
 import styles from '../styles/Home.module.css';
 import { COLORS } from '../lib/colors';
-import IconButton from './IconButton';
+import Button from './Button';
 
 export default function Header({ session, onSignOut, onAddClick }) {
   return (
@@ -15,18 +15,12 @@ export default function Header({ session, onSignOut, onAddClick }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         {session && (
           <>
-            <button
-              onClick={onAddClick}
-              className={`${styles.button} ${styles.buttonPrimary}`}
-            >
-              Add Subscription
-            </button>
-            <button
+            <Button
               onClick={onSignOut}
-              className={`${styles.button} ${styles.buttonDestructive}`}
+              variant="destructive"
             >
-              Sign Out
-            </button>
+              Logout
+            </Button>
             {session.user?.image && (
               <img
                 src={session.user.image}
