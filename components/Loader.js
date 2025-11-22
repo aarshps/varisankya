@@ -1,30 +1,33 @@
 import React from 'react';
+import { COLORS } from '../lib/colors';
 
-export default function Loader({ size = 48, color = '#A8C7FA' }) {
+const Loader = () => {
   return (
-    <div style={{ width: size, height: size }}>
-      <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', height: '100%' }}>
-        <circle
-          cx="25"
-          cy="25"
-          r="20"
-          fill="none"
-          stroke={color}
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeDasharray="80, 200"
-          strokeDashoffset="0"
-        >
-          <animateTransform
-            attributeName="transform"
-            type="rotate"
-            from="0 25 25"
-            to="360 25 25"
-            dur="1s"
-            repeatCount="indefinite"
-          />
-        </circle>
-      </svg>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <style jsx>{`
+        .loader {
+          width: 48px;
+          height: 48px;
+          border: 5px solid ${COLORS.surfaceHighlight};
+          border-bottom-color: ${COLORS.primary};
+          border-radius: 50%;
+          display: inline-block;
+          box-sizing: border-box;
+          animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
+      <span className="loader"></span>
     </div>
   );
-}
+};
+
+export default Loader;

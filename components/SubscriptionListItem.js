@@ -3,6 +3,7 @@ import styles from '../styles/Home.module.css';
 import ProgressBar from './ProgressBar';
 import Modal, { ModalButton } from './Modal';
 import IconButton from './IconButton';
+import { COLORS } from '../lib/colors';
 
 // M3E press animation hook
 const useButtonAnim = () => {
@@ -116,7 +117,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
 
   const { progress, label } = calculateProgress();
   const hasDueDate = subscription.nextDueDate;
-  const statusColor = progress > 70 ? '#F2B8B5' : (hasDueDate ? '#A8C7FA' : '#8E918F');
+  const statusColor = progress > 70 ? COLORS.destructive : (hasDueDate ? COLORS.primary : COLORS.neutral);
 
   return (
     <>
@@ -165,10 +166,10 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               <span style={{
                 fontFamily: "'Google Sans Flex', sans-serif",
                 fontSize: '12px',
-                color: statusColor === '#F2B8B5' ? '#F2B8B5' : '#E3E3E3',
+                color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
                 whiteSpace: 'nowrap',
                 flexShrink: 0,
-                backgroundColor: statusColor === '#F2B8B5' ? 'rgba(242, 184, 181, 0.12)' : '#3E3E3E',
+                backgroundColor: statusColor === COLORS.destructive ? COLORS.destructiveBg : COLORS.surfaceHighlight,
                 padding: '4px 8px',
                 borderRadius: '12px',
                 marginBottom: '2px'
@@ -186,7 +187,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             overflow: 'hidden',
             marginTop: expanded ? '16px' : '0',
             paddingTop: expanded ? '16px' : '0',
-            borderTop: expanded ? '1px solid #444746' : 'none',
+            borderTop: expanded ? `1px solid ${COLORS.border}` : 'none',
             transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s, margin-top 0.3s, padding-top 0.3s',
           }}
           onClick={(e) => e.stopPropagation()}
@@ -194,7 +195,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {/* Next Due Date Picker with M3E animation */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Next Due Date</label>
+              <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Next Due Date</label>
               <input
                 type="date"
                 className={styles.composerInput}
@@ -235,9 +236,9 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   </svg>
                 }
                 style={{
-                  color: '#F2B8B5',
-                  backgroundColor: 'rgba(242, 184, 181, 0.12)',
-                  border: '1px solid rgba(242, 184, 181, 0.3)',
+                  color: COLORS.destructive,
+                  backgroundColor: COLORS.destructiveBg,
+                  border: `1px solid ${COLORS.destructiveBorder}`,
                 }}
                 onPress={onPress}
                 onRelease={onRelease}
@@ -249,7 +250,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
 
       {/* Delete Modal */}
       <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Subscription">
-        <p style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', color: '#E3E3E3', margin: '0 0 24px 0' }}>
+        <p style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', color: COLORS.textPrimary, margin: '0 0 24px 0' }}>
           Are you sure you want to delete <strong>{subscription.name}</strong>?
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>

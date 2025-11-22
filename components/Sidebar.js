@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from '../styles/Home.module.css';
+import { COLORS } from '../lib/colors';
 
 export default function Sidebar({ open, sidebarRef, onClose, session, onSignOut, currentView, onChangeView }) {
   // M3E press animations
@@ -43,8 +44,8 @@ export default function Sidebar({ open, sidebarRef, onClose, session, onSignOut,
         </div>
       </div>
       <div style={{ flex: 1 }} />
-      <div style={{ padding: '16px', borderTop: '1px solid #444746' }}>
-        <div style={{ fontSize: '14px', color: '#E3E3E3', marginBottom: '16px', paddingLeft: '12px' }}>{session?.user?.email}</div>
+      <div style={{ padding: '16px', borderTop: `1px solid ${COLORS.border}` }}>
+        <div style={{ fontSize: '14px', color: COLORS.textPrimary, marginBottom: '16px', paddingLeft: '12px' }}>{session?.user?.email}</div>
         <button
           onClick={onSignOut}
           onMouseDown={handlePress}
@@ -55,9 +56,9 @@ export default function Sidebar({ open, sidebarRef, onClose, session, onSignOut,
           style={{
             width: '100%',
             padding: '12px',
-            backgroundColor: 'transparent',
-            color: '#F2B8B5',
-            border: '1px solid #8C1D18',
+            backgroundColor: COLORS.transparent,
+            color: COLORS.destructive,
+            border: `1px solid ${COLORS.destructive}`,
             borderRadius: '24px',
             cursor: 'pointer',
             fontWeight: '500',

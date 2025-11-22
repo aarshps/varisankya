@@ -1,36 +1,73 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import styles from '../styles/Home.module.css';
+import { COLORS } from '../lib/colors';
 
-// Hook for M3E button press animation
-const useButtonAnim = () => {
-    const onPress = (e) => {
-        e.currentTarget.style.transform = 'scale(0.98)';
-        e.currentTarget.style.transition = 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)';
+export const ModalButton = ({ onClick, children, variant = 'primary', type = 'button', disabled = false }) => {
+    const [isPressed, setIsPressed] = useState(false);
+
+    const baseStyle = {
+        padding: '10px 24px',
+        borderRadius: '20px',
+        border: 'none',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        fontSize: '14px',
+        fontWeight: '500',
+        fontFamily: "'Google Sans Flex', sans-serif",
+        transition: 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s',
+        transform: isPressed && !disabled ? 'scale(0.96)' : 'scale(1)',
+        opacity: disabled ? 0.5 : 1,
     };
-    const onRelease = (e) => {
-        e.currentTarget.style.transform = 'scale(1)';
-        e.currentTarget.style.transition = 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)';
+
+    const variants = {
+        primary: {
+            backgroundColor: COLORS.primary,
+            color: '#003355', // Keep dark text on light blue
+        },
+        secondary: {
+            backgroundColor: 'transparent',
+            color: COLORS.primary,
+            border: `1px solid ${COLORS.border}`,
+        },
+        danger: {
+            backgroundColor: COLORS.destructive,
+            color: '#410E0B', // Keep dark text on light red
+        },
     };
-    return { onPress, onRelease };
+
+    return (
+        <button
+            type={type}
+            onClick={onClick}
+            disabled={disabled}
+            style={{ ...baseStyle, ...variants[variant] }}
+            onMouseDown={() => setIsPressed(true)}
+            onMouseUp={() => setIsPressed(false)}
+            onMouseLeave={() => setIsPressed(false)}
+            onTouchStart={() => setIsPressed(true)}
+            onTouchEnd={() => setIsPressed(false)}
+        >
+            {children}
+        </button>
+    );
 };
 
-const Modal = ({ isOpen, onClose, title, children, actions }) => {
-    const [isClosing, setIsClosing] = useState(false);
+const Modal = ({ isOpen, onClose, title, children }) => {
+    const [isVisible, setIsVisible] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
 
     useEffect(() => {
-        if (!isOpen) {
-            setIsClosing(false);
+        if (isOpen) {
+            setIsVisible(true);
+            // Small delay to allow render before animation starts
+            requestAnimationFrame(() => setIsAnimating(true));
+        } else {
+            setIsAnimating(false);
+            const timer = setTimeout(() => setIsVisible(false), 300);
+            return () => clearTimeout(timer);
         }
     }, [isOpen]);
 
-    if (!isOpen && !isClosing) return null;
-
-    const handleClose = () => {
-        setIsClosing(true);
-        setTimeout(() => {
-            setIsClosing(false);
-            onClose();
-        }, 300);
-    };
+    if (!isVisible) return null;
 
     return (
         <div
@@ -40,104 +77,42 @@ const Modal = ({ isOpen, onClose, title, children, actions }) => {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                backgroundColor: isClosing ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.7)',
-                zIndex: 1000,
-                opacity: isClosing ? 0 : 1,
-                transition: 'background-color 0.3s ease-out, opacity 0.3s ease-out',
-                overflowY: 'auto',
-                display: (isOpen || isClosing) ? 'flex' : 'none',
+                backgroundColor: isAnimating ? 'rgba(0, 0, 0, 0.6)' : 'rgba(0, 0, 0, 0)',
+                display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '20px',
+                zIndex: 1000,
+                transition: 'background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                backdropFilter: isAnimating ? 'blur(4px)' : 'blur(0px)',
             }}
-            onClick={handleClose}
+            onClick={onClose}
         >
             <div
                 style={{
-                    backgroundColor: '#1E1E1E',
-                    borderRadius: '24px',
-                    padding: '32px',
+                    backgroundColor: COLORS.surface,
+                    borderRadius: '28px',
+                    padding: '24px',
                     width: '90%',
-                    maxWidth: '500px',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
-                    transform: isClosing ? 'scale(0.95)' : 'scale(1)',
-                    opacity: isClosing ? 0 : 1,
-                    transition: 'transform 0.3s ease-out, opacity 0.3s ease-out',
-                    margin: 'auto',
-                    maxHeight: '80vh',
-                    overflowY: 'auto',
+                    maxWidth: '400px',
+                    boxShadow: '0 4px 24px rgba(0, 0, 0, 0.4)',
+                    transform: isAnimating ? 'scale(1) translateY(0)' : 'scale(0.9) translateY(20px)',
+                    opacity: isAnimating ? 1 : 0,
+                    transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
                 onClick={(e) => e.stopPropagation()}
             >
-                <h2 style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '24px', fontWeight: '500', color: '#E3E3E3', marginTop: 0, marginBottom: '24px' }}>
+                <h2 style={{
+                    margin: '0 0 24px 0',
+                    fontSize: '24px',
+                    fontWeight: '400',
+                    color: COLORS.textPrimary,
+                    fontFamily: "'Google Sans Flex', sans-serif"
+                }}>
                     {title}
                 </h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    {children}
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                        {actions}
-                    </div>
-                </div>
+                {children}
             </div>
         </div>
-    );
-};
-
-export const ModalButton = ({ onClick, variant = 'primary', disabled, children, type = 'button' }) => {
-    const { onPress, onRelease } = useButtonAnim();
-
-    const styles = {
-        primary: {
-            background: disabled ? '#555' : '#A8C7FA',
-            color: disabled ? '#888' : '#003355',
-            boxShadow: disabled ? 'none' : '0 2px 8px rgba(168, 199, 250, 0.4)',
-        },
-        secondary: {
-            background: 'transparent',
-            color: '#E3E3E3',
-            border: '1px solid #444746',
-        },
-        danger: {
-            background: '#ffb4ab',
-            color: '#690005',
-            boxShadow: '0 2px 8px rgba(255, 180, 171, 0.4)',
-        }
-    };
-
-    const currentStyle = styles[variant] || styles.primary;
-
-    return (
-        <button
-            type={type}
-            onClick={onClick}
-            disabled={disabled}
-            style={{
-                padding: '12px 24px',
-                borderRadius: '24px',
-                border: variant === 'secondary' ? '1px solid #444746' : 'none',
-                cursor: disabled ? 'not-allowed' : 'pointer',
-                fontFamily: "'Google Sans Flex', sans-serif",
-                fontSize: '15px',
-                fontWeight: '500',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                ...currentStyle
-            }}
-            onMouseDown={!disabled ? onPress : undefined}
-            onMouseUp={!disabled ? onRelease : undefined}
-            onMouseLeave={!disabled ? onRelease : undefined}
-            onMouseOver={(e) => {
-                if (disabled) return;
-                if (variant === 'primary') e.currentTarget.style.background = '#C2E7FF';
-                if (variant === 'secondary') e.currentTarget.style.background = '#2D2D2D';
-                if (variant === 'danger') e.currentTarget.style.background = '#ffdad6';
-            }}
-            onMouseOut={(e) => {
-                if (disabled) return;
-                e.currentTarget.style.background = currentStyle.background;
-            }}
-        >
-            {children}
-        </button>
     );
 };
 

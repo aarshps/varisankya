@@ -1,4 +1,5 @@
 import React from 'react';
+import { COLORS } from '../lib/colors';
 
 const IconButton = ({ onClick, icon, color, hoverColor, bgColor = 'transparent', hoverBgColor, disabled, style, title, ...props }) => {
     const onPress = (e) => {
@@ -40,7 +41,7 @@ const IconButton = ({ onClick, icon, color, hoverColor, bgColor = 'transparent',
             onMouseDown={onPress}
             onMouseUp={onRelease}
             onMouseLeave={onRelease}
-            onMouseOver={(e) => !disabled && (e.currentTarget.style.background = hoverBgColor || '#3E3E3E')}
+            onMouseOver={(e) => !disabled && (e.currentTarget.style.background = hoverBgColor || COLORS.surfaceHighlight)}
             onMouseOut={(e) => !disabled && (e.currentTarget.style.background = bgColor)}
             {...props}
         >
