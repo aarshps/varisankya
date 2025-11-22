@@ -66,7 +66,7 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to fetch subscriptions' });
     }
   } else if (req.method === 'POST') {
-    const { name, lastPaidDate, nextDueDate, status, recurringDays } = req.body;
+    const { name, nextDueDate } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: 'Subscription name is required' });
@@ -75,10 +75,7 @@ export default async function handler(req, res) {
     try {
       const newSubscription = {
         name,
-        lastPaidDate: lastPaidDate ? new Date(lastPaidDate) : null,
         nextDueDate: nextDueDate ? new Date(nextDueDate) : null,
-        status: status || 'Active',
-        recurringDays: recurringDays || 30,
         createdAt: new Date(),
       };
 
@@ -89,7 +86,7 @@ export default async function handler(req, res) {
       res.status(500).json({ error: 'Failed to add subscription' });
     }
   } else if (req.method === 'PUT') {
-    const { id, name, lastPaidDate, nextDueDate, status, recurringDays } = req.body;
+    const { id, name, nextDueDate } = req.body;
 
     if (!id) {
       return res.status(400).json({ error: 'Subscription ID is required' });
@@ -98,10 +95,7 @@ export default async function handler(req, res) {
     try {
       const updateData = {
         name,
-        lastPaidDate: lastPaidDate ? new Date(lastPaidDate) : null,
         nextDueDate: nextDueDate ? new Date(nextDueDate) : null,
-        status: status || 'Active',
-        recurringDays,
         updatedAt: new Date(),
       };
 

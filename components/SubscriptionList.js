@@ -28,38 +28,20 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
     );
   }
 
-  // Simplified helper to calculate days left for sorting
+  // Ultra-simple helper - only Next Due Date
   const getDaysLeft = (subscription) => {
+    if (!subscription.nextDueDate) return 9999; // No date set - bottom
+
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-
-    if (subscription.status === 'Inactive') return 9999; // Inactive at bottom
-
-    let targetDate = null;
-
-    // Priority 1: Use Next Due Date if set
-    if (subscription.nextDueDate) {
-      targetDate = new Date(subscription.nextDueDate);
-    }
-    // Priority 2: Calculate from Last Paid + Recurring Days
-    else if (subscription.lastPaidDate && subscription.recurringDays) {
-      const lastPaid = new Date(subscription.lastPaidDate);
-      targetDate = new Date(lastPaid);
-      targetDate.setDate(lastPaid.getDate() + parseInt(subscription.recurringDays));
-    }
-
-    if (!targetDate) return 9998; // No dates set
-
+    const targetDate = new Date(subscription.nextDueDate);
     targetDate.setHours(0, 0, 0, 0);
+
     const diff = targetDate - now;
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
   const sortedSubscriptions = [...subscriptions].sort((a, b) => {
-    // Inactive items always go to the bottom
-    if (a.status === 'Inactive' && b.status !== 'Inactive') return 1;
-    if (a.status !== 'Inactive' && b.status === 'Inactive') return -1;
-
     const daysLeftA = getDaysLeft(a);
     const daysLeftB = getDaysLeft(b);
     return daysLeftA - daysLeftB; // Ascending order (fewer days = higher priority)
