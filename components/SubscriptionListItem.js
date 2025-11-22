@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styles from '../styles/Home.module.css';
-import ProgressBar from './ProgressBar';
 import Modal, { ModalButton } from './Modal';
 import Button from './Button';
 import { COLORS } from '../lib/colors';
@@ -169,34 +168,36 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           position: 'relative',
         }}
       >
-        <div style={{ width: '100%', boxSizing: 'border-box', position: 'relative', zIndex: 2, backgroundColor: '#1E1E1E', borderRadius: '24px' }}>
+        {/* Background Progress Tint */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            width: `${progress}%`,
+            backgroundColor: statusColor,
+            opacity: 0.12,
+            zIndex: 0,
+            transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease',
+            pointerEvents: 'none'
+          }}
+        />
+
+        <div style={{ width: '100%', boxSizing: 'border-box', position: 'relative', zIndex: 2, backgroundColor: 'transparent', borderRadius: '24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '8px', marginBottom: '8px' }}>
-              <input
-                type="text"
-                value={expanded ? editedName : subscription.name}
-                onChange={(e) => setEditedName(e.target.value)}
-                onClick={(e) => e.stopPropagation()}
-                placeholder="Subscription Name"
-                readOnly={!expanded}
-                style={{
-                  fontFamily: "'Google Sans Flex', sans-serif",
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  whiteSpace: 'normal',
-                  wordBreak: 'break-word',
-                  lineHeight: '1.3',
-                  background: 'transparent',
-                  border: 'none',
-                  color: COLORS.textPrimary,
-                  width: '100%',
-                  padding: 0,
-                  margin: 0,
-                  outline: 'none',
-                  cursor: expanded ? 'text' : 'pointer',
-                  pointerEvents: expanded ? 'auto' : 'none'
-                }}
-              />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', minHeight: '36px' }}>
+              <span style={{
+                fontFamily: "'Google Sans Flex', sans-serif",
+                fontSize: '16px',
+                fontWeight: '500',
+                color: COLORS.textPrimary,
+                whiteSpace: 'normal',
+                wordBreak: 'break-word',
+                lineHeight: '1.3',
+              }}>
+                {subscription.name || 'New Subscription'}
+              </span>
               <span style={{
                 fontFamily: "'Google Sans Flex', sans-serif",
                 fontSize: '12px',
@@ -206,10 +207,8 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 backgroundColor: statusColor === COLORS.destructive ? COLORS.destructiveBg : COLORS.surfaceHighlight,
                 padding: '4px 8px',
                 borderRadius: '12px',
-                marginBottom: '2px'
               }}>{label}</span>
             </div>
-            <ProgressBar progress={progress} color={statusColor} />
           </div>
         </div>
 
@@ -231,7 +230,18 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           onClick={(e) => e.stopPropagation()}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Name Edit removed - unified with header */}
+            {/* Name Edit */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Name</label>
+              <input
+                type="text"
+                className={styles.dateInput}
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                placeholder="Subscription Name"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
 
             {/* Next Due Date Picker */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
