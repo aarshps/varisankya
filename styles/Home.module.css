@@ -202,24 +202,77 @@
   outline: none;
 }
 
-.composerButton {
+/* Buttons */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 24px;
-  font-size: 16px;
-  background-color: #A8C7FA;
-  /* M3 Dark Primary */
-  color: #003355;
-  /* M3 Dark On Primary */
+  height: 40px;
+  border-radius: 20px;
+  /* Pill shape */
+  font-family: 'Google Sans Flex', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
   border: none;
   cursor: pointer;
-  height: 48px;
-  border-radius: 0 24px 24px 0;
-  font-weight: 500;
-  font-family: 'Google Sans Flex', sans-serif;
-  transition: background-color 0.2s;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-.composerButton:hover {
+.button:active {
+  transform: scale(0.96);
+}
+
+.buttonPrimary {
+  background-color: #A8C7FA;
+  color: #003355;
+}
+
+.buttonPrimary:hover {
   background-color: #82B4F8;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.buttonDestructive {
+  background-color: rgba(242, 184, 181, 0.12);
+  color: #F2B8B5;
+}
+
+.buttonDestructive:hover {
+  background-color: rgba(242, 184, 181, 0.2);
+}
+
+.buttonSecondary {
+  background-color: #2D2D2D;
+  /* Surface Variant */
+  color: #E3E3E3;
+}
+
+.buttonSecondary:hover {
+  background-color: #3E3E3E;
+}
+
+.buttonGhost {
+  background-color: transparent;
+  color: #C4C7C5;
+}
+
+.buttonGhost:hover {
+  background-color: rgba(227, 227, 227, 0.08);
+  color: #E3E3E3;
+}
+
+.buttonSuccess {
+  background-color: rgba(129, 201, 149, 0.12);
+  color: #81C995;
+}
+
+.buttonSuccess:hover {
+  background-color: rgba(129, 201, 149, 0.2);
 }
 
 /* Subscription Items */
@@ -227,14 +280,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
+  padding: 16px 20px;
+  /* More padding */
   margin: 8px 16px;
   background-color: #1E1E1E;
   /* M3 Dark Surface */
   border: 1px solid #444746;
-  border-radius: 16px;
+  border-radius: 24px;
+  /* More rounded */
   /* M3 rounded corners */
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   color: #E3E3E3;
 }
 
@@ -242,30 +297,15 @@
 @media (hover: hover) and (pointer: fine) {
   .subscriptionItem:hover {
     background-color: #2D2D2D;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: scale(1.01);
+    /* Subtle scale on hover */
   }
 }
 
 .removeButton {
-  padding: 8px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: transparent;
-  color: #F2B8B5;
-  /* M3 Dark Error */
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.removeButton:hover {
-  background-color: rgba(242, 184, 181, 0.1);
-  /* Subtle hover state */
-  color: #FF897D;
+  /* Deprecated - use .buttonDestructive */
+  display: none;
 }
 
 @keyframes fadeIn {
@@ -324,7 +364,7 @@
   }
 
   to {
-    max-height: 300px;
+    max-height: 400px;
     /* Adjust as needed */
     opacity: 1;
     transform: translateY(0);
@@ -333,7 +373,7 @@
 
 @keyframes slideUp {
   from {
-    max-height: 300px;
+    max-height: 400px;
     /* Adjust as needed */
     opacity: 1;
     transform: translateY(0);
@@ -370,7 +410,8 @@
 .appMain.mainOpen {
   transform: scale(0.92) translateY(12px);
   filter: blur(4px) brightness(0.8);
-  border-radius: 16px;
+  border-radius: 28px;
+  /* More rounded */
   overflow: hidden;
 }
 
@@ -477,7 +518,8 @@
   padding: 0 16px;
   font-size: 16px;
   border: 1px solid #444746;
-  border-radius: 12px;
+  border-radius: 16px;
+  /* More rounded */
   width: 100%;
   height: 48px;
   font-family: 'Google Sans Flex', sans-serif;
@@ -503,7 +545,7 @@
     padding: 12px;
     font-size: 18px;
     border: 1px solid #444746;
-    border-radius: 6px;
+    border-radius: 12px;
     flex: 1;
   }
 }

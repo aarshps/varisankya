@@ -225,54 +225,30 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
 
             {/* Actions */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-              <IconButton
+              <button
                 onClick={handleDeleteClick}
-                title="Delete"
-                icon={
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="currentColor" />
-                  </svg>
-                }
-                style={{
-                  color: COLORS.destructive,
-                  backgroundColor: COLORS.destructiveBg,
-                  border: `1px solid ${COLORS.destructiveBorder}`,
-                }}
-              />
-              <IconButton
+                className={`${styles.button} ${styles.buttonDestructive}`}
+              >
+                Delete
+              </button>
+              <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleCancel();
                 }}
-                title="Cancel"
-                icon={
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor" />
-                  </svg>
-                }
-                style={{
-                  color: COLORS.neutral,
-                  backgroundColor: COLORS.surfaceHighlight,
-                  border: `1px solid ${COLORS.border}`,
-                }}
-              />
-              <IconButton
+                className={`${styles.button} ${styles.buttonGhost}`}
+              >
+                Cancel
+              </button>
+              <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handleSave();
                 }}
-                title="Save"
-                icon={
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" fill="currentColor" />
-                  </svg>
-                }
-                style={{
-                  color: COLORS.success,
-                  backgroundColor: COLORS.successBg,
-                  border: `1px solid ${COLORS.successBorder}`,
-                }}
-              />
+                className={`${styles.button} ${styles.buttonSuccess}`}
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>

@@ -12,43 +12,28 @@ export default function Header({ session, onSignOut, onAddClick }) {
         <span style={{ fontWeight: '500', fontSize: '20px', lineHeight: '32px', color: COLORS.textPrimary }}>Varisankya</span>
       </div>
 
-      {/* Actions Container */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         {session && (
           <>
-            <IconButton
+            <button
               onClick={onAddClick}
-              title="Add Subscription"
-              icon={
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor" />
-                </svg>
-              }
-              style={{
-                color: COLORS.primary,
-                backgroundColor: 'transparent',
-              }}
-            />
-            <IconButton
+              className={`${styles.button} ${styles.buttonPrimary}`}
+            >
+              Add Subscription
+            </button>
+            <button
               onClick={onSignOut}
-              title="Sign Out"
-              icon={
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M16 17V14H9V10H16V7L21 12L16 17ZM14 2H3V22H14V19H5V5H14V2Z" fill="currentColor" />
-                </svg>
-              }
-              style={{
-                color: COLORS.destructive,
-                backgroundColor: 'transparent',
-              }}
-            />
+              className={`${styles.button} ${styles.buttonDestructive}`}
+            >
+              Sign Out
+            </button>
             {session.user?.image && (
               <img
                 src={session.user.image}
                 alt="profile"
-                width={32}
-                height={32}
-                style={{ borderRadius: '50%', marginLeft: '4px' }}
+                width={36}
+                height={36}
+                style={{ borderRadius: '50%', marginLeft: '4px', border: `2px solid ${COLORS.surfaceVariant}` }}
               />
             )}
           </>
