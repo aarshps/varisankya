@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styles from '../styles/Home.module.css';
 import ProgressBar from './ProgressBar';
-import StatusSelect from './StatusSelect';
+import CustomSelect from './CustomSelect';
 import RecurrenceSelect from './RecurrenceSelect';
 import MonthSelect from './MonthSelect';
 import Modal, { ModalButton } from './Modal';
+import IconButton from './IconButton';
+import Button from './Button';
 
 // Hook for M3E button press animation
 const useButtonAnim = () => {
@@ -379,62 +381,35 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               </div>
             )}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '16px' }}>
-              <button
+              <IconButton
                 onClick={handleDeleteClick}
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  border: 'none',
-                  background: '#3E3E3E', // Slightly lighter grey
-                  color: '#F2B8B5', // Error Red
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  marginRight: 'auto', // Push to left
-                  ...buttonStyle,
-                }}
-                onMouseDown={onPress}
-                onMouseUp={onRelease}
-                onMouseLeave={onRelease}
-                onMouseOver={(e) => (e.currentTarget.style.background = '#4E4E4E')}
-                onMouseOut={(e) => (e.currentTarget.style.background = '#3E3E3E')}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="currentColor" />
-                </svg>
-              </button>
-              <button
+                title="Delete"
+                icon={
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="currentColor" />
+                  </svg>
+                }
+                bgColor="#3E3E3E"
+                color="#F2B8B5"
+                hoverBgColor="#4E4E4E"
+                style={{ marginRight: 'auto' }}
+              />
+              <IconButton
                 onClick={() => {
                   setIsEditing(true);
                   setExpanded(false);
                   if (onCollapse) onCollapse();
                 }}
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  border: 'none',
-                  background: '#3E3E3E', // Slightly lighter grey
-                  color: '#A8C7FA', // Primary Blue
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  ...buttonStyle,
-                }}
-                onMouseDown={onPress}
-                onMouseUp={onRelease}
-                onMouseLeave={onRelease}
-                onMouseOver={(e) => (e.currentTarget.style.background = '#4E4E4E')}
-                onMouseOut={(e) => (e.currentTarget.style.background = '#3E3E3E')}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" fill="currentColor" />
-                </svg>
-              </button>
-
+                title="Edit"
+                icon={
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" fill="currentColor" />
+                  </svg>
+                }
+                bgColor="#3E3E3E"
+                color="#A8C7FA"
+                hoverBgColor="#4E4E4E"
+              />
             </div>
           </div>
         </div>
@@ -648,61 +623,48 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</label>
-                <StatusSelect
+                <CustomSelect
                   value={editForm.status || 'Active'}
                   onChange={(val) => setEditForm({ ...editForm, status: val })}
+                  options={['Active', 'Inactive']}
                   disabled={isSaving}
+                  renderValue={(val) => (
+                    <span style={{ color: val === 'Inactive' ? '#F2B8B5' : '#C2E7FF' }}>
+                      {val}
+                    </span>
+                  )}
+                  renderOption={(option, isSelected) => (
+                    <>
+                      <span style={{
+                        color: option === 'Inactive' ? '#F2B8B5' : '#C2E7FF',
+                        fontWeight: isSelected ? '500' : '400'
+                      }}>
+                        {option}
+                      </span>
+                      {isSelected && (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z" fill="#A8C7FA" />
+                        </svg>
+                      )}
+                    </>
+                  )}
                 />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                <button
+                <Button
+                  variant="secondary"
                   onClick={handleCancel}
                   disabled={isSaving}
-                  style={{
-                    padding: '12px 24px',
-                    borderRadius: '24px',
-                    border: '1px solid #444746',
-                    background: 'transparent',
-                    color: '#E3E3E3',
-                    cursor: isSaving ? 'not-allowed' : 'pointer',
-                    fontFamily: "'Google Sans Flex', sans-serif",
-                    fontSize: '15px',
-                    fontWeight: '500',
-                    transition: 'background-color 0.2s, transform 0.1s',
-                    opacity: isSaving ? 0.5 : 1,
-                  }}
-                  onMouseDown={!isSaving ? onPress : undefined}
-                  onMouseUp={!isSaving ? onRelease : undefined}
-                  onMouseLeave={!isSaving ? onRelease : undefined}
-                  onMouseOver={(e) => !isSaving && (e.currentTarget.style.background = '#2D2D2D')}
-                  onMouseOut={(e) => !isSaving && (e.currentTarget.style.background = 'transparent')}
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="primary"
                   onClick={handleSave}
                   disabled={isSaving || !hasChanges}
-                  style={{
-                    padding: '12px 32px',
-                    borderRadius: '24px',
-                    border: 'none',
-                    background: isSaving || !hasChanges ? '#444746' : '#A8C7FA',
-                    color: isSaving || !hasChanges ? '#8E918F' : '#003355',
-                    fontWeight: '500',
-                    cursor: isSaving || !hasChanges ? 'not-allowed' : 'pointer',
-                    fontFamily: "'Google Sans Flex', sans-serif",
-                    fontSize: '15px',
-                    transition: 'background-color 0.2s, transform 0.1s',
-                    boxShadow: isSaving || !hasChanges ? 'none' : '0 2px 8px rgba(168, 199, 250, 0.4)',
-                  }}
-                  onMouseDown={!isSaving && hasChanges ? onPress : undefined}
-                  onMouseUp={!isSaving && hasChanges ? onRelease : undefined}
-                  onMouseLeave={!isSaving && hasChanges ? onRelease : undefined}
-                  onMouseOver={(e) => !isSaving && hasChanges && (e.currentTarget.style.background = '#C2E7FF')}
-                  onMouseOut={(e) => !isSaving && hasChanges && (e.currentTarget.style.background = '#A8C7FA')}
                 >
                   {isSaving ? 'Saving...' : 'Save'}
-                </button>
+                </Button>
               </div>
 
 

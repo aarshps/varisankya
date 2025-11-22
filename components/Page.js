@@ -8,7 +8,8 @@ export default function Page({ session, sidebarOpen, sidebarRef, hamburgerRef, o
     <div>
       <Header onHamburgerClick={onHamburgerClick} hamburgerRef={hamburgerRef} session={session} />
       <Sidebar open={sidebarOpen} sidebarRef={sidebarRef} onClose={onCloseSidebar} session={session} onSignOut={onSignOut} />
-      <main className={styles.main}>
+      {sidebarOpen && <div className={styles.overlay} onClick={onCloseSidebar} />}
+      <main className={`${styles.main} ${styles.appMain} ${sidebarOpen ? styles.mainOpen : ''}`}>
         {children}
       </main>
       {/* Composer is provided by the page child (e.g., Subscriptions) */}

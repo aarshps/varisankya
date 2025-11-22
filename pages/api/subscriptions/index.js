@@ -1,4 +1,4 @@
-import { unstable_getServerSession } from 'next-auth/next';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]';
 import { getUserDatabase } from '../../../lib/databaseFactory';
 import { validateUserDatabase } from '../../../lib/dbValidation';
@@ -6,8 +6,8 @@ import { ObjectId } from 'mongodb';
 import appConfig from '../../../lib/config';
 
 export default async function handler(req, res) {
-  // Check if user is authenticated
-  const session = await unstable_getServerSession(req, res, authOptions);
+  // 1. Get the user's session
+  const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
     return res.status(401).json({ error: 'Unauthorized' });

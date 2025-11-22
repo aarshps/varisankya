@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SubscriptionList from './SubscriptionList';
 import styles from '../styles/Home.module.css';
+import Loader from './Loader';
 
 import Modal, { ModalButton } from './Modal';
 
@@ -97,8 +98,7 @@ export default function Subscriptions({ subscriptions, loading, error, onDelete,
       <div className={styles.content}>
         <div className={styles.subscriptionsContainer}>
           {error && <div style={{ color: '#d93025', backgroundColor: '#fce8e6', padding: '10px', borderRadius: '4px', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
-          {loading && <div style={{ textAlign: 'center', padding: '20px' }}>Loading subscriptions...</div>}
-          {!loading && <SubscriptionList subscriptions={subscriptions} onDelete={onDelete} onUpdate={onUpdate} />}
+          <SubscriptionList subscriptions={subscriptions} onDelete={onDelete} onUpdate={onUpdate} />
         </div>
 
         {/* Floating action button container for slide animation */}

@@ -1,9 +1,9 @@
-import { unstable_getServerSession } from 'next-auth/next';
+import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]';
 import { validateUserDatabase } from '../../../lib/dbValidation';
 
 export default async function handler(req, res) {
-  const session = await unstable_getServerSession(req, res, authOptions);
+  const session = await getServerSession(req, res, authOptions);
 
   if (!session) {
     return res.status(401).json({ valid: false });

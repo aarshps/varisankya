@@ -6,6 +6,9 @@ import { useRouter } from 'next/router';
 import App from '../components/App';
 import Subscriptions from '../components/Subscriptions';
 import Header from '../components/Header';
+import Sidebar from '../components/Sidebar';
+import Loader from '../components/Loader';
+
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -16,6 +19,7 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [notification, setNotification] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentView, setCurrentView] = useState('subscriptions');
   const hasFetched = useRef(false);
   const sidebarRef = useRef(null);
   const hamburgerRef = useRef(null);
@@ -218,10 +222,6 @@ export default function Home() {
     }
   };
 
-
-
-
-
   // Close sidebar when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -260,31 +260,31 @@ export default function Home() {
   // Determine if we have a database-related error
   const hasDbError = urlError === 'db_not_found';
 
-  if (status === 'unauthenticated') {
-    // Show login page for unauthenticated users
-    return (
-      <div className={styles.appContainer}>
-        <Head>
-          <title>Varisankya - Sign In</title>
-          <meta name="description" content="Sign in to Varisankya subscription tracker" />
-          <meta name="viewport" content="width=device-width, initial-scale=1, interactive-widget=resizes-content" />
-          <meta name="theme-color" content="#121212" />
-          <link rel="icon" href="/favicon.ico" />
-          <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-          <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-          <link rel="icon" type="image/png" sizes="192x192" href="/android-logo.png" />
-          <link rel="icon" type="image/png" sizes="512x512" href="/android-logo.png" />
-          <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-          <link rel="manifest" href="/site.webmanifest" />
-        </Head>
+  // Determine header props based on current state
+  const getHeaderProps = () => {
+    if (status === 'unauthenticated' || status === 'loading' || (status === 'authenticated' && loading && !hasFetched.current)) {
+      return {
+        session: null,
+        onHamburgerClick: () => { },
+        hamburgerRef: { current: null },
+        hideHamburger: true
+      };
+    }
+    return {
+      session,
+      onHamburgerClick: () => setSidebarOpen(!sidebarOpen),
+      hamburgerRef,
+      hideHamburger: false
+    };
+  };
 
-        <Header
-          session={null}
-          onHamburgerClick={() => { }}
-          hamburgerRef={{ current: null }}
-          hideHamburger={true}
-        />
+  const headerProps = getHeaderProps();
 
+  // Render different content based on authentication status
+  const renderContent = () => {
+    if (status === 'unauthenticated') {
+      // Show login page for unauthenticated users
+      return (
         <main className={`${styles.appMain} ${styles.centeredMain}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexDirection: 'column', paddingBottom: '10vh' }}>
           <div style={{ textAlign: 'center', maxWidth: '400px', width: '100%', padding: '20px' }}>
 
@@ -342,26 +342,56 @@ export default function Home() {
             </div>
           </div>
         </main>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (status === 'loading') {
+    // Show unified loading state for both session and subscriptions
+    if (status === 'loading' || (status === 'authenticated' && loading && !hasFetched.current)) {
+      return (
+        <main className={styles.appMain} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+          <Loader size={48} />
+        </main>
+      );
+    }
+
+    // User is authenticated, show the main content with subscription management
     return (
-      <div className={styles.container} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <div className={styles.main}>
-          <h1 className={styles.title}>Loading...</h1>
+      <>
+        <Sidebar
+          open={sidebarOpen}
+          sidebarRef={sidebarRef}
+          onClose={() => setSidebarOpen(false)}
+          session={session}
+          onSignOut={async () => {
+            // Optimistic UI: immediately close sidebar and start logout process
+            setSidebarOpen(false);
+            await signOut({ callbackUrl: '/' });
+          }}
+          currentView={currentView}
+          onChangeView={setCurrentView}
+        />
+        {sidebarOpen && <div className={styles.overlay} onClick={() => setSidebarOpen(false)} />}
+        <div className={`${styles.appMain} ${sidebarOpen ? styles.mainOpen : ''}`}>
+          <div className={styles.content}>
+            <Subscriptions
+              subscriptions={subscriptions}
+              loading={loading}
+              error={null} // Using notifications instead of inline error
+              onDelete={handleDeleteSubscription}
+              onUpdate={handleUpdateSubscription}
+              composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription, onCancel: () => setNewSubscription('') }}
+            />
+          </div>
         </div>
-      </div>
+      </>
     );
-  }
+  };
 
-  // User is authenticated, show the main content with subscription management
   return (
-    <div className={styles.container}>
+    <div className={status === 'unauthenticated' ? styles.appContainer : styles.container}>
       <Head>
-        <title>Varisankya</title>
-        <meta name="description" content="Track your subscriptions" />
+        <title>{status === 'unauthenticated' ? 'Varisankya - Sign In' : 'Varisankya'}</title>
+        <meta name="description" content={status === 'unauthenticated' ? "Sign in to Varisankya subscription tracker" : "Track your subscriptions"} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#121212" />
         <link rel="icon" href="/favicon.ico" />
@@ -373,6 +403,9 @@ export default function Home() {
         <link rel="manifest" href="/site.webmanifest" />
       </Head>
 
+      {/* Static Header - always rendered at top level */}
+      <Header {...headerProps} />
+
       {/* Notification Toast */}
       {notification && (
         <div className={`${styles.notification} ${styles[`notification--${notification.type}`]}`}>
@@ -380,33 +413,8 @@ export default function Home() {
         </div>
       )}
 
-      <App
-        session={session}
-        sidebarOpen={sidebarOpen}
-        sidebarRef={sidebarRef}
-        hamburgerRef={hamburgerRef}
-        onHamburgerClick={() => setSidebarOpen(!sidebarOpen)}
-        onCloseSidebar={() => setSidebarOpen(false)}
-        onSignOut={async () => {
-          // Optimistic UI: immediately close sidebar and start logout process
-          setSidebarOpen(false);
-          await signOut({ callbackUrl: '/' });
-        }}
-        composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription, onCancel: () => setNewSubscription('') }}
-      >
-        <div className={styles.content}>
-          <Subscriptions
-            subscriptions={subscriptions}
-            loading={loading}
-            error={null} // Using notifications instead of inline error
-            onDelete={handleDeleteSubscription}
-            onUpdate={handleUpdateSubscription}
-            composerProps={{ value: newSubscription, onChange: (v) => setNewSubscription(v), onSubmit: handleAddSubscription, onCancel: () => setNewSubscription('') }}
-          />
-        </div>
-
-        {/* Composer handled by Page component */}
-      </App>
+      {/* Render content based on current state */}
+      {renderContent()}
     </div>
   );
 }
