@@ -56,7 +56,10 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
+      console.log('[API] GET /subscriptions - Fetching all...');
       const subscriptions = await collection.find({}).toArray();
+      console.log(`[API] GET /subscriptions - Found ${subscriptions.length} items.`);
+
       // Normalize `_id` to string and sanitize fields
       const normalized = subscriptions.map(s => ({
         _id: s._id.toString(),
@@ -65,15 +68,22 @@ export default async function handler(req, res) {
         createdAt: s.createdAt,
         updatedAt: s.updatedAt
       }));
+
+      if (normalized.length > 0) {
+        console.log('[API] GET /subscriptions - Sample sanitized item:', JSON.stringify(normalized[0], null, 2));
+      }
+
       res.status(200).json(normalized);
     } catch (error) {
-      console.error('Error fetching subscriptions:', error);
+      console.error('[API] Error fetching subscriptions:', error);
       res.status(500).json({ error: 'Failed to fetch subscriptions' });
     }
   } else if (req.method === 'POST') {
+    console.log('[API] POST /subscriptions - Body:', JSON.stringify(req.body, null, 2));
     const { name, nextDueDate } = req.body;
 
     if (!name) {
+      console.warn('[API] POST /subscriptions - Missing name');
       return res.status(400).json({ error: 'Subscription name is required' });
     }
 
@@ -83,17 +93,22 @@ export default async function handler(req, res) {
         nextDueDate: nextDueDate ? new Date(nextDueDate) : null,
         createdAt: new Date(),
       };
+      console.log('[API] POST /subscriptions - Creating:', JSON.stringify(newSubscription, null, 2));
 
       const result = await collection.insertOne(newSubscription);
+      console.log('[API] POST /subscriptions - Inserted ID:', result.insertedId);
+
       res.status(201).json({ ...newSubscription, _id: result.insertedId.toString() });
     } catch (error) {
-      console.error('Error adding subscription:', error);
+      console.error('[API] Error adding subscription:', error);
       res.status(500).json({ error: 'Failed to add subscription' });
     }
   } else if (req.method === 'PUT') {
+    console.log('[API] PUT /subscriptions - Body:', JSON.stringify(req.body, null, 2));
     const { id, name, nextDueDate } = req.body;
 
     if (!id) {
+      console.warn('[API] PUT /subscriptions - Missing ID');
       return res.status(400).json({ error: 'Subscription ID is required' });
     }
 
@@ -119,6 +134,9 @@ export default async function handler(req, res) {
         startDate: ""
       };
 
+      console.log('[API] PUT /subscriptions - Update Data:', JSON.stringify(updateData, null, 2));
+      console.log('[API] PUT /subscriptions - Unset Fields:', JSON.stringify(unsetFields, null, 2));
+
       const result = await collection.updateOne(
         { _id: new ObjectId(id) },
         {
@@ -127,17 +145,20 @@ export default async function handler(req, res) {
         }
       );
 
+      console.log('[API] PUT /subscriptions - Update Result:', JSON.stringify({ matched: result.matchedCount, modified: result.modifiedCount }, null, 2));
+
       if (result.matchedCount === 0) {
         return res.status(404).json({ error: 'Subscription not found' });
       }
 
       res.status(200).json({ ...updateData, _id: id });
     } catch (error) {
-      console.error('Error updating subscription:', error);
+      console.error('[API] Error updating subscription:', error);
       res.status(500).json({ error: 'Failed to update subscription' });
     }
   } else if (req.method === 'DELETE') {
     const { id } = req.query;
+    console.log(`[API] DELETE /subscriptions - ID: ${id}`);
 
     if (!id) {
       return res.status(400).json({ error: 'Subscription ID is required' });
@@ -145,12 +166,14 @@ export default async function handler(req, res) {
 
     try {
       const result = await collection.deleteOne({ _id: new ObjectId(id) });
+      console.log('[API] DELETE /subscriptions - Result:', JSON.stringify({ deleted: result.deletedCount }, null, 2));
+
       if (result.deletedCount === 0) {
         return res.status(404).json({ error: 'Subscription not found' });
       }
       res.status(200).json({ message: 'Subscription deleted successfully' });
     } catch (error) {
-      console.error('Error deleting subscription:', error);
+      console.error('[API] Error deleting subscription:', error);
       res.status(500).json({ error: 'Failed to delete subscription' });
     }
   } else {

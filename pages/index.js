@@ -30,13 +30,15 @@ export default function Home() {
 
     try {
       setLoading(true);
+      console.log('[Frontend] Fetching subscriptions...');
       const res = await fetch('/api/subscriptions');
       if (!res.ok) throw new Error('Failed to fetch subscriptions');
       const data = await res.json();
+      console.log('[Frontend] Fetched subscriptions:', data);
       setSubscriptions(data);
       hasFetched.current = true;
     } catch (error) {
-      console.error('Error fetching subscriptions:', error);
+      console.error('[Frontend] Error fetching subscriptions:', error);
       setNotification({ type: 'error', message: 'Failed to load subscriptions' });
     } finally {
       setLoading(false);
@@ -69,6 +71,7 @@ export default function Home() {
     setSubscriptions([newSub, ...subscriptions]);
 
     try {
+      console.log('[Frontend] Adding subscription...');
       const res = await fetch('/api/subscriptions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -78,6 +81,7 @@ export default function Home() {
       if (!res.ok) throw new Error('Failed to add subscription');
 
       const createdSub = await res.json();
+      console.log('[Frontend] Added subscription:', createdSub);
 
       // Replace temp item with actual item from DB
       setSubscriptions(prev => prev.map(sub =>
@@ -86,7 +90,7 @@ export default function Home() {
 
       // We don't show a notification here to keep it seamless, or maybe a subtle one
     } catch (error) {
-      console.error('Error adding subscription:', error);
+      console.error('[Frontend] Error adding subscription:', error);
       setNotification({ type: 'error', message: 'Failed to add subscription' });
       // Remove temp item on error
       setSubscriptions(prev => prev.filter(sub => sub._id !== tempId));
@@ -100,6 +104,7 @@ export default function Home() {
     ));
 
     try {
+      console.log('[Frontend] Updating subscription:', updatedSub);
       const res = await fetch('/api/subscriptions', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -108,10 +113,13 @@ export default function Home() {
 
       if (!res.ok) throw new Error('Failed to update subscription');
 
+      const result = await res.json();
+      console.log('[Frontend] Updated subscription result:', result);
+
       // No need to update state again if successful as we did optimistic update
       // But we might want to sync back any server-side changes if needed
     } catch (error) {
-      console.error('Error updating subscription:', error);
+      console.error('[Frontend] Error updating subscription:', error);
       setNotification({ type: 'error', message: 'Failed to update subscription' });
       // Revert changes? For now we just notify error.
       // Ideally we would revert to previous state but that requires tracking it.
