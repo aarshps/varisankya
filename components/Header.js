@@ -1,13 +1,15 @@
 import React from 'react';
-
 import styles from '../styles/Home.module.css';
 
 export default function Header({ onHamburgerClick, hamburgerRef, session, hideHamburger = false }) {
-  const handleHamburgerPress = (e) => {
-    e.currentTarget.style.transform = 'scale(0.95)';
+  // M3E press animations
+  const handlePress = (e) => {
+    e.currentTarget.style.transform = 'scale(0.92)';
+    e.currentTarget.style.transition = 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)';
   };
-  const handleHamburgerRelease = (e) => {
+  const handleRelease = (e) => {
     e.currentTarget.style.transform = 'scale(1)';
+    e.currentTarget.style.transition = 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)';
   };
 
   return (
@@ -21,9 +23,12 @@ export default function Header({ onHamburgerClick, hamburgerRef, session, hideHa
               className={styles.hamburger}
               ref={hamburgerRef}
               aria-label="Menu"
-              onMouseDown={handleHamburgerPress}
-              onMouseUp={handleHamburgerRelease}
-              onMouseLeave={handleHamburgerRelease}
+              onMouseDown={handlePress}
+              onMouseUp={handleRelease}
+              onMouseLeave={handleRelease}
+              onTouchStart={handlePress}
+              onTouchEnd={handleRelease}
+              style={{ transition: 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)' }}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 18H21V16H3V18ZM3 13H21V11H3V13ZM3 6V8H21V6H3Z" fill="#E3E3E3" />

@@ -4,11 +4,11 @@ import ProgressBar from './ProgressBar';
 import Modal, { ModalButton } from './Modal';
 import IconButton from './IconButton';
 
-// Hook for M3E button press animation
+// M3E press animation hook
 const useButtonAnim = () => {
   const onPress = (e) => {
     e.stopPropagation();
-    e.currentTarget.style.transform = 'scale(0.90)';
+    e.currentTarget.style.transform = 'scale(0.96)';
     e.currentTarget.style.transition = 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)';
   };
   const onRelease = (e) => {
@@ -25,14 +25,14 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { onPress, onRelease } = useButtonAnim();
 
-  // Sync local expanded state with parent's expanded state
+  // Sync expanded state
   useEffect(() => {
     setExpanded(isExpanded);
   }, [isExpanded]);
 
-  // Auto‑collapse after 60s of inactivity
+  // Auto-collapse after 60s
   useEffect(() => {
-    if (!expanded) return undefined;
+    if (!expanded) return;
     const timer = setTimeout(() => {
       setExpanded(false);
       if (onCollapse) onCollapse();
@@ -40,7 +40,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     return () => clearTimeout(timer);
   }, [expanded, onCollapse]);
 
-  // Collapse when clicking outside
+  // Collapse on outside click
   useEffect(() => {
     if (!expanded) return;
 
@@ -61,7 +61,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     };
   }, [expanded, onCollapse, subscription._id]);
 
-  // Ultra-simple progress calculation - only Next Due Date
+  // Optimized progress calculation
   const calculateProgress = useCallback(() => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
@@ -77,7 +77,6 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     const daysLeftRaw = Math.ceil(diff / (1000 * 60 * 60 * 24));
     const daysLeft = Math.max(0, daysLeftRaw);
 
-    // Progress based on 30-day window
     const cappedDays = Math.min(Math.max(daysLeftRaw, 0), 30);
     const progress = ((30 - cappedDays) / 30) * 100;
 
@@ -86,14 +85,6 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
 
     return { progress, daysLeft, daysLeftRaw, label: displayLabel };
   }, [subscription.nextDueDate]);
-
-  const getTodayString = () => {
-    const d = new Date();
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
 
   const handleNextDueDateChange = async (e) => {
     const newDate = e.target.value;
@@ -104,7 +95,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         nextDueDate: newDate || null,
       });
     } catch (error) {
-      console.error('Failed to update next due date:', error);
+      console.error('Failed to update:', error);
     }
   };
 
@@ -118,12 +109,12 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     try {
       await onDelete(subscription._id);
     } catch (error) {
-      console.error('Failed to delete subscription:', error);
+      console.error('Failed to delete:', error);
       setIsDeleting(false);
     }
   };
 
-  const { progress, daysLeft, label } = calculateProgress();
+  const { progress, label } = calculateProgress();
   const hasDueDate = subscription.nextDueDate;
   const statusColor = progress > 70 ? '#F2B8B5' : (hasDueDate ? '#A8C7FA' : '#8E918F');
 
@@ -147,8 +138,9 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           flexDirection: 'column',
           alignItems: 'stretch',
           cursor: 'pointer',
-          transition: 'background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)',
+          transition: 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s',
           position: 'relative',
+          willChange: 'transform',
         }}
         onMouseDown={(e) => {
           e.currentTarget.style.transform = 'scale(0.99)';
@@ -159,9 +151,15 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = 'scale(1)';
         }}
+        onTouchStart={(e) => {
+          e.currentTarget.style.transform = 'scale(0.99)';
+        }}
+        onTouchEnd={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+        }}
       >
         <div style={{ width: '100%', boxSizing: 'border-box' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '8px', marginBottom: '8px' }}>
               <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', fontWeight: '500', whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: '1.3' }}>{subscription.name}</span>
               <span style={{
@@ -176,14 +174,11 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 marginBottom: '2px'
               }}>{label}</span>
             </div>
-            <ProgressBar
-              progress={progress}
-              color={statusColor}
-            />
+            <ProgressBar progress={progress} color={statusColor} />
           </div>
         </div>
 
-        {/* Expanded View - Ultra Simple */}
+        {/* Expanded View */}
         <div
           style={{
             maxHeight: expanded ? '200px' : '0',
@@ -192,14 +187,12 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             marginTop: expanded ? '16px' : '0',
             paddingTop: expanded ? '16px' : '0',
             borderTop: expanded ? '1px solid #444746' : 'none',
-            transition: 'max-height 0.3s ease-out, opacity 0.3s ease-out, margin-top 0.3s ease-out, padding-top 0.3s ease-out, border-top 0.3s ease-out',
+            transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s, margin-top 0.3s, padding-top 0.3s',
           }}
           onClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          onMouseUp={(e) => e.stopPropagation()}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Next Due Date Picker */}
+            {/* Next Due Date Picker with M3E animation */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: '#C4C7C5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Next Due Date</label>
               <input
@@ -215,8 +208,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   colorScheme: 'dark',
                   cursor: 'pointer',
                   boxSizing: 'border-box',
-                  appearance: 'none',
-                  WebkitAppearance: 'none',
+                  transition: 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
                 value={subscription.nextDueDate ? new Date(subscription.nextDueDate).toISOString().split('T')[0] : ''}
                 onChange={handleNextDueDateChange}
@@ -224,6 +216,11 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   e.stopPropagation();
                   e.target.showPicker && e.target.showPicker();
                 }}
+                onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                onTouchStart={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+                onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
               />
             </div>
 
@@ -233,7 +230,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 onClick={handleDeleteClick}
                 title="Delete"
                 icon={
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="currentColor" />
                   </svg>
                 }
@@ -250,27 +247,18 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         </div>
       </li>
 
-      {/* Delete Confirmation Modal */}
-      <Modal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        title="Delete Subscription"
-      >
+      {/* Delete Modal */}
+      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Subscription">
         <p style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', color: '#E3E3E3', margin: '0 0 24px 0' }}>
-          Are you sure you want to delete <strong>{subscription.name}</strong>? This action cannot be undone.
+          Are you sure you want to delete <strong>{subscription.name}</strong>?
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-          <ModalButton onClick={() => setShowDeleteModal(false)} variant="secondary">
-            Cancel
-          </ModalButton>
-          <ModalButton onClick={handleDeleteConfirm} variant="danger">
-            Delete
-          </ModalButton>
+          <ModalButton onClick={() => setShowDeleteModal(false)} variant="secondary">Cancel</ModalButton>
+          <ModalButton onClick={handleDeleteConfirm} variant="danger">Delete</ModalButton>
         </div>
       </Modal>
     </>
   );
 };
 
-// Memoize to prevent unnecessary re-renders
 export default React.memo(SubscriptionListItem);
