@@ -70,7 +70,7 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate }) => {
   });
 
   return (
-    <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%', paddingBottom: '100px' }}>
+    <ul style={{ listStyle: 'none', padding: 0, margin: 0, width: '100%' }}>
       {sortedSubscriptions.map((s) => (
         <SubscriptionListItem
           key={s.localId || s._id}

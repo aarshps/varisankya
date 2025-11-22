@@ -17,7 +17,7 @@ export default function Subscriptions({ subscriptions, loading, error, onDelete,
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.subscriptionsContainer}>
       <SubscriptionList
         subscriptions={subscriptions}
         onDelete={onDelete}
