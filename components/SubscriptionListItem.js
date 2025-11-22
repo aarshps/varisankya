@@ -143,7 +143,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           <div style={{ flex: 1, minWidth: 0 }}>
             <span style={{
               fontFamily: "'Google Sans Flex', sans-serif",
-              fontSize: '16px',
+              fontSize: '17px',
               fontWeight: '500',
               color: COLORS.textPrimary,
               overflow: 'hidden',
@@ -164,7 +164,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           }}>
             <span style={{
               fontFamily: "'Google Sans Flex', sans-serif",
-              fontSize: '12px',
+              fontSize: '13px',
               color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
               whiteSpace: 'nowrap'
             }}>
@@ -207,23 +207,31 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           </div>
         </div>
 
+        {/* Separator Line */}
+        {expanded && (
+          <div style={{
+            height: '1px',
+            backgroundColor: COLORS.surfaceVariant,
+            margin: '16px 0',
+            width: '100%'
+          }} />
+        )}
+
         {/* Expanded View */}
         <div
           style={{
             maxHeight: expanded ? '500px' : '0',
             opacity: expanded ? 1 : 0,
             overflow: 'hidden',
-            transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: expanded ? 'scaleY(1)' : 'scaleY(0.95)',
-            transformOrigin: 'top'
+            transition: 'all 0.3s cubic-bezier(0.2, 0, 0, 1)',
+            transform: expanded ? 'translateY(0)' : 'translateY(-10px)'
           }}
         >
           {expanded && (
             <div
               style={{
-                paddingTop: '20px',
-                width: '100%',
-                animation: 'fadeIn 0.3s ease-out'
+                paddingTop: '8px',
+                width: '100%'
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -232,7 +240,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{
                     fontFamily: "'Google Sans Flex', sans-serif",
-                    fontSize: '12px',
+                    fontSize: '13px',
                     fontWeight: '500',
                     color: COLORS.textSecondary,
                     textTransform: 'uppercase',
@@ -313,7 +321,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
       </li>
 
       {/* Delete Modal */}
-      <Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Subscription">
+      < Modal isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} title="Delete Subscription" >
         <p style={{
           fontFamily: "'Google Sans Flex', sans-serif",
           fontSize: '16px',
@@ -326,7 +334,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           <ModalButton onClick={() => setShowDeleteModal(false)} variant="secondary">Cancel</ModalButton>
           <ModalButton onClick={handleDeleteConfirm} variant="danger">Delete</ModalButton>
         </div>
-      </Modal>
+      </Modal >
     </>
   );
 };
