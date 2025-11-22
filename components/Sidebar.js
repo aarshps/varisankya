@@ -44,30 +44,30 @@ export default function Sidebar({ open, sidebarRef, onClose, session, onSignOut,
       </div>
       <div style={{ flex: 1 }} />
       <div style={{ padding: '16px', borderTop: '1px solid #444746' }}>
-        < style={{ fontSize: '14px', color: '#E3E3E3', marginBottom: '16px', paddingLeft: '12px' }}>{session?.user?.email}</div>
-      <button
-        onClick={onSignOut}
-        onMouseDown={handlePress}
-        onMouseUp={handleRelease}
-        onMouseLeave={handleRelease}
-        onTouchStart={handlePress}
-        onTouchEnd={handleRelease}
-        style={{
-          width: '100%',
-          padding: '12px',
-          backgroundColor: 'transparent',
-          color: '#F2B8B5',
-          border: '1px solid #8C1D18',
-          borderRadius: '24px',
-          cursor: 'pointer',
-          fontWeight: '500',
-          fontFamily: "'Google Sans Flex', sans-serif",
-          transition: 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)'
-        }}
-      >
-        Sign Out
-      </button>
-    </div>
-    </aside >
+        <div style={{ fontSize: '14px', color: '#E3E3E3', marginBottom: '16px', paddingLeft: '12px' }}>{session?.user?.email}</div>
+        <button
+          onClick={onSignOut}
+          onMouseDown={handlePress}
+          onMouseUp={handleRelease}
+          onMouseLeave={handleRelease}
+          onTouchStart={handlePress}
+          onTouchEnd={handleRelease}
+          style={{
+            width: '100%',
+            padding: '12px',
+            backgroundColor: 'transparent',
+            color: '#F2B8B5',
+            border: '1px solid #8C1D18',
+            borderRadius: '24px',
+            cursor: 'pointer',
+            fontWeight: '500',
+            fontFamily: "'Google Sans Flex', sans-serif",
+            transition: 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        >
+          Sign Out
+        </button>
+      </div>
+    </aside>
   );
 }
