@@ -3,16 +3,6 @@ import styles from '../styles/Home.module.css';
 import { COLORS } from '../lib/colors';
 
 export default function Header({ onHamburgerClick, hamburgerRef, session, hideHamburger = false }) {
-  // M3E press animations
-  const handlePress = (e) => {
-    e.currentTarget.style.transform = 'scale(0.92)';
-    e.currentTarget.style.transition = 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)';
-  };
-  const handleRelease = (e) => {
-    e.currentTarget.style.transform = 'scale(1)';
-    e.currentTarget.style.transition = 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)';
-  };
-
   return (
     <header className={styles.header}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -24,12 +14,7 @@ export default function Header({ onHamburgerClick, hamburgerRef, session, hideHa
               className={styles.hamburger}
               ref={hamburgerRef}
               aria-label="Menu"
-              onMouseDown={handlePress}
-              onMouseUp={handleRelease}
-              onMouseLeave={handleRelease}
-              onTouchStart={handlePress}
-              onTouchEnd={handleRelease}
-              style={{ transition: 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)' }}
+              style={{ padding: '8px', background: 'none', border: 'none', cursor: 'pointer' }}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 18H21V16H3V18ZM3 13H21V11H3V13ZM3 6V8H21V6H3Z" fill={COLORS.textPrimary} />

@@ -5,26 +5,9 @@ import Modal, { ModalButton } from './Modal';
 import IconButton from './IconButton';
 import { COLORS } from '../lib/colors';
 
-// M3E press animation hook
-const useButtonAnim = () => {
-  const onPress = (e) => {
-    e.stopPropagation();
-    e.currentTarget.style.transform = 'scale(0.96)';
-    e.currentTarget.style.transition = 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)';
-  };
-  const onRelease = (e) => {
-    e.stopPropagation();
-    e.currentTarget.style.transform = 'scale(1)';
-    e.currentTarget.style.transition = 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)';
-  };
-  return { onPress, onRelease };
-};
-
 const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, onExpand, onCollapse }) => {
-  const [isDeleting, setIsDeleting] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { onPress, onRelease } = useButtonAnim();
 
   // Sync expanded state
   useEffect(() => {
@@ -106,12 +89,10 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   };
 
   const handleDeleteConfirm = async () => {
-    setIsDeleting(true);
     try {
       await onDelete(subscription._id);
     } catch (error) {
       console.error('Failed to delete:', error);
-      setIsDeleting(false);
     }
   };
 
@@ -135,28 +116,10 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           }
         }}
         style={{
-          animation: isDeleting ? `${styles.fadeOut} 0.2s forwards` : `${styles.fadeIn} 0.3s ease-out`,
           flexDirection: 'column',
           alignItems: 'stretch',
           cursor: 'pointer',
-          transition: 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s',
           position: 'relative',
-          willChange: 'transform',
-        }}
-        onMouseDown={(e) => {
-          e.currentTarget.style.transform = 'scale(0.99)';
-        }}
-        onMouseUp={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-        }}
-        onTouchStart={(e) => {
-          e.currentTarget.style.transform = 'scale(0.99)';
-        }}
-        onTouchEnd={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
         }}
       >
         <div style={{ width: '100%', boxSizing: 'border-box' }}>
@@ -188,12 +151,11 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
             marginTop: expanded ? '16px' : '0',
             paddingTop: expanded ? '16px' : '0',
             borderTop: expanded ? `1px solid ${COLORS.border}` : 'none',
-            transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s, margin-top 0.3s, padding-top 0.3s',
           }}
           onClick={(e) => e.stopPropagation()}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Next Due Date Picker with M3E animation */}
+            {/* Next Due Date Picker */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Next Due Date</label>
               <input
@@ -209,7 +171,6 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   colorScheme: 'dark',
                   cursor: 'pointer',
                   boxSizing: 'border-box',
-                  transition: 'transform 0.1s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
                 value={subscription.nextDueDate ? new Date(subscription.nextDueDate).toISOString().split('T')[0] : ''}
                 onChange={handleNextDueDateChange}
@@ -217,11 +178,6 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   e.stopPropagation();
                   e.target.showPicker && e.target.showPicker();
                 }}
-                onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
-                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                onTouchStart={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
-                onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
               />
             </div>
 
@@ -240,8 +196,6 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   backgroundColor: COLORS.destructiveBg,
                   border: `1px solid ${COLORS.destructiveBorder}`,
                 }}
-                onPress={onPress}
-                onRelease={onRelease}
               />
             </div>
           </div>

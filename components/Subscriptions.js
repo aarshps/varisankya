@@ -101,9 +101,8 @@ export default function Subscriptions({ subscriptions, loading, error, onDelete,
           style={{
             position: 'relative',
             zIndex: 20,
-            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            transform: isFabVisible ? 'translateY(0)' : 'translateY(100px)',
-            pointerEvents: isFabVisible ? 'auto' : 'none',
+            display: isFabVisible ? 'block' : 'none',
+            pointerEvents: 'auto',
           }}
         >
           <button
@@ -121,13 +120,8 @@ export default function Subscriptions({ subscriptions, loading, error, onDelete,
               justifyContent: 'center',
               fontSize: '24px',
               fontWeight: 'bold',
-              boxShadow: '0 4px 12px rgba(168, 199, 250, 0.4)',
-              transition: 'background-color 0.2s, transform 0.1s',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
             }}
-            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = COLORS.primaryHover)}
-            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = COLORS.primary)}
-            onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.95)')}
-            onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           >
             +
           </button>

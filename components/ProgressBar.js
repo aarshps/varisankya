@@ -14,7 +14,6 @@ const ProgressBar = ({ progress, color }) => {
                 width: `${Math.min(Math.max(progress, 0), 100)}%`,
                 height: '100%',
                 backgroundColor: color || COLORS.primary,
-                transition: 'width 0.3s ease-in-out, background-color 0.3s ease-in-out'
             }} />
         </div>
     );
