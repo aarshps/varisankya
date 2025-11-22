@@ -244,12 +244,12 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         {expanded && (
           <div
             style={{
-              paddingTop: '32px',
+              paddingTop: '20px',
               width: '100%'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {/* Name Input */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <label style={{

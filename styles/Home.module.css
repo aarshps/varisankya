@@ -367,8 +367,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px 24px 24px;
-  /* Small top padding for vertical centering */
+  padding: 16px;
   margin: 0 16px 8px 16px;
   /* No top margin */
   background-color: #1E1E1E;
