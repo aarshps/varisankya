@@ -141,7 +141,31 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         <div style={{ width: '100%', boxSizing: 'border-box' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '8px', marginBottom: '8px' }}>
-              <span style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '16px', fontWeight: '500', whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: '1.3' }}>{subscription.name}</span>
+              <input
+                type="text"
+                value={expanded ? editedName : subscription.name}
+                onChange={(e) => setEditedName(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                placeholder="Subscription Name"
+                readOnly={!expanded}
+                style={{
+                  fontFamily: "'Google Sans Flex', sans-serif",
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  whiteSpace: 'normal',
+                  wordBreak: 'break-word',
+                  lineHeight: '1.3',
+                  background: 'transparent',
+                  border: 'none',
+                  color: COLORS.textPrimary,
+                  width: '100%',
+                  padding: 0,
+                  margin: 0,
+                  outline: 'none',
+                  cursor: expanded ? 'text' : 'pointer',
+                  pointerEvents: expanded ? 'auto' : 'none'
+                }}
+              />
               <span style={{
                 fontFamily: "'Google Sans Flex', sans-serif",
                 fontSize: '12px',
@@ -171,27 +195,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           onClick={(e) => e.stopPropagation()}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Name Edit */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Name</label>
-              <input
-                type="text"
-                className={styles.composerInput}
-                style={{
-                  borderRadius: '12px',
-                  fontFamily: "'Google Sans Flex', sans-serif",
-                  fontSize: '16px',
-                  padding: '14px 16px',
-                  height: '48px',
-                  width: '100%',
-                  colorScheme: 'dark',
-                  boxSizing: 'border-box',
-                }}
-                value={editedName}
-                onChange={(e) => setEditedName(e.target.value)}
-                placeholder="Subscription Name"
-              />
-            </div>
+            {/* Name Edit removed - unified with header */}
 
             {/* Next Due Date Picker */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
