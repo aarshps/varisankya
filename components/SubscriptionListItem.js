@@ -137,7 +137,11 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: '16px',
-          width: '100%'
+          width: '100%',
+          maxHeight: expanded ? '0' : '100px',
+          opacity: expanded ? 0 : 1,
+          overflow: 'hidden',
+          transition: 'all 0.3s cubic-bezier(0.2, 0, 0, 1)'
         }}>
           {/* Name */}
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -183,7 +187,6 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           {expanded && (
             <div
               style={{
-                paddingTop: '4px',
                 width: '100%'
               }}
               onClick={(e) => e.stopPropagation()}
