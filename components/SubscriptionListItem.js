@@ -168,47 +168,59 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           position: 'relative',
         }}
       >
+        {/* Main Content Row */}
         <div style={{
-          width: '100%',
           display: 'flex',
-          justifyContent: 'space-between',
           alignItems: 'center',
-          gap: '12px'
+          justifyContent: 'space-between',
+          width: '100%',
+          gap: '16px'
         }}>
           {/* Subscription Name */}
-          <span style={{
-            fontFamily: "'Google Sans Flex', sans-serif",
-            fontSize: '16px',
-            fontWeight: '500',
-            color: COLORS.textPrimary,
-            whiteSpace: 'normal',
-            wordBreak: 'break-word',
-            lineHeight: '1.4',
+          <div style={{
             flex: 1,
-            minWidth: 0 // Allow text to shrink properly
+            minWidth: 0,
+            display: 'flex',
+            alignItems: 'center'
           }}>
-            {subscription.name || 'New Subscription'}
-          </span>
+            <span style={{
+              fontFamily: "'Google Sans Flex', sans-serif",
+              fontSize: '16px',
+              fontWeight: '500',
+              color: COLORS.textPrimary,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
+              {subscription.name || 'New Subscription'}
+            </span>
+          </div>
 
-          {/* Days Left + Circular Progress */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          {/* Right Side: Days Left + Progress */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            flexShrink: 0
+          }}>
             {/* Days Left Text */}
             <span style={{
               fontFamily: "'Google Sans Flex', sans-serif",
               fontSize: '12px',
               color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
-              whiteSpace: 'nowrap',
-              textAlign: 'right',
-              lineHeight: '1.2'
-            }}>{label}</span>
+              whiteSpace: 'nowrap'
+            }}>
+              {label}
+            </span>
 
             {/* Circular Progress */}
             <svg
               width="36"
               height="36"
+              viewBox="0 0 36 36"
               style={{
                 transform: 'rotate(-90deg)',
-                flexShrink: 0
+                display: 'block'
               }}
             >
               {/* Background Circle */}

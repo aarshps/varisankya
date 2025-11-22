@@ -367,26 +367,22 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  /* More padding */
-  margin: 8px 16px;
-  background-color: #1E1E1E;
-  /* M3 Dark Surface */
-  border: 1px solid #444746;
-  border-radius: 24px;
-  /* More rounded */
-  /* M3 rounded corners */
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  padding: 16px 16px;
+  margin: 0;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid #2D2D2D;
+  border-radius: 0;
+  transition: background-color 0.2s ease;
   color: #E3E3E3;
+  position: relative;
+  z-index: 1;
 }
 
 /* Only apply hover on non-touch devices */
 @media (hover: hover) and (pointer: fine) {
   .subscriptionItem:hover {
-    background-color: #2D2D2D;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    transform: scale(1.01);
-    /* Subtle scale on hover */
+    background-color: rgba(255, 255, 255, 0.03);
   }
 }
 
