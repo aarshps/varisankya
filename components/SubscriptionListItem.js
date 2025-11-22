@@ -168,47 +168,47 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           position: 'relative',
         }}
       >
-        {/* Background Progress Tint */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            bottom: 0,
-            width: `${progress}%`,
-            backgroundColor: statusColor,
-            opacity: 0.12,
-            zIndex: 0,
-            transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease',
-            pointerEvents: 'none'
-          }}
-        />
+        <div style={{ width: '100%', boxSizing: 'border-box', position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', minHeight: '36px' }}>
+            <span style={{
+              fontFamily: "'Google Sans Flex', sans-serif",
+              fontSize: '16px',
+              fontWeight: '500',
+              color: COLORS.textPrimary,
+              whiteSpace: 'normal',
+              wordBreak: 'break-word',
+              lineHeight: '1.3',
+            }}>
+              {subscription.name || 'New Subscription'}
+            </span>
+            <span style={{
+              fontFamily: "'Google Sans Flex', sans-serif",
+              fontSize: '12px',
+              color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              backgroundColor: statusColor === COLORS.destructive ? COLORS.destructiveBg : COLORS.surfaceHighlight,
+              padding: '4px 8px',
+              borderRadius: '12px',
+            }}>{label}</span>
+          </div>
 
-        <div style={{ width: '100%', boxSizing: 'border-box', position: 'relative', zIndex: 2, backgroundColor: 'transparent', borderRadius: '24px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', minHeight: '36px' }}>
-              <span style={{
-                fontFamily: "'Google Sans Flex', sans-serif",
-                fontSize: '16px',
-                fontWeight: '500',
-                color: COLORS.textPrimary,
-                whiteSpace: 'normal',
-                wordBreak: 'break-word',
-                lineHeight: '1.3',
-              }}>
-                {subscription.name || 'New Subscription'}
-              </span>
-              <span style={{
-                fontFamily: "'Google Sans Flex', sans-serif",
-                fontSize: '12px',
-                color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                backgroundColor: statusColor === COLORS.destructive ? COLORS.destructiveBg : COLORS.surfaceHighlight,
-                padding: '4px 8px',
-                borderRadius: '12px',
-              }}>{label}</span>
-            </div>
+          {/* Progress Bar */}
+          <div style={{
+            width: '100%',
+            height: '4px',
+            backgroundColor: '#2D2D2D',
+            borderRadius: '2px',
+            overflow: 'hidden',
+            position: 'relative'
+          }}>
+            <div style={{
+              width: `${progress}%`,
+              height: '100%',
+              backgroundColor: statusColor,
+              borderRadius: '2px',
+              transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease'
+            }} />
           </div>
         </div>
 
