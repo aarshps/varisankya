@@ -21,15 +21,42 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     }
   }, [isExpanded, subscription]);
 
-  // Auto-collapse after 60s
+  // Auto-collapse after 3s of inactivity
   useEffect(() => {
     if (!expanded) return;
-    const timer = setTimeout(() => {
-      setExpanded(false);
-      if (onCollapse) onCollapse();
-    }, 60000);
-    return () => clearTimeout(timer);
-  }, [expanded, onCollapse]);
+
+    let timer;
+    const resetTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        setExpanded(false);
+        if (onCollapse) onCollapse();
+      }, 3000);
+    };
+
+    // Initial start
+    resetTimer();
+
+    // Reset on interaction
+    const handleInteraction = () => resetTimer();
+
+    // Add listeners to the list item
+    const itemElement = document.querySelector(`[data-subscription-id="${subscription._id}"]`);
+    if (itemElement) {
+      itemElement.addEventListener('mousemove', handleInteraction);
+      itemElement.addEventListener('click', handleInteraction);
+      itemElement.addEventListener('keydown', handleInteraction);
+    }
+
+    return () => {
+      clearTimeout(timer);
+      if (itemElement) {
+        itemElement.removeEventListener('mousemove', handleInteraction);
+        itemElement.removeEventListener('click', handleInteraction);
+        itemElement.removeEventListener('keydown', handleInteraction);
+      }
+    };
+  }, [expanded, onCollapse, subscription._id]);
 
   // Collapse on outside click
   useEffect(() => {
@@ -115,6 +142,10 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   const { progress, label } = calculateProgress();
   const hasDueDate = subscription.nextDueDate;
   const statusColor = progress > 70 ? COLORS.destructive : (hasDueDate ? COLORS.primary : COLORS.neutral);
+
+  // Check if modified
+  const isModified = editedName !== subscription.name ||
+    (editedDate !== (subscription.nextDueDate ? new Date(subscription.nextDueDate).toISOString().split('T')[0] : ''));
 
   return (
     <>
@@ -202,18 +233,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               <label style={{ fontFamily: "'Google Sans Flex', sans-serif", fontSize: '12px', fontWeight: '500', color: COLORS.textSecondary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Next Due Date</label>
               <input
                 type="date"
-                className={styles.composerInput}
-                style={{
-                  borderRadius: '12px',
-                  fontFamily: "'Google Sans Flex', sans-serif",
-                  fontSize: '16px',
-                  padding: '14px 16px',
-                  height: '48px',
-                  width: '100%',
-                  colorScheme: 'dark',
-                  cursor: 'pointer',
-                  boxSizing: 'border-box',
-                }}
+                className={styles.dateInput}
                 value={editedDate}
                 onChange={(e) => setEditedDate(e.target.value)}
                 onClick={(e) => {
@@ -248,6 +268,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                     handleSave();
                   }}
                   variant="success"
+                  disabled={!isModified}
                 >
                   Save
                 </Button>

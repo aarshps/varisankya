@@ -266,7 +266,7 @@ export default function Home() {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+      if (currentScrollY > lastScrollY.current) {
         setIsFabVisible(false); // Hide on scroll down
       } else {
         setIsFabVisible(true); // Show on scroll up
