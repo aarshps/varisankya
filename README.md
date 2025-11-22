@@ -32,46 +32,33 @@ Varisankya is a modern, mobile-first Progressive Web App (PWA) designed to help 
 
 1. Click the floating **+** button (bottom right on mobile, or via FAB).
 2. Enter the service name (e.g., "Netflix", "Gym").
-3. Tap **Add**. The app sets default values (Monthly, Active, 30 days) which you can edit later.
+3. Tap **Add**. The subscription is added without a due date.
 
-#### Editing & Details
+#### Managing Subscriptions
 
-Tap any subscription to expand it, then click the edit (pencil) icon to open the editor.
+**Tap any subscription** to expand it.
 
-- **Status**: Toggle between **Active** (paying) and **Inactive** (cancelled).
-- **Recurrence Fields** (choose ONE approach):
-  - **Option 1: Last Paid + Recurring Days**:
-    - **Last Paid Date**: When you last paid for this subscription
-    - **Recurring Days**: How many days until it recurs (e.g., 30 for monthly, 365 for yearly)
-    - Next Due is automatically calculated
-  - **Option 2: Next Due Date Only**:
-    - **Next Due Date**: Set the exact date when payment is due
-    - Use this for one-time payments or when you know the specific due date
-    - Setting this will disable Last Paid and Recurring Days fields
+Expanded view shows:
+- **Next Due Date**: Click to open date picker and set/update the due date → Auto-saves
+- **Delete Button**: Click to remove the subscription (with confirmation)
 
-**How it works**:
-- If **Next Due** is set → It's used directly (manual mode)
-- If **Last Paid + Recurring Days** are set → Next Due = Last Paid + Days
-- Update **Last Paid** when you pay (early or late) to recalculate Next Due
-- **Edit**: Click the edit (pencil) icon to modify any field
-- **Delete**: Click the delete (trash) icon to remove permanently after confirmation
+That's it! No complex fields, no status toggles, just name and due date.
 
 ### 3. Understanding the Dashboard
 
 #### The Progress Bar
 
-- **Blue**: Safe zone. The bar fills as the due date approaches.
-- **Red**: **Urgent/Overdue**. The bar is nearly full or completely full.
-- **Grey**: Inactive subscriptions or subscriptions with no dates set.
+- **Blue**: Safe zone. Days left until due date.
+- **Red**: Urgent or overdue.
+- **Grey**: No due date set yet.
 
 #### Smart Sorting
 
-The list is automatically sorted to keep you focused:
+The list is automatically sorted by Next Due Date:
 
-1. **Overdue/Most Urgent**: Items with 0 or negative days left (sorted by days left, most urgent first).
-2. **Upcoming**: Due soon (sorted by days left ascending).
-3. **Later**: Plenty of time left.
-4. **Inactive**: Cancelled items sit at the bottom.
+1. **Most Urgent**: Soonest due dates appear first
+2. **Later**: Future due dates follow
+3. **No Date Set**: Items without due dates sit at the bottom
 
 #### Auto-Collapse
 
@@ -211,24 +198,18 @@ The app is ready for [Vercel](https://vercel.com/) deployment.
 
 ## 🧠 Logic & Calculations
 
-### Simplified Recurrence System
+### Ultra-Simple System
 
-The app uses a simple 3-field model:
+Each subscription has only two fields:
+1. **Name**: What you're subscribed to
+2. **Next Due Date**: When it's due (optional)
 
-1. **Last Paid Date** (optional)
-2. **Recurring Days** (optional)
-3. **Next Due Date** (optional)
+That's it. No recurring patterns, no status, no last paid dates.
 
-**Priority Logic**:
-- If `Next Due Date` is set → Use it directly
-- If `Last Paid Date + Recurring Days` are set → Calculate: `Next Due = Last Paid + Recurring Days`
-- If neither is set → Show "No dates set"
-
-**Real-World Examples**:
-- **Monthly Netflix** ($15/month): Last Paid = Jan 15, Recurring Days = 30 → Next Due = Feb 14
-- **Annual Insurance** ($500/year): Last Paid = Dec 1, RecurringDays = 365 → Next Due = Nov 30 (next year)
-- **Credit Card** (known due date): Next Due = Feb 5 (set directly, no calculation)
-- **Early Payment**: Paid on Jan 10 instead of Jan 15 → Update Last Paid to Jan 10, Next Due recalculates to Feb 9
+**Usage**:
+- Set Next Due when you know the payment date
+- After paying, update Next Due to the new date
+- Delete when you cancel
 
 ### Progress Calculation
 
@@ -239,20 +220,14 @@ The app uses a simple 3-field model:
   - 15 days left → Bar half full (50%)
   - 0 days left → Bar full (100%)
   - Overdue → Bar full, red color
+  - No date → Grey bar
 - **Color Coding**:
   - **Blue** (`#A8C7FA`): Safe (0-70% full)
   - **Red** (`#F2B8B5`): Urgent/overdue (>70% full)
-  - **Grey** (`#8E918F`): Inactive or no dates set
+  - **Grey** (`#8E918F`): No due date set
 
 ### Sorting Algorithm
 
-Subscriptions are sorted in the following priority order:
-
-1. **Status Filter**: Inactive items always go to the bottom.
-2. **Days Left Calculation**: Based on next due date and current date.
-3. **Ascending Sort**: Items with fewer days left appear first (most urgent on top).
-4. **Special Cases**:
-   - Manual recurrence with no due date: treated as "distant future" (9998 days).
    - No dates set: treated as "distant future" (9998 days).
    - Inactive: treated as "far bottom" (9999 days).
 
