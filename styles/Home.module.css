@@ -335,6 +335,11 @@
   /* Ensure no outline */
 }
 
+.dateInput::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
 /* Bubble Animation */
 .bubble {
   position: fixed;

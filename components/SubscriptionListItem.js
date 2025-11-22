@@ -168,47 +168,59 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
           position: 'relative',
         }}
       >
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px', position: 'relative', zIndex: 2 }}>
-          {/* Name and Label Row */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-            <span style={{
-              fontFamily: "'Google Sans Flex', sans-serif",
-              fontSize: '16px',
-              fontWeight: '500',
-              color: COLORS.textPrimary,
-              whiteSpace: 'normal',
-              wordBreak: 'break-word',
-              lineHeight: '1.3',
-            }}>
-              {subscription.name || 'New Subscription'}
-            </span>
+        <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', position: 'relative', zIndex: 2 }}>
+          {/* Subscription Name */}
+          <span style={{
+            fontFamily: "'Google Sans Flex', sans-serif",
+            fontSize: '16px',
+            fontWeight: '500',
+            color: COLORS.textPrimary,
+            whiteSpace: 'normal',
+            wordBreak: 'break-word',
+            lineHeight: '1.3',
+            flex: 1
+          }}>
+            {subscription.name || 'New Subscription'}
+          </span>
+
+          {/* Days Left + Circular Progress */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            {/* Days Left Text */}
             <span style={{
               fontFamily: "'Google Sans Flex', sans-serif",
               fontSize: '12px',
               color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
               whiteSpace: 'nowrap',
-              flexShrink: 0,
-              backgroundColor: statusColor === COLORS.destructive ? COLORS.destructiveBg : COLORS.surfaceHighlight,
-              padding: '4px 8px',
-              borderRadius: '12px',
+              textAlign: 'right'
             }}>{label}</span>
-          </div>
 
-          {/* Progress Bar */}
-          <div style={{
-            width: '100%',
-            height: '4px',
-            backgroundColor: '#2D2D2D',
-            borderRadius: '2px',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              width: `${progress}%`,
-              height: '100%',
-              backgroundColor: statusColor,
-              borderRadius: '2px',
-              transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease'
-            }} />
+            {/* Circular Progress */}
+            <svg width="36" height="36" style={{ transform: 'rotate(-90deg)' }}>
+              {/* Background Circle */}
+              <circle
+                cx="18"
+                cy="18"
+                r="16"
+                fill="none"
+                stroke="#2D2D2D"
+                strokeWidth="3"
+              />
+              {/* Progress Circle */}
+              <circle
+                cx="18"
+                cy="18"
+                r="16"
+                fill="none"
+                stroke={statusColor}
+                strokeWidth="3"
+                strokeDasharray={`${2 * Math.PI * 16}`}
+                strokeDashoffset={`${2 * Math.PI * 16 * (1 - progress / 100)}`}
+                strokeLinecap="round"
+                style={{
+                  transition: 'stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease'
+                }}
+              />
+            </svg>
           </div>
         </div>
 
