@@ -7,14 +7,14 @@ Varisankya is a modern, mobile-first Progressive Web App (PWA) designed to help 
 ## 🌟 Key Features
 
 - **Smart Dashboard**: Automatically sorts subscriptions by urgency (Overdue → Upcoming → Later → Inactive).
+- **Flexible Billing Cycles**: Supports Monthly, Yearly, Weekly, Daily, and **Custom Intervals** (e.g., every 28 days for prepaid plans).
 - **Visual Progress**: Intuitive progress bars show exactly where you are in each billing cycle.
-- **Flexible Recurrence**: Supports Daily, Monthly (specific day), Yearly (specific date), and Manual billing cycles.
+- **Undo Delete**: Accidentally deleted a subscription? Restore it instantly with a 5-second undo window.
 - **Privacy First**: **Per-User Database Architecture** ensures your data is completely isolated.
-- **Mobile Optimized**: Designed to feel like a native app on your phone with full PWA support.
+- **Mobile Optimized**: Designed to feel like a native app with full PWA support, touch-friendly controls, and auto-hiding floating buttons.
 - **Google Sign-In**: Secure and passwordless authentication via NextAuth.js.
-- **Material Design 3**: Modern UI with Google Sans Flex typography and M3 components.
-- **Responsive Animations**: Smooth M3 Expressive (M3E) animations for button interactions.
-- **Smart Loading**: Unified loading states prevent UI jitter and layout shifts.
+- **Material Design 3**: Modern UI with Google Sans Flex typography, dark mode, and M3 components.
+- **Smooth Animations**: Fluid transitions for list expansion, item entry/exit, and UI interactions.
 
 ---
 
@@ -30,19 +30,18 @@ Varisankya is a modern, mobile-first Progressive Web App (PWA) designed to help 
 
 #### Adding a Subscription
 
-1. Click the floating **+** button (bottom right on mobile, or via FAB).
+1. Click the floating **+** button (bottom right).
 2. Enter the service name (e.g., "Netflix", "Gym").
-3. Tap **Add**. The subscription is added without a due date.
+3. Select the billing cycle (Monthly, Yearly, or Custom Days).
+4. Tap **Add**. The subscription is added and automatically sorted into the list.
 
 #### Managing Subscriptions
 
 **Tap any subscription** to expand it.
 
 Expanded view shows:
-- **Next Due Date**: Click to open date picker and set/update the due date → Auto-saves
-- **Delete Button**: Click to remove the subscription (with confirmation)
-
-That's it! No complex fields, no status toggles, just name and due date.
+- **Edit Details**: Update name, cost, currency, billing cycle, and due date.
+- **Delete Button**: Click to remove the subscription. You'll have 5 seconds to undo this action.
 
 ### 3. Understanding the Dashboard
 
@@ -56,13 +55,9 @@ That's it! No complex fields, no status toggles, just name and due date.
 
 The list is automatically sorted by Next Due Date:
 
-1. **Most Urgent**: Soonest due dates appear first
-2. **Later**: Future due dates follow
-3. **No Date Set**: Items without due dates sit at the bottom
-
-#### Auto-Collapse
-
-Expanded subscriptions automatically collapse after 60 seconds of inactivity or when clicking outside the item.
+1. **Most Urgent**: Soonest due dates appear first.
+2. **Later**: Future due dates follow.
+3. **No Date Set**: Items without due dates sit at the bottom.
 
 ---
 
@@ -85,45 +80,39 @@ Unlike typical multi-tenant apps that store all users' data in one table, Varisa
 - **Isolation**: Each user gets their own database (e.g., `vari_<username>_<env>`).
 - **Security**: Data leakage between users is architecturally impossible at the query level because a user's session only grants access to their specific database connection.
 - **Scalability**: The `DatabaseFactory` manages connections dynamically, creating them on the fly as needed.
-- **Validation**: On page load and authentication, the system validates database access before allowing operations.
 
 ### Project Structure
 
 ```
 varisankya/
 ├── components/              # UI Components
-│   ├── App.js              # Main app layout wrapper
-│   ├── Button.js           # Reusable M3E button component
-│   ├── CustomSelect.js     # Custom styled select dropdown
-│   ├── Header.js           # Static header with hamburger & profile
-│   ├── IconButton.js       # Reusable icon button with hover effects
-│   ├── Loader.js           # Simple circular loading spinner
-│   ├── Modal.js            # Modal container with animations
-│   ├── MonthSelect.js      # Month picker for yearly recurrence
-│   ├── ProgressBar.js      # Visual progress indicator
-│   ├── RecurrenceSelect.js # Recurrence pattern selector
-│   ├── Sidebar.js          # Navigation sidebar
-│   ├── SubscriptionList.js # List container with sorting logic
-│   ├── SubscriptionListItem.js # Individual subscription card
-│   └── Subscriptions.js    # Main subscriptions view
+│   ├── AppNameComponent.js # Branding
+│   ├── DatePickerComponent.js # Custom date picker
+│   ├── DropdownComponent.js # Custom styled dropdown
+│   ├── FloatingButtonComponent.js # FAB with scroll logic
+│   ├── HeaderComponent.js  # App header
+│   ├── ListComponent.js    # Subscription list container
+│   ├── ListItemComponent.js # Individual subscription card
+│   ├── Loader.js           # Loading spinner
+│   ├── LogoComponent.js    # App logo
+│   ├── Modal.js            # Generic modal wrapper
+│   ├── PageContentComponent.js # Layout wrapper
+│   ├── SubscriptionForm.js # Add/Edit form
+│   └── UserComponent.js    # User profile & logout
 ├── lib/                     # Core Logic
+│   ├── colors.js           # Global color constants
 │   ├── databaseFactory.js  # Manages per-user DB connections
 │   ├── dbValidation.js     # Ensures DB health
-│   └── config.js           # App configuration (env, db names)
+│   └── config.js           # App configuration
 ├── pages/
 │   ├── api/                # Backend Endpoints
 │   │   ├── auth/           # NextAuth.js authentication
-│   │   ├── db/             # Database validation endpoints
-│   │   ├── subscriptions/  # CRUD operations for subscriptions
-│   │   └── user/           # User management
-│   └── index.js            # Main app page with unified loading
+│   │   └── subscriptions/  # CRUD operations
+│   └── index.js            # Main app page
 ├── public/                  # Static Assets
-│   ├── android-logo.png    # App logo
-│   ├── favicon.ico         # Browser favicon
-│   └── site.webmanifest    # PWA manifest for installation
 └── styles/                  # CSS Modules & Global Styles
     ├── Home.module.css     # Component-specific styles
-    └── globals.css         # Global app styles & fonts
+    └── globals.css         # Global app styles
 ```
 
 ---
@@ -158,8 +147,6 @@ varisankya/
    ```env
    # MongoDB Connection URI
    MONGODB_URI=mongodb://localhost:27017/
-   # or for MongoDB Atlas:
-   # MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
 
    # NextAuth Configuration
    NEXTAUTH_URL=http://localhost:3000
@@ -178,135 +165,6 @@ varisankya/
 
    Visit `http://localhost:3000`.
 
-### Building for Production
-
-```bash
-npm run build
-npm start
-```
-
-### Deployment
-
-The app is ready for [Vercel](https://vercel.com/) deployment.
-
-1. Push to GitHub.
-2. Import project in Vercel Dashboard.
-3. Set Environment Variables in Vercel.
-4. Deploy!
-
----
-
-## 🧠 Logic & Calculations
-
-### Ultra-Simple System
-
-Each subscription has only two fields:
-1. **Name**: What you're subscribed to
-2. **Next Due Date**: When it's due (optional)
-
-That's it. No recurring patterns, no status, no last paid dates.
-
-**Usage**:
-- Set Next Due when you know the payment date
-- After paying, update Next Due to the new date
-- Delete when you cancel
-
-### Progress Calculation
-
-- **Formula**: `((30 - DaysRemaining) / 30) * 100`
-- **30-Day Window**: Progress bar fills as subscription approaches due date within 30 days
-- **Visualization**:
-  - 30+ days left → Bar empty (0%)
-  - 15 days left → Bar half full (50%)
-  - 0 days left → Bar full (100%)
-  - Overdue → Bar full, red color
-  - No date → Grey bar
-- **Color Coding**:
-  - **Blue** (`#A8C7FA`): Safe (0-70% full)
-  - **Red** (`#F2B8B5`): Urgent/overdue (>70% full)
-  - **Grey** (`#8E918F`): No due date set
-
-### Sorting Algorithm
-
-   - No dates set: treated as "distant future" (9998 days).
-   - Inactive: treated as "far bottom" (9999 days).
-
----
-
-## 🎨 Design & UI Features
-
-### Material Design 3 (M3)
-
-- **Typography**: Google Sans Flex font family throughout.
-- **Color Palette**: Dark theme with M3 color tokens.
-- **Animations**: M3 Expressive (M3E) animations for:
-  - Button press/release (scale transforms)
-  - Modal slide-in/slide-out
-  - Auto-collapse transitions
-  - Hamburger menu slide
-
-### Component Highlights
-
-- **Static Header**: Header never re-mounts or resizes. All containers have fixed dimensions (`flexShrink: 0`) to prevent layout shifts.
-- **Unified Loading**: Single loading screen that waits for both session and subscriptions before showing UI, preventing jitter.
-- **Auto-Collapse**: Expanded items collapse after 60 seconds or when clicking outside.
-- **Delete Confirmation Modal**: Styled modal with M3 animations for delete actions.
-
-### PWA Support
-
-The application includes:
-
-- `site.webmanifest` for app metadata
-- Optimized app icons (16x16, 32x32, 192x192, 512x512)
-- Apple touch icon for iOS
-- Theme color meta tag for Android status bar
-- Installable on Android and iOS devices
-
----
-
-## 🔒 Security & Privacy
-
-### Authentication
-
-- **Google OAuth**: Secure, passwordless authentication via NextAuth.js.
-- **Session Management**: Server-side session validation on every API request.
-- **Database Validation**: On page load, validates that user's database exists and is accessible before allowing operations.
-
-### Data Isolation
-
-- **Per-User Databases**: Each user's data is in a completely separate MongoDB database.
-- **No Data Mixing**: Architectural guarantee that users can never access another user's data.
-- **Sanitization**: Usernames are sanitized (dots removed) before database name generation to prevent MongoDB naming conflicts.
-
-### Error Handling
-
-- **Graceful Degradation**: If database access fails, user is signed out and notified.
-- **Automatic Recovery**: Invalid sessions automatically redirect to sign-in.
-- **User Notifications**: Toast notifications for errors, successes, and important actions.
-
----
-
-## 📝 API Endpoints
-
-### Authentication
-
-- `POST /api/auth/[...nextauth]` - NextAuth.js authentication endpoints
-
-### Database
-
-- `GET /api/db/validate` - Validates user's database exists and is accessible
-
-### Subscriptions
-
-- `GET /api/subscriptions` - Fetch all user subscriptions
-- `POST /api/subscriptions` - Create new subscription
-- `PUT /api/subscriptions` - Update existing subscription
-- `DELETE /api/subscriptions` - Delete subscription
-
-### User
-
-- `POST /api/user/create` - Create user database and initial data
-
 ---
 
 ## 🤝 Contributing
@@ -318,21 +176,6 @@ Contributions are welcome! Please:
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is private and not currently licensed for public use.
-
----
-
-## 🙏 Acknowledgments
-
-- Built with [Next.js](https://nextjs.org/)
-- Styled with [Material Design 3](https://m3.material.io/) principles
-- Typography by [Google Fonts](https://fonts.google.com/)
-- Icons from Material Design Icons
 
 ---
 
