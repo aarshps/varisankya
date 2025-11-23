@@ -64,6 +64,12 @@ export default async function handler(req, res) {
       const normalized = subscriptions.map(s => ({
         _id: s._id.toString(),
         name: s.name,
+        cost: s.cost,
+        currency: s.currency,
+        billingCycle: s.billingCycle,
+        customDays: s.customDays,
+        category: s.category,
+        notes: s.notes,
         nextDueDate: s.nextDueDate,
         createdAt: s.createdAt,
         updatedAt: s.updatedAt
@@ -80,7 +86,7 @@ export default async function handler(req, res) {
     }
   } else if (req.method === 'POST') {
     console.log('[API] POST /subscriptions - Body:', JSON.stringify(req.body, null, 2));
-    const { name, nextDueDate } = req.body;
+    const { name, nextDueDate, cost, currency, billingCycle, customDays, category, notes } = req.body;
 
     if (!name) {
       console.warn('[API] POST /subscriptions - Missing name');
@@ -90,6 +96,12 @@ export default async function handler(req, res) {
     try {
       const newSubscription = {
         name,
+        cost: cost ? parseFloat(cost) : 0,
+        currency: currency || 'USD',
+        billingCycle: billingCycle || 'monthly',
+        customDays: customDays ? parseInt(customDays) : null,
+        category: category || 'Other',
+        notes: notes || '',
         nextDueDate: nextDueDate ? new Date(nextDueDate) : null,
         createdAt: new Date(),
       };
@@ -107,7 +119,7 @@ export default async function handler(req, res) {
     console.log('[API] PUT /subscriptions - Body:', JSON.stringify(req.body, null, 2));
     // Accept either id or _id (MongoDB standard)
     const id = req.body.id || req.body._id;
-    const { name, nextDueDate } = req.body;
+    const { name, nextDueDate, cost, currency, billingCycle, customDays, category, notes } = req.body;
 
     if (!id) {
       console.warn('[API] PUT /subscriptions - Missing ID');
@@ -117,6 +129,12 @@ export default async function handler(req, res) {
     try {
       const updateData = {
         name,
+        cost: cost !== undefined ? parseFloat(cost) : undefined,
+        currency,
+        billingCycle,
+        customDays: customDays ? parseInt(customDays) : null,
+        category,
+        notes,
         nextDueDate: nextDueDate ? new Date(nextDueDate) : null,
         updatedAt: new Date(),
       };
@@ -130,9 +148,6 @@ export default async function handler(req, res) {
         recurrenceType: "",
         recurrenceValue: "",
         status: "",
-        cost: "",
-        currency: "",
-        billingCycle: "",
         startDate: ""
       };
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { COLORS } from '../lib/colors';
+import styles from '../styles/Home.module.css';
 
 export const ModalButton = ({ onClick, children, variant = 'primary', type = 'button', disabled = false }) => {
     const baseStyle = {
@@ -61,6 +62,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             onClick={onClose}
         >
             <div
+                className={styles.modalOpen}
                 style={{
                     backgroundColor: COLORS.surface,
                     borderRadius: '28px',

@@ -2,8 +2,10 @@ import Head from 'next/head';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import styles from '../styles/Home.module.css';
-import Subscriptions from '../components/Subscriptions';
-import Header from '../components/Header';
+import HeaderComponent from '../components/HeaderComponent';
+import PageContentComponent from '../components/PageContentComponent';
+import ListComponent from '../components/ListComponent';
+import FloatingButtonComponent from '../components/FloatingButtonComponent';
 import Loader from '../components/Loader';
 import Modal from '../components/Modal';
 import SubscriptionForm from '../components/SubscriptionForm';
@@ -66,7 +68,7 @@ export default function Home() {
     setIsAddingSubscription(true);
   };
 
-  const handleSaveNewSubscription = async ({ name, date }) => {
+  const handleSaveNewSubscription = async ({ name, date, cost, currency, billingCycle, customDays, category, notes }) => {
     setIsAddingSubscription(false);
 
     // Optimistic UI: Create a temporary blank subscription
@@ -80,6 +82,12 @@ export default function Home() {
       billingCycle: 'monthly',
       startDate: new Date().toISOString(),
       nextDueDate: date || null,
+      cost,
+      currency,
+      billingCycle,
+      customDays,
+      category,
+      notes,
       active: true,
       isNew: true // Flag to indicate this is a new item to auto-expand
     };
@@ -92,7 +100,7 @@ export default function Home() {
       const res = await fetch('/api/subscriptions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: name, nextDueDate: date }),
+        body: JSON.stringify({ name, nextDueDate: date, cost, currency, billingCycle, customDays, category, notes }),
       });
 
       if (!res.ok) throw new Error('Failed to add subscription');
@@ -145,6 +153,8 @@ export default function Home() {
     }
   };
 
+  const notificationTimerRef = useRef(null);
+
   const handleDeleteSubscription = async (id) => {
     // Store item for undo
     const subToDelete = subscriptions.find(sub => sub._id === id);
@@ -152,14 +162,28 @@ export default function Home() {
       setDeletedItem(subToDelete);
       setShowUndo(true);
 
-      // Clear previous timer if any
+      // Clear previous timers
       if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+      if (notificationTimerRef.current) clearInterval(notificationTimerRef.current);
 
-      // Set timer to hide undo button
-      undoTimerRef.current = setTimeout(() => {
-        setShowUndo(false);
-        setDeletedItem(null);
-      }, 5000);
+      let countdown = 5;
+      setNotification({ type: 'neutral', message: `Subscription deleted. Undo? (${countdown}s)` });
+
+      // Start countdown for notification
+      notificationTimerRef.current = setInterval(() => {
+        countdown -= 1;
+        if (countdown > 0) {
+          setNotification({ type: 'neutral', message: `Subscription deleted. Undo? (${countdown}s)` });
+        } else {
+          // Time's up
+          clearInterval(notificationTimerRef.current);
+          setShowUndo(false);
+          setDeletedItem(null);
+          setNotification({ type: 'success', message: 'Subscription deleted successfully' });
+          // Clear success message after 3 seconds
+          undoTimerRef.current = setTimeout(() => setNotification(null), 3000);
+        }
+      }, 1000);
     }
 
     // Optimistic delete
@@ -171,8 +195,6 @@ export default function Home() {
       });
 
       if (!res.ok) throw new Error('Failed to delete subscription');
-
-      // setNotification({ type: 'success', message: 'Subscription deleted' }); // Removed to reduce noise with Undo
     } catch (error) {
       console.error('Error deleting subscription:', error);
       setNotification({ type: 'error', message: 'Failed to delete subscription' });
@@ -180,26 +202,26 @@ export default function Home() {
       if (subToDelete) {
         setSubscriptions(prev => [...prev, subToDelete]);
       }
+      // Clear timers if failed
+      if (notificationTimerRef.current) clearInterval(notificationTimerRef.current);
+      setShowUndo(false);
     }
   };
 
   const handleUndoDelete = async () => {
     if (!deletedItem) return;
 
-    // Restore item
-    setSubscriptions(prev => [deletedItem, ...prev]);
-    setShowUndo(false);
+    // Clear timers immediately
+    if (notificationTimerRef.current) clearInterval(notificationTimerRef.current);
     if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+
+    // Restore item
+    const stableId = deletedItem.localId || deletedItem._id;
+    setSubscriptions(prev => [{ ...deletedItem, localId: stableId, shouldExpand: Date.now() }, ...prev]);
+    setShowUndo(false);
 
     // Re-create on server
     try {
-      // We need to re-create it because the delete API call likely succeeded
-      // We can't just "undo" a delete API call usually, so we POST it again
-      // Or if we delayed the delete call, we could just cancel it.
-      // Here we assume immediate delete, so we re-create.
-      // Ideally we should keep the same ID if possible, but MongoDB IDs are generated.
-      // If we want to truly restore, we might need soft-deletes or a delay mechanism.
-      // For now, let's re-create with the same data.
       const { _id, ...dataToRestore } = deletedItem;
 
       const res = await fetch('/api/subscriptions', {
@@ -212,15 +234,15 @@ export default function Home() {
       const restoredSub = await res.json();
 
       // Update the restored item with the new ID from server
+      const stableId = deletedItem.localId || deletedItem._id;
       setSubscriptions(prev => prev.map(sub =>
-        sub._id === deletedItem._id ? { ...restoredSub, localId: deletedItem.localId || restoredSub._id } : sub
+        sub._id === deletedItem._id ? { ...restoredSub, localId: stableId, shouldExpand: Date.now() } : sub
       ));
 
       setNotification({ type: 'success', message: 'Subscription restored' });
     } catch (error) {
       console.error('Error restoring subscription:', error);
       setNotification({ type: 'error', message: 'Failed to restore subscription' });
-      // Remove again if failed
       setSubscriptions(prev => prev.filter(sub => sub._id !== deletedItem._id));
     }
     setDeletedItem(null);
@@ -321,15 +343,19 @@ export default function Home() {
 
     return (
       <div className={styles.appMain}>
-        <div className={styles.content}>
-          <Subscriptions
-            subscriptions={subscriptions}
-            loading={loading}
-            error={null}
-            onDelete={handleDeleteSubscription}
-            onUpdate={handleUpdateSubscription}
-          />
-        </div>
+        <PageContentComponent>
+          {loading && !hasFetched.current ? (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Loader />
+            </div>
+          ) : (
+            <ListComponent
+              subscriptions={subscriptions}
+              onDelete={handleDeleteSubscription}
+              onUpdate={handleUpdateSubscription}
+            />
+          )}
+        </PageContentComponent>
       </div>
     );
   };
@@ -350,7 +376,7 @@ export default function Home() {
         <link rel="manifest" href="/site.webmanifest" />
       </Head>
 
-      <Header
+      <HeaderComponent
         session={session}
         onSignOut={handleSignOut}
       />
@@ -380,34 +406,11 @@ export default function Home() {
 
       {/* Floating Action Button for Add */}
       {status === 'authenticated' && (
-        <div style={{
-          position: 'fixed',
-          bottom: '24px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 100,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}>
-          {/* Undo Button */}
-          {showUndo && (
-            <button
-              className={styles.undoButton}
-              onClick={handleUndoDelete}
-            >
-              Undo
-            </button>
-          )}
-
-          {/* Add Button */}
-          <button
-            className={styles.fab}
-            onClick={handleAddSubscription}
-          >
-            Add
-          </button>
-        </div>
+        <FloatingButtonComponent
+          onClick={handleAddSubscription}
+          showUndo={showUndo}
+          onUndo={handleUndoDelete}
+        />
       )}
     </div>
   );
