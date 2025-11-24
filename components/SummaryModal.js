@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import Modal from './Modal';
 import Button from './Button';
 import { COLORS } from '../lib/colors';
@@ -7,69 +8,28 @@ import useHaptics from '../lib/useHaptics';
 const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
     const { triggerHaptic } = useHaptics();
 
-    const summary = useMemo(() => {
+    const timelineData = useMemo(() => {
         const total = subscriptions.length;
-        const categories = {};
-        let totalCost = 0;
+        const dates = {};
 
+        // Group subscriptions by their next due date
         subscriptions.forEach(sub => {
-            const cat = sub.category || 'Other';
-            categories[cat] = (categories[cat] || 0) + 1;
-            totalCost += parseFloat(sub.cost) || 0;
+            if (sub.nextDueDate) {
+                const date = new Date(sub.nextDueDate);
+                const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                dates[dateStr] = (dates[dateStr] || 0) + 1;
+            }
         });
 
-        return { total, categories, totalCost };
+        // Sort dates and get next 30 days worth
+        const sortedDates = Object.entries(dates)
+            .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+            .slice(0, 10); // Show max 10 dates
+
+        return { total, sortedDates };
     }, [subscriptions]);
 
-    const categoryColors = {
-        'Entertainment': '#A8C7FA',
-        'Utilities': '#81C995',
-        'Software': '#F2B8B5',
-        'Insurance': '#D4A5FF',
-        'Gym/Fitness': '#FFD6A5',
-        'Other': '#C4C7C5'
-    };
-
-    // Generate pie chart segments
-    const generatePieSegments = () => {
-        const { categories, total } = summary;
-        if (total === 0) return null;
-
-        const segments = [];
-        let currentAngle = 0;
-
-        Object.entries(categories).forEach(([category, count]) => {
-            const percentage = (count / total) * 100;
-            const angle = (percentage / 100) * 360;
-            const largeArc = angle > 180 ? 1 : 0;
-
-            const startX = 50 + 45 * Math.cos((currentAngle - 90) * Math.PI / 180);
-            const startY = 50 + 45 * Math.sin((currentAngle - 90) * Math.PI / 180);
-            const endX = 50 + 45 * Math.cos((currentAngle + angle - 90) * Math.PI / 180);
-            const endY = 50 + 45 * Math.sin((currentAngle + angle - 90) * Math.PI / 180);
-
-            const pathData = [
-                `M 50 50`,
-                `L ${startX} ${startY}`,
-                `A 45 45 0 ${largeArc} 1 ${endX} ${endY}`,
-                `Z`
-            ].join(' ');
-
-            segments.push({
-                path: pathData,
-                color: categoryColors[category] || categoryColors['Other'],
-                category,
-                count,
-                percentage: percentage.toFixed(1)
-            });
-
-            currentAngle += angle;
-        });
-
-        return segments;
-    };
-
-    const segments = generatePieSegments();
+    const maxCount = Math.max(...timelineData.sortedDates.map(([_, count]) => count), 1);
 
     const handleClose = () => {
         triggerHaptic('medium');
@@ -77,72 +37,123 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={handleClose} title="Subscriptions Summary">
+        <Modal isOpen={isOpen} onClose={handleClose} title="Upcoming Renewals">
             <div style={{
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '24px',
                 padding: '8px 0'
             }}>
-                {/* Statistics */}
+                {/* Total Count */}
                 <div style={{
                     display: 'flex',
-                    justifyContent: 'space-around',
+                    justifyContent: 'center',
                     padding: '16px',
                     background: COLORS.surfaceVariant,
                     borderRadius: '16px'
                 }}>
                     <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '28px', fontWeight: 'bold', color: COLORS.primary }}>{summary.total}</div>
-                        <div style={{ fontSize: '12px', color: COLORS.textSecondary, marginTop: '4px' }}>Total</div>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '28px', fontWeight: 'bold', color: COLORS.success }}>${summary.totalCost.toFixed(2)}</div>
-                        <div style={{ fontSize: '12px', color: COLORS.textSecondary, marginTop: '4px' }}>Monthly Cost</div>
+                        <div style={{ fontSize: '32px', fontWeight: 'bold', color: COLORS.primary }}>{timelineData.total}</div>
+                        <div style={{ fontSize: '13px', color: COLORS.textSecondary, marginTop: '4px' }}>Active Subscriptions</div>
                     </div>
                 </div>
 
-                {/* Pie Chart */}
-                {segments && segments.length > 0 && (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-                        <svg viewBox="0 0 100 100" style={{ width: '200px', height: '200px' }}>
-                            {segments.map((segment, i) => (
-                                <path
-                                    key={i}
-                                    d={segment.path}
-                                    fill={segment.color}
-                                    stroke={COLORS.surface}
-                                    strokeWidth="0.5"
-                                />
-                            ))}
-                        </svg>
+                {/* Timeline Graph */}
+                {timelineData.sortedDates && timelineData.sortedDates.length > 0 ? (
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                        padding: '16px',
+                        background: COLORS.surface,
+                        borderRadius: '16px'
+                    }}>
+                        <div style={{ fontSize: '14px', fontWeight: '500', color: COLORS.textPrimary, marginBottom: '8px' }}>
+                            Renewals Timeline
+                        </div>
 
-                        {/* Legend */}
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
-                            {segments.map((segment, i) => (
-                                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <div style={{
-                                        width: '12px',
-                                        height: '12px',
-                                        borderRadius: '2px',
-                                        backgroundColor: segment.color
-                                    }} />
-                                    <span style={{ fontSize: '12px', color: COLORS.textSecondary }}>
-                                        {segment.category} ({segment.count})
-                                    </span>
-                                </div>
-                            ))}
+                        {/* Bar Chart */}
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'flex-end',
+                            gap: '8px',
+                            height: '120px',
+                            padding: '0 4px'
+                        }}>
+                            {timelineData.sortedDates.map(([dateStr, count], i) => {
+                                const date = new Date(dateStr);
+                                const height = (count / maxCount) * 100;
+                                const isToday = dateStr === new Date().toISOString().split('T')[0];
+
+                                return (
+                                    <div key={i} style={{
+                                        flex: 1,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}>
+                                        {/* Bar */}
+                                        <div style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            display: 'flex',
+                                            alignItems: 'flex-end',
+                                            justifyContent: 'center'
+                                        }}>
+                                            <div style={{
+                                                width: '100%',
+                                                maxWidth: '32px',
+                                                height: `${height}%`,
+                                                minHeight: '8px',
+                                                backgroundColor: isToday ? COLORS.destructive : COLORS.primary,
+                                                borderRadius: '8px 8px 4px 4px',
+                                                position: 'relative',
+                                                transition: 'all 0.3s ease'
+                                            }}>
+                                                {/* Count badge */}
+                                                <div style={{
+                                                    position: 'absolute',
+                                                    top: '-24px',
+                                                    left: '50%',
+                                                    transform: 'translateX(-50%)',
+                                                    fontSize: '11px',
+                                                    fontWeight: '600',
+                                                    color: COLORS.textPrimary,
+                                                    background: COLORS.surfaceVariant,
+                                                    padding: '2px 6px',
+                                                    borderRadius: '8px',
+                                                    whiteSpace: 'nowrap'
+                                                }}>
+                                                    {count}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Date Label */}
+                                        <div style={{
+                                            fontSize: '10px',
+                                            color: isToday ? COLORS.destructive : COLORS.textSecondary,
+                                            textAlign: 'center',
+                                            fontWeight: isToday ? '600' : '400',
+                                            marginTop: '4px'
+                                        }}>
+                                            {date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
-                )}
-
-                {summary.total === 0 && (
+                ) : (
                     <div style={{
                         textAlign: 'center',
                         padding: '32px',
-                        color: COLORS.textSecondary
+                        color: COLORS.textSecondary,
+                        background: COLORS.surface,
+                        borderRadius: '16px'
                     }}>
-                        No subscriptions yet. Click OK to start adding!
+                        No upcoming renewals. Click OK to start adding!
                     </div>
                 )}
 
