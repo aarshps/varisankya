@@ -49,7 +49,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
         <div style={{
             background: COLORS.surface,
             borderRadius: '12px',
-            padding: '12px',
+            padding: '10px',
             border: `1px solid ${color}20`
         }}>
             <div style={{
@@ -119,8 +119,8 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
             <div style={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '16px',
-                padding: '8px 0'
+                gap: '12px',
+                padding: '0'
             }}>
                 {/* Quick Stats */}
                 <div style={{
@@ -129,7 +129,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                     gap: '12px'
                 }}>
                     <div style={{
-                        padding: '12px',
+                        padding: '10px',
                         background: COLORS.surfaceVariant,
                         borderRadius: '12px',
                         textAlign: 'center'
