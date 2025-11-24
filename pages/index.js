@@ -9,6 +9,7 @@ import FloatingButtonComponent from '../components/FloatingButtonComponent';
 import Loader from '../components/Loader';
 import Modal from '../components/Modal';
 import SubscriptionForm from '../components/SubscriptionForm';
+import SummaryModal from '../components/SummaryModal';
 import useHaptics, { markHapticsInitialized } from '../lib/useHaptics';
 
 export default function Home() {
@@ -24,6 +25,9 @@ export default function Home() {
   // Add Subscription Modal State
   const [isAddingSubscription, setIsAddingSubscription] = useState(false);
   const [isMarkPaidModalOpen, setIsMarkPaidModalOpen] = useState(false);
+
+  // Summary Modal State - Show on page load
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
 
   // Undo Delete State
   const [deletedItem, setDeletedItem] = useState(null);
@@ -114,12 +118,38 @@ export default function Home() {
     }
   }, [status, fetchSubscriptions]);
 
+  // Show summary modal after subscriptions are loaded
+  useEffect(() => {
+    if (!loading && hasFetched.current && status === 'authenticated') {
+      // Show modal after a slight delay to let the UI settle
+      const timer = setTimeout(() => {
+        setShowSummaryModal(true);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, status]);
+
   // Haptic feedback when loading finishes
   useEffect(() => {
     if (!loading && hasFetched.current) {
       triggerHaptic('light');
     }
   }, [loading, triggerHaptic]);
+
+  // Handler for closing summary modal and initializing haptics
+  const handleCloseSummaryModal = () => {
+    // Initialize haptics on this click - guaranteed user gesture
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try {
+        navigator.vibrate(30);
+        markHapticsInitialized();
+        console.log('✅ Haptics initialized via summary modal click');
+      } catch (e) {
+        console.error('Failed to initialize haptics:', e);
+      }
+    }
+    setShowSummaryModal(false);
+  };
 
   // Subscription handlers
   const handleAddSubscription = () => {
@@ -454,6 +484,13 @@ export default function Home() {
 
       {/* Render content based on current state */}
       {renderContent()}
+
+      {/* Summary Modal - Shows on page load */}
+      <SummaryModal
+        isOpen={showSummaryModal}
+        onClose={handleCloseSummaryModal}
+        subscriptions={subscriptions}
+      />
 
       {/* Add Subscription Modal */}
       <Modal
