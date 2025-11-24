@@ -20,12 +20,48 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
             }
         });
 
-        // Sort dates and get next 30 days worth
-        const sortedDates = Object.entries(dates)
-            .sort((a, b) => new Date(a[0]) - new Date(b[0]))
-            .slice(0, 10); // Show max 10 dates
+        // Get today and future dates
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString().split('T')[0];
 
-        return { total, sortedDates };
+        // Get all dates with subscriptions
+        const allDates = Object.keys(dates).filter(dateStr => new Date(dateStr) >= today);
+
+        // If no future dates, create a range starting from today
+        if (allDates.length === 0) {
+            allDates.push(todayStr);
+        }
+
+        // Create a continuous timeline from today to 14 days out (or furthest subscription date)
+        const maxDate = allDates.length > 0
+            ? new Date(Math.max(...allDates.map(d => new Date(d))))
+            : new Date(today);
+
+        // Ensure we show at least 14 days
+        const targetEndDate = new Date(today);
+        targetEndDate.setDate(targetEndDate.getDate() + 14);
+        const endDate = maxDate > targetEndDate ? maxDate : targetEndDate;
+
+        // Fill in all dates from today to endDate
+        const filledDates = [];
+        const currentDate = new Date(today);
+        while (currentDate <= endDate) {
+            const dateStr = currentDate.toISOString().split('T')[0];
+            filledDates.push([dateStr, dates[dateStr] || 0]);
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+
+        // Sample dates to show ~10-12 bars (show every 1-2 days)
+        const interval = Math.ceil(filledDates.length / 10);
+        const sampledDates = filledDates.filter((_, i) => i % interval === 0 || filledDates[i][1] > 0);
+
+        // Ensure today is always included
+        if (!sampledDates.some(([d]) => d === todayStr)) {
+            sampledDates.unshift([todayStr, dates[todayStr] || 0]);
+        }
+
+        return { total, sortedDates: sampledDates.slice(0, 12) }; // Max 12 bars
     }, [subscriptions]);
 
     const maxCount = Math.max(...timelineData.sortedDates.map(([_, count]) => count), 1);
