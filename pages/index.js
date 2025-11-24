@@ -9,7 +9,7 @@ import FloatingButtonComponent from '../components/FloatingButtonComponent';
 import Loader from '../components/Loader';
 import Modal from '../components/Modal';
 import SubscriptionForm from '../components/SubscriptionForm';
-import useHaptics from '../lib/useHaptics';
+import useHaptics, { markHapticsInitialized } from '../lib/useHaptics';
 
 export default function Home() {
   const { triggerHaptic } = useHaptics();
@@ -46,7 +46,9 @@ export default function Home() {
     const initializeHaptics = (event) => {
       if (!initialized) {
         initialized = true;
-        // Trigger haptic synchronously to ensure API is ready
+        // CRITICAL: Mark as initialized FIRST, synchronously
+        markHapticsInitialized();
+        // Then trigger haptic - this will now work because flag is set
         triggerHaptic('ultra-light');
 
         // Remove listeners after first trigger

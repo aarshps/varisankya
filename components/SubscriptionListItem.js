@@ -206,27 +206,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
 
   const itemRef = React.useRef(null);
 
-  // Scroll haptics
-  const hasUserInteracted = React.useRef(false);
-
-  // Mark as interacted on any user action
-  useEffect(() => {
-    const markInteracted = () => {
-      hasUserInteracted.current = true;
-    };
-
-    // Listen for any user interaction
-    window.addEventListener('click', markInteracted, { once: true });
-    window.addEventListener('touchstart', markInteracted, { once: true });
-    window.addEventListener('scroll', markInteracted, { once: true });
-
-    return () => {
-      window.removeEventListener('click', markInteracted);
-      window.removeEventListener('touchstart', markInteracted);
-      window.removeEventListener('scroll', markInteracted);
-    };
-  }, []);
-
+  // Scroll haptics - IntersectionObserver
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
