@@ -46,24 +46,28 @@ export default function Home() {
     const initializeHaptics = (event) => {
       if (!initialized) {
         initialized = true;
+        console.log('Haptics initialization triggered by:', event.type);
 
         // Test if vibration API actually works by calling it directly
         if (typeof navigator !== 'undefined' && navigator.vibrate) {
           try {
             // Try to vibrate - this is the actual test
-            navigator.vibrate(2);
+            const result = navigator.vibrate(30);
+            console.log('Vibrate call result:', result);
             // Only mark as initialized if vibrate didn't throw
             markHapticsInitialized();
-            console.log('Haptics initialized successfully');
+            console.log('✅ Haptics initialized successfully');
           } catch (e) {
-            console.debug('Haptics initialization failed:', e);
+            console.error('Haptics initialization failed:', e);
           }
+        } else {
+          console.warn('Navigator.vibrate not available');
         }
 
         // Remove listeners after first trigger attempt
         window.removeEventListener('click', initializeHaptics, true);
         window.removeEventListener('touchstart', initializeHaptics, true);
-        window.removeEventListener('scroll', initializeHaptics, true);
+        document.removeEventListener('scroll', initializeHaptics, true);
       }
     };
 
@@ -71,12 +75,13 @@ export default function Home() {
     // Use capture phase (true) to ensure we run before other handlers
     window.addEventListener('click', initializeHaptics, true);
     window.addEventListener('touchstart', initializeHaptics, true);
-    window.addEventListener('scroll', initializeHaptics, true);
+    // Use document for scroll to ensure it fires
+    document.addEventListener('scroll', initializeHaptics, true);
 
     return () => {
       window.removeEventListener('click', initializeHaptics, true);
       window.removeEventListener('touchstart', initializeHaptics, true);
-      window.removeEventListener('scroll', initializeHaptics, true);
+      document.removeEventListener('scroll', initializeHaptics, true);
     };
   }, [triggerHaptic]);
 
