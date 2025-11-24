@@ -71,18 +71,20 @@ export default function Header({ session, onSignOut, onAddClick }) {
             </div>
 
             {session.user?.image && (
-              <img
-                src={session.user.image}
-                alt="profile"
-                width={36}
-                height={36}
+              <div
+                role="button"
+                tabIndex={0}
                 style={{
                   borderRadius: '50%',
                   marginLeft: '4px',
-                  border: `2px solid ${COLORS.surfaceVariant}`,
                   cursor: 'pointer',
                   position: 'relative',
-                  zIndex: 10, // Always on top
+                  zIndex: 10,
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   backgroundColor: '#1E1E1E' // Ensure opaque background
                 }}
                 onMouseDown={(e) => {
@@ -93,12 +95,25 @@ export default function Header({ session, onSignOut, onAddClick }) {
                   triggerHaptic('medium');
                   e.currentTarget.style.transform = 'scale(0.92)';
                 }}
+                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 onClick={() => {
                   setShowLogout(!showLogout);
                 }}
-                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-              />
+              >
+                <img
+                  src={session.user.image}
+                  alt="profile"
+                  width={36}
+                  height={36}
+                  style={{
+                    borderRadius: '50%',
+                    border: `2px solid ${COLORS.surfaceVariant}`,
+                    pointerEvents: 'none' // Let the div handle events
+                  }}
+                />
+              </div>
             )}
           </>
         )}

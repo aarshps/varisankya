@@ -37,6 +37,29 @@ export default function Home() {
     if (error) {
       setUrlError(error);
     }
+
+    // Fake click workaround to prime haptics
+    const fakeClick = () => {
+      if (typeof document !== 'undefined') {
+        const btn = document.createElement('button');
+        btn.style.position = 'absolute';
+        btn.style.opacity = '0';
+        btn.style.pointerEvents = 'none';
+        document.body.appendChild(btn);
+        btn.click();
+        document.body.removeChild(btn);
+
+        // Also try to trigger a tiny vibration if allowed
+        if (navigator.vibrate) {
+          try { navigator.vibrate(1); } catch (e) { }
+        }
+      }
+    };
+
+    // Try immediately and after a small delay
+    fakeClick();
+    setTimeout(fakeClick, 500);
+
   }, []);
 
   // Fetch subscriptions
