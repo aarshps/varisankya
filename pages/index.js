@@ -40,13 +40,15 @@ export default function Home() {
   }, []);
 
   // Initialize haptics on first user interaction
+  // NOTE: Vibration API ONLY works with trusted user gestures (click, touch)
+  // Scroll is NOT a valid gesture for initializing vibration API
   useEffect(() => {
     let initialized = false;
 
     const initializeHaptics = (event) => {
       if (!initialized) {
         initialized = true;
-        console.log('Haptics initialization triggered by:', event.type);
+        console.log('🎯 Haptics initialization triggered by:', event.type);
 
         // Test if vibration API actually works by calling it directly
         if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -54,36 +56,36 @@ export default function Home() {
             // Try to vibrate - this is the actual test
             const result = navigator.vibrate(30);
             console.log('Vibrate call result:', result);
-            // Only mark as initialized if vibrate didn't throw
-            markHapticsInitialized();
-            console.log('✅ Haptics initialized successfully');
+            if (result) {
+              // Only mark as initialized if vibrate succeeded
+              markHapticsInitialized();
+              console.log('✅ Haptics initialized successfully - scroll haptics now enabled');
+            } else {
+              console.warn('⚠️ Vibrate returned false - API not ready');
+            }
           } catch (e) {
-            console.error('Haptics initialization failed:', e);
+            console.error('❌ Haptics initialization failed:', e);
           }
         } else {
-          console.warn('Navigator.vibrate not available');
+          console.warn('⚠️ Navigator.vibrate not available');
         }
 
         // Remove listeners after first trigger attempt
         window.removeEventListener('click', initializeHaptics, true);
         window.removeEventListener('touchstart', initializeHaptics, true);
-        document.removeEventListener('scroll', initializeHaptics, true);
       }
     };
 
     // Listen for first real user interaction
-    // Use capture phase (true) to ensure we run before other handlers
+    // ONLY click and touchstart - scroll cannot initialize vibration API
     window.addEventListener('click', initializeHaptics, true);
     window.addEventListener('touchstart', initializeHaptics, true);
-    // Use document for scroll to ensure it fires
-    document.addEventListener('scroll', initializeHaptics, true);
 
     return () => {
       window.removeEventListener('click', initializeHaptics, true);
       window.removeEventListener('touchstart', initializeHaptics, true);
-      document.removeEventListener('scroll', initializeHaptics, true);
     };
-  }, [triggerHaptic]);
+  }, []);
 
   // Fetch subscriptions
   const fetchSubscriptions = useCallback(async () => {
