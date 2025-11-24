@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import styles from '../styles/Home.module.css';
 import { COLORS } from '../lib/colors';
 import Button from './Button';
+import useHaptics from '../lib/useHaptics';
 
 export default function Header({ session, onSignOut, onAddClick }) {
+  const { triggerHaptic } = useHaptics();
   const [showLogout, setShowLogout] = useState(false);
 
   // Auto-hide logout button
@@ -62,7 +64,10 @@ export default function Header({ session, onSignOut, onAddClick }) {
                   zIndex: 10, // Always on top
                   backgroundColor: '#1E1E1E' // Ensure opaque background
                 }}
-                onClick={() => setShowLogout(!showLogout)}
+                onClick={() => {
+                  triggerHaptic('light');
+                  setShowLogout(!showLogout);
+                }}
                 onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.92)'}
                 onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}

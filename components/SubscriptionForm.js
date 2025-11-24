@@ -179,9 +179,11 @@ const SubscriptionForm = ({
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginTop: '8px'
+                marginTop: '8px',
+                flexWrap: 'wrap',
+                gap: '12px'
             }}>
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                     {showDelete && (
                         <Button onClick={handleDelete} variant="destructive">
                             Delete
@@ -189,12 +191,12 @@ const SubscriptionForm = ({
                     )}
                     {showMarkPaid && (
                         <Button onClick={handleMarkPaid} variant="primary">
-                            Mark Paid
+                            Paid
                         </Button>
                     )}
                 </div>
 
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginLeft: 'auto' }}>
                     <Button
                         onClick={handleCancel}
                         variant="neutral"

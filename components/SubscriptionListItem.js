@@ -109,6 +109,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     if (expanded) {
       handleCancel();
     } else {
+      triggerHaptic('light');
       setExpanded(true);
       if (onExpand) onExpand(subscription._id);
     }
