@@ -43,27 +43,29 @@ export default function Home() {
   useEffect(() => {
     let initialized = false;
 
-    const initializeHaptics = () => {
+    const initializeHaptics = (event) => {
       if (!initialized) {
         initialized = true;
+        // Trigger haptic synchronously to ensure API is ready
         triggerHaptic('ultra-light');
 
         // Remove listeners after first trigger
-        window.removeEventListener('click', initializeHaptics);
-        window.removeEventListener('touchstart', initializeHaptics);
-        window.removeEventListener('scroll', initializeHaptics);
+        window.removeEventListener('click', initializeHaptics, true);
+        window.removeEventListener('touchstart', initializeHaptics, true);
+        window.removeEventListener('scroll', initializeHaptics, true);
       }
     };
 
     // Listen for first real user interaction
-    window.addEventListener('click', initializeHaptics, { passive: true });
-    window.addEventListener('touchstart', initializeHaptics, { passive: true });
-    window.addEventListener('scroll', initializeHaptics, { passive: true });
+    // Use capture phase (true) to ensure we run before other handlers
+    window.addEventListener('click', initializeHaptics, true);
+    window.addEventListener('touchstart', initializeHaptics, true);
+    window.addEventListener('scroll', initializeHaptics, true);
 
     return () => {
-      window.removeEventListener('click', initializeHaptics);
-      window.removeEventListener('touchstart', initializeHaptics);
-      window.removeEventListener('scroll', initializeHaptics);
+      window.removeEventListener('click', initializeHaptics, true);
+      window.removeEventListener('touchstart', initializeHaptics, true);
+      window.removeEventListener('scroll', initializeHaptics, true);
     };
   }, [triggerHaptic]);
 
