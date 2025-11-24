@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from '../styles/Home.module.css';
 import { COLORS } from '../lib/colors';
 import Button from './Button';
-import useHaptics from '../lib/useHaptics';
+import useHaptics, { markHapticsInitialized } from '../lib/useHaptics';
 
 export default function Header({ session, onSignOut, onAddClick }) {
   const { triggerHaptic } = useHaptics();
@@ -97,7 +97,18 @@ export default function Header({ session, onSignOut, onAddClick }) {
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 onClick={() => {
-                  triggerHaptic('medium');
+                  // Initialize haptics if not already done (ensures first click works)
+                  if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                    try {
+                      navigator.vibrate(40); // medium duration
+                      // Mark as initialized for future haptic calls
+                      if (typeof markHapticsInitialized === 'function') {
+                        markHapticsInitialized();
+                      }
+                    } catch (e) {
+                      console.debug('Haptic failed:', e);
+                    }
+                  }
                   setShowLogout(!showLogout);
                 }}
               >
