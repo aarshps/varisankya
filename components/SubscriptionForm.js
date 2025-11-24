@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../styles/Home.module.css';
 import Button from './Button';
 import DropdownComponent from './DropdownComponent';
@@ -44,6 +44,20 @@ const SubscriptionForm = ({
     const [category, setCategory] = useState(initialCategory);
     const [notes, setNotes] = useState(initialNotes);
     const { triggerHaptic } = useHaptics();
+
+    // Sync state with props when they change (e.g., after mark paid updates)
+    useEffect(() => {
+        setName(initialName);
+        setDate(initialDate);
+        setCost(initialCost);
+        setCurrency(initialCurrency);
+        setBillingCycle(initialCycle);
+        setCustomDays(initialCustomDays);
+        setCustomMonths(initialCustomMonths);
+        setCategory(initialCategory);
+        setNotes(initialNotes);
+    }, [initialName, initialDate, initialCost, initialCurrency, initialCycle,
+        initialCustomDays, initialCustomMonths, initialCategory, initialNotes]);
 
     const handleSubmit = () => {
         triggerHaptic('success');
