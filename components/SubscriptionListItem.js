@@ -217,7 +217,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         }
         entries.forEach((entry) => {
           // Trigger haptic on any intersection change (enter/exit)
-          triggerHaptic('light');
+          triggerHaptic('ultra-light');
         });
       },
       {
