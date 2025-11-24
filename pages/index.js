@@ -46,12 +46,21 @@ export default function Home() {
     const initializeHaptics = (event) => {
       if (!initialized) {
         initialized = true;
-        // CRITICAL: Mark as initialized FIRST, synchronously
-        markHapticsInitialized();
-        // Then trigger haptic - this will now work because flag is set
-        triggerHaptic('ultra-light');
 
-        // Remove listeners after first trigger
+        // Test if vibration API actually works by calling it directly
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+          try {
+            // Try to vibrate - this is the actual test
+            navigator.vibrate(2);
+            // Only mark as initialized if vibrate didn't throw
+            markHapticsInitialized();
+            console.log('Haptics initialized successfully');
+          } catch (e) {
+            console.debug('Haptics initialization failed:', e);
+          }
+        }
+
+        // Remove listeners after first trigger attempt
         window.removeEventListener('click', initializeHaptics, true);
         window.removeEventListener('touchstart', initializeHaptics, true);
         window.removeEventListener('scroll', initializeHaptics, true);
