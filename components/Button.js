@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from '../styles/Home.module.css';
+import useHaptics from '../lib/useHaptics';
 
 const Button = ({
     children,
@@ -9,6 +10,7 @@ const Button = ({
     style = {},
     ...props
 }) => {
+    const { triggerHaptic } = useHaptics();
     // Map variants to CSS classes
     const variantClass = {
         primary: styles.buttonPrimary,
@@ -20,7 +22,10 @@ const Button = ({
     return (
         <button
             className={`${styles.button} ${variantClass} ${className}`}
-            onClick={onClick}
+            onClick={(e) => {
+                triggerHaptic('light');
+                if (onClick) onClick(e);
+            }}
             style={style}
             {...props}
         >

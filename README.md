@@ -9,9 +9,10 @@ Varisankya is a modern, mobile-first Progressive Web App (PWA) designed to help 
 - **Smart Dashboard**: Automatically sorts subscriptions by urgency (Overdue → Upcoming → Later → Inactive).
 - **Flexible Billing Cycles**: Supports Monthly, Yearly, Weekly, Daily, and **Custom Intervals** (e.g., every 28 days for prepaid plans).
 - **Visual Progress**: Intuitive progress bars show exactly where you are in each billing cycle.
+- **Mark as Paid**: Easily mark subscriptions as paid with an extended date forecast (Marking Paid, Next Due, Following Due).
 - **Undo Delete**: Accidentally deleted a subscription? Restore it instantly with a 5-second undo window.
 - **Privacy First**: **Per-User Database Architecture** ensures your data is completely isolated.
-- **Mobile Optimized**: Designed to feel like a native app with full PWA support, touch-friendly controls, and auto-hiding floating buttons.
+- **Mobile Optimized**: Designed to feel like a native app with full PWA support, touch-friendly controls, haptic feedback, and auto-hiding floating buttons.
 - **Google Sign-In**: Secure and passwordless authentication via NextAuth.js.
 - **Material Design 3**: Modern UI with Google Sans Flex typography, dark mode, and M3 components.
 - **Smooth Animations**: Fluid transitions for list expansion, item entry/exit, and UI interactions.
@@ -41,6 +42,7 @@ Varisankya is a modern, mobile-first Progressive Web App (PWA) designed to help 
 
 Expanded view shows:
 - **Edit Details**: Update name, cost, currency, billing cycle, and due date.
+- **Mark Paid**: Click "Mark Paid" to advance the due date. You can choose to keep the current schedule or reset the cycle from today.
 - **Delete Button**: Click to remove the subscription. You'll have 5 seconds to undo this action.
 
 ### 3. Understanding the Dashboard
@@ -92,7 +94,8 @@ varisankya/
 │   ├── FloatingButtonComponent.js # FAB with scroll logic
 │   ├── HeaderComponent.js  # App header
 │   ├── ListComponent.js    # Subscription list container
-│   ├── ListItemComponent.js # Individual subscription card
+│   ├── SubscriptionListItem.js # Individual subscription card
+│   ├── MarkPaidModal.js    # Modal for marking subscriptions as paid
 │   ├── Loader.js           # Loading spinner
 │   ├── LogoComponent.js    # App logo
 │   ├── Modal.js            # Generic modal wrapper
@@ -103,6 +106,7 @@ varisankya/
 │   ├── colors.js           # Global color constants
 │   ├── databaseFactory.js  # Manages per-user DB connections
 │   ├── dbValidation.js     # Ensures DB health
+│   ├── useHaptics.js       # Haptic feedback hook
 │   └── config.js           # App configuration
 ├── pages/
 │   ├── api/                # Backend Endpoints

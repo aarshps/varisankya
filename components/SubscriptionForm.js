@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styles from '../styles/Home.module.css';
 import Button from './Button';
 import DropdownComponent from './DropdownComponent';
 import DatePickerComponent from './DatePickerComponent';
 import { COLORS } from '../lib/colors';
+import useHaptics from '../lib/useHaptics';
 
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'INR', 'JPY', 'CAD', 'AUD'];
 const BILLING_CYCLES = [
     { value: 'monthly', label: 'Monthly' },
+    { value: 'monthly_custom', label: 'Every X Months' },
     { value: 'yearly', label: 'Yearly' },
     { value: 'weekly', label: 'Weekly' },
     { value: 'daily', label: 'Daily' },
@@ -22,12 +24,15 @@ const SubscriptionForm = ({
     initialCurrency = 'USD',
     initialCycle = 'monthly',
     initialCustomDays = '',
+    initialCustomMonths = '',
     initialCategory = 'Other',
     initialNotes = '',
-    onSave,
+    onSubmit,
     onCancel,
+    onDelete,
+    onMarkPaid,
     showDelete = false,
-    onDelete
+    showMarkPaid = false,
 }) => {
     const [name, setName] = useState(initialName);
     const [date, setDate] = useState(initialDate);
@@ -35,127 +40,163 @@ const SubscriptionForm = ({
     const [currency, setCurrency] = useState(initialCurrency);
     const [billingCycle, setBillingCycle] = useState(initialCycle);
     const [customDays, setCustomDays] = useState(initialCustomDays);
+    const [customMonths, setCustomMonths] = useState(initialCustomMonths);
     const [category, setCategory] = useState(initialCategory);
     const [notes, setNotes] = useState(initialNotes);
+    const { triggerHaptic } = useHaptics();
 
-    // Reset form when initial values change
-    useEffect(() => {
-        setName(initialName);
-        setDate(initialDate);
-        setCost(initialCost);
-        setCurrency(initialCurrency);
-        setBillingCycle(initialCycle);
-        setCustomDays(initialCustomDays);
-        setCategory(initialCategory);
-        setNotes(initialNotes);
-    }, [initialName, initialDate, initialCost, initialCurrency, initialCycle, initialCustomDays, initialCategory, initialNotes]);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSave({
+    const handleSubmit = () => {
+        triggerHaptic('success');
+        onSubmit({
             name,
             date,
             cost,
             currency,
             billingCycle,
             customDays: billingCycle === 'custom' ? customDays : null,
+            customMonths: billingCycle === 'monthly_custom' ? customMonths : null,
             category,
             notes
         });
     };
 
+    const handleCancel = () => {
+        triggerHaptic('light');
+        onCancel();
+    };
+
+    const handleDelete = () => {
+        triggerHaptic('warning');
+        onDelete();
+    };
+
+    const handleMarkPaid = (e) => {
+        triggerHaptic('light');
+        onMarkPaid(e);
+    };
+
+    // Check if form is dirty (has changes)
+    const isDirty =
+        name !== initialName ||
+        date !== initialDate ||
+        cost !== initialCost ||
+        currency !== initialCurrency ||
+        billingCycle !== initialCycle ||
+        customDays !== initialCustomDays ||
+        customMonths !== initialCustomMonths ||
+        category !== initialCategory ||
+        notes !== initialNotes;
+
     return (
-        <div className={styles.formGroup}>
-            {/* Name */}
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--gap-standard)', // Standard gap
+        }}>
+            {/* Row 1: Name */}
             <input
                 type="text"
-                className={styles.dateInput}
+                placeholder="Service Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Subscription Name"
+                className={styles.input}
                 style={{ width: '100%' }}
             />
 
-            {/* Date */}
+            {/* Row 2: Date */}
             <DatePickerComponent
                 value={date}
                 onChange={setDate}
+                style={{ width: '100%' }}
             />
 
-            {/* Cost, Currency, Cycle */}
-            <div className={styles.formRow}>
-                <div style={{ display: 'flex', flex: '1.5 1 0', gap: '8px' }}>
-                    <div style={{ width: '90px' }}>
-                        <DropdownComponent
-                            value={currency}
-                            onChange={setCurrency}
-                            options={CURRENCIES}
-                        />
-                    </div>
-                    <input
-                        type="number"
-                        className={styles.dateInput}
-                        value={cost}
-                        onChange={(e) => setCost(e.target.value)}
-                        placeholder="Cost"
-                        step="0.01"
-                        style={{ flex: 1, minWidth: 0 }}
-                    />
-                </div>
-                <div style={{ flex: '1 1 0', minWidth: 0 }}>
-                    <DropdownComponent
-                        value={billingCycle}
-                        onChange={setBillingCycle}
-                        options={BILLING_CYCLES}
-                    />
-                </div>
+            {/* Row 2: Cost and Currency */}
+            <div style={{ display: 'flex', gap: '12px' }}>
+                <input
+                    type="number"
+                    placeholder="Cost"
+                    value={cost}
+                    onChange={(e) => setCost(e.target.value)}
+                    className={styles.input}
+                    style={{ flex: 1 }}
+                />
+                <DropdownComponent
+                    options={CURRENCIES.map(c => ({ value: c, label: c }))}
+                    value={currency}
+                    onChange={setCurrency}
+                    style={{ flex: 1 }}
+                />
             </div>
 
-            {/* Custom Days Input */}
+            {/* Row 3: Billing Cycle */}
+            <DropdownComponent
+                options={BILLING_CYCLES}
+                value={billingCycle}
+                onChange={setBillingCycle}
+            />
+
+            {/* Conditional: Custom Days Input */}
             {billingCycle === 'custom' && (
                 <input
                     type="number"
-                    className={styles.dateInput}
+                    placeholder="Number of Days"
                     value={customDays}
                     onChange={(e) => setCustomDays(e.target.value)}
-                    placeholder="Every X Days"
+                    className={styles.input}
                     min="1"
-                    style={{ width: '100%' }}
                 />
             )}
 
-            {/* Category */}
+            {/* Conditional: Custom Months Input */}
+            {billingCycle === 'monthly_custom' && (
+                <input
+                    type="number"
+                    placeholder="Number of Months"
+                    value={customMonths}
+                    onChange={(e) => setCustomMonths(e.target.value)}
+                    className={styles.input}
+                    min="1"
+                />
+            )}
+
+            {/* Row 4: Category */}
             <DropdownComponent
+                options={CATEGORIES.map(c => ({ value: c, label: c }))}
                 value={category}
                 onChange={setCategory}
-                options={CATEGORIES}
             />
 
-            {/* Notes */}
+            {/* Row 5: Notes */}
             <textarea
-                className={styles.dateInput}
+                placeholder="Notes (optional)"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Notes (optional)"
-                style={{ height: '100px', paddingTop: '12px', resize: 'none' }}
+                className={styles.textarea}
             />
 
             {/* Action Buttons */}
             <div style={{
                 display: 'flex',
-                justifyContent: showDelete ? 'space-between' : 'flex-end',
+                justifyContent: 'space-between',
                 alignItems: 'center',
                 marginTop: '8px'
             }}>
-                {showDelete && (
-                    <Button onClick={onDelete} variant="destructive">
-                        Delete
-                    </Button>
-                )}
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    {showDelete && (
+                        <Button onClick={handleDelete} variant="destructive">
+                            Delete
+                        </Button>
+                    )}
+                    {showMarkPaid && (
+                        <Button onClick={handleMarkPaid} variant="primary">
+                            Mark Paid
+                        </Button>
+                    )}
+                </div>
 
                 <div style={{ display: 'flex', gap: '12px' }}>
                     <Button
-                        onClick={onCancel}
+                        onClick={handleCancel}
                         variant="neutral"
                     >
                         Cancel
@@ -163,7 +204,7 @@ const SubscriptionForm = ({
                     <Button
                         onClick={handleSubmit}
                         variant="success"
-                        disabled={!name.trim()}
+                        disabled={!name.trim() || !isDirty}
                     >
                         Save
                     </Button>

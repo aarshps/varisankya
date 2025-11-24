@@ -4,13 +4,15 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import styles from '../styles/Home.module.css';
 import HeaderComponent from '../components/HeaderComponent';
 import PageContentComponent from '../components/PageContentComponent';
-import ListComponent from '../components/ListComponent';
+import SubscriptionList from '../components/SubscriptionList';
 import FloatingButtonComponent from '../components/FloatingButtonComponent';
 import Loader from '../components/Loader';
 import Modal from '../components/Modal';
 import SubscriptionForm from '../components/SubscriptionForm';
+import useHaptics from '../lib/useHaptics';
 
 export default function Home() {
+  const { triggerHaptic } = useHaptics();
   const { data: session, status } = useSession();
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -21,6 +23,7 @@ export default function Home() {
 
   // Add Subscription Modal State
   const [isAddingSubscription, setIsAddingSubscription] = useState(false);
+  const [isMarkPaidModalOpen, setIsMarkPaidModalOpen] = useState(false);
 
   // Undo Delete State
   const [deletedItem, setDeletedItem] = useState(null);
@@ -217,7 +220,7 @@ export default function Home() {
 
     // Restore item
     const stableId = deletedItem.localId || deletedItem._id;
-    setSubscriptions(prev => [{ ...deletedItem, localId: stableId, shouldExpand: Date.now() }, ...prev]);
+    setSubscriptions(prev => [{ ...deletedItem, localId: stableId, isNew: true }, ...prev]);
     setShowUndo(false);
 
     // Re-create on server
@@ -236,7 +239,7 @@ export default function Home() {
       // Update the restored item with the new ID from server
       const stableId = deletedItem.localId || deletedItem._id;
       setSubscriptions(prev => prev.map(sub =>
-        sub._id === deletedItem._id ? { ...restoredSub, localId: stableId, shouldExpand: Date.now() } : sub
+        sub._id === deletedItem._id ? { ...restoredSub, localId: stableId, isNew: true } : sub
       ));
 
       setNotification({ type: 'success', message: 'Subscription restored' });
@@ -251,12 +254,16 @@ export default function Home() {
   // Clear notification after 3 seconds
   useEffect(() => {
     if (notification) {
+      if (notification.type === 'success') triggerHaptic('success');
+      if (notification.type === 'error') triggerHaptic('error');
+      if (notification.type === 'neutral') triggerHaptic('warning');
+
       const timer = setTimeout(() => {
         setNotification(null);
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [notification]);
+  }, [notification, triggerHaptic]);
 
   // Handle sign in
   const handleSignIn = () => {
@@ -349,10 +356,12 @@ export default function Home() {
               <Loader />
             </div>
           ) : (
-            <ListComponent
+            <SubscriptionList
               subscriptions={subscriptions}
               onDelete={handleDeleteSubscription}
               onUpdate={handleUpdateSubscription}
+              onMarkPaidModalOpen={() => setIsMarkPaidModalOpen(true)}
+              onMarkPaidModalClose={() => setIsMarkPaidModalOpen(false)}
             />
           )}
         </PageContentComponent>
@@ -398,14 +407,14 @@ export default function Home() {
         title="Add Subscription"
       >
         <SubscriptionForm
-          onSave={handleSaveNewSubscription}
+          onSubmit={handleSaveNewSubscription}
           onCancel={() => setIsAddingSubscription(false)}
           showDelete={false}
         />
       </Modal>
 
       {/* Floating Action Button for Add */}
-      {status === 'authenticated' && (
+      {status === 'authenticated' && !isMarkPaidModalOpen && (
         <FloatingButtonComponent
           onClick={handleAddSubscription}
           showUndo={showUndo}

@@ -67,7 +67,7 @@
   flex-direction: column;
   overflow-y: auto;
   height: 100%;
-  padding-top: 20px;
+  padding: 20px 20px 100px 20px;
   /* Hide scrollbar for Chrome, Safari and Opera */
   -ms-overflow-style: none;
   /* IE and Edge */
@@ -100,7 +100,7 @@
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
   transform: translateX(-100%) translateZ(0);
   /* Hardware acceleration */
-  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 200ms var(--easing-standard);
   /* Faster, smoother easing */
   z-index: 30;
   border-top-right-radius: 16px;
@@ -218,7 +218,7 @@
   letter-spacing: 0.1px;
   border: none;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  transition: all 0.2s var(--easing-standard);
   position: relative;
   overflow: hidden;
   white-space: nowrap;
@@ -385,8 +385,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  margin: 0 16px 12px 16px;
+  /* padding removed, handled by children */
+  margin: 0 0 12px 0;
   background-color: #1E1E1E;
   /* surface */
   border: 1px solid #2D2D2D;
@@ -504,7 +504,7 @@
   flex: 1;
   padding: 0;
   margin-top: 0;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s var(--easing-standard), filter 0.3s var(--easing-standard);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -567,7 +567,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   z-index: 9999;
   /* Ensure it's on top of everything */
-  animation: slideDown 0.4s cubic-bezier(0.2, 0, 0, 1);
+  animation: slideDown 0.4s var(--easing-standard);
   font-family: 'Google Sans Flex', sans-serif;
   font-weight: 500;
   font-size: 14px;
@@ -613,15 +613,51 @@
   }
 }
 
+/* Inputs */
+.input {
+  padding: 0 16px;
+  font-size: 16px;
+  border: 1px solid #444746;
+  border-radius: 16px;
+  background-color: #1E1E1E;
+  color: #E3E3E3;
+  font-family: 'Google Sans Flex', sans-serif;
+  height: 48px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  border-color: #A8C7FA;
+  background-color: #2D2D2D;
+  outline: none;
+}
+
+.textarea {
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 1px solid #444746;
+  border-radius: 16px;
+  background-color: #1E1E1E;
+  color: #E3E3E3;
+  font-family: 'Google Sans Flex', sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.textarea:focus {
+  border-color: #A8C7FA;
+  background-color: #2D2D2D;
+  outline: none;
+}
+
 /* Media Queries */
 @media (min-width: 768px) {
-  .input {
-    padding: 0 12px;
-    font-size: 16px;
-    border: none;
-    flex: 1;
-    height: 48px;
-  }
+  /* ... existing media query content if any ... */
 }
 
 /* Dropdown */
@@ -673,11 +709,11 @@
 
 /* Animations */
 .modalOpen {
-  animation: scaleIn 0.3s cubic-bezier(0.2, 0, 0, 1) forwards;
+  animation: scaleIn 0.3s var(--easing-standard) forwards;
 }
 
 .logoutEnter {
-  animation: slideOutLeft 0.3s cubic-bezier(0.2, 0, 0, 1) forwards;
+  animation: slideOutLeft 0.3s var(--easing-standard) forwards;
 }
 
 @keyframes slideOutLeft {
@@ -693,7 +729,7 @@
 }
 
 .expandEnter {
-  animation: expandDown 0.4s cubic-bezier(0.2, 0, 0, 1) forwards;
+  animation: expandDown 0.4s var(--easing-standard) forwards;
   transform-origin: top;
 }
 
@@ -715,7 +751,7 @@
 .expandableWrapper {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: grid-template-rows 0.3s var(--easing-standard);
   will-change: grid-template-rows;
 }
 
@@ -741,7 +777,7 @@
 }
 
 .expandExit {
-  animation: collapseUp 0.3s cubic-bezier(0.2, 0, 0, 1) forwards;
+  animation: collapseUp 0.3s var(--easing-standard) forwards;
   transform-origin: top;
   overflow: hidden;
 }
@@ -761,52 +797,52 @@
 }
 
 .itemEnter {
-  animation: slideInDown 0.4s cubic-bezier(0.2, 0, 0, 1) forwards;
+  animation: itemInsert 0.5s var(--easing-standard) forwards;
 }
 
-@keyframes slideInDown {
+@keyframes itemInsert {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-10px);
     max-height: 0;
     margin-bottom: 0;
     padding-top: 0;
     padding-bottom: 0;
+    border-width: 0;
   }
 
   to {
     opacity: 1;
     transform: translateY(0);
-    max-height: 200px;
-    /* Adjust based on item height */
+    max-height: 100px;
+    /* Approximate collapsed height */
     margin-bottom: 12px;
-    padding-top: 16px;
-    padding-bottom: 16px;
+    padding-top: 0;
+    /* Padding handled by children now? No, let's check globals */
+    padding-bottom: 0;
+    border-width: 1px;
   }
 }
 
 .itemExit {
-  animation: slideOutRight 0.3s cubic-bezier(0.2, 0, 0, 1) forwards;
+  animation: itemRemove 0.4s var(--easing-standard) forwards;
   pointer-events: none;
 }
 
-@keyframes slideOutRight {
+@keyframes itemRemove {
   from {
     opacity: 1;
-    transform: translateX(0);
-    max-height: 200px;
+    transform: scale(1);
+    max-height: 100px;
     margin-bottom: 12px;
-    padding-top: 16px;
-    padding-bottom: 16px;
   }
 
   to {
     opacity: 0;
-    transform: translateX(100%);
+    transform: scale(0.95);
     max-height: 0;
     margin-bottom: 0;
-    padding-top: 0;
-    padding-bottom: 0;
+    border-width: 0;
   }
 }
 

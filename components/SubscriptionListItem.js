@@ -1,14 +1,40 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styles from '../styles/Home.module.css';
 import SubscriptionForm from './SubscriptionForm';
+import MarkPaidModal from './MarkPaidModal';
 import { COLORS } from '../lib/colors';
+import useHaptics from '../lib/useHaptics';
 
-const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, onExpand, onCollapse }) => {
+
+const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, onExpand, onCollapse, onMarkPaidModalOpen, onMarkPaidModalClose }) => {
+  const { triggerHaptic } = useHaptics();
   const [expanded, setExpanded] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isFullyExpanded, setIsFullyExpanded] = useState(false);
+  const [hasEntered, setHasEntered] = useState(false);
+  const [showMarkPaidModal, setShowMarkPaidModal] = useState(false);
+
+
+  // Handle entry animation cleanup
+  useEffect(() => {
+    if (subscription.isNew && !hasEntered) {
+      const timer = setTimeout(() => {
+        setHasEntered(true);
+      }, 500); // Match animation duration + buffer
+      return () => clearTimeout(timer);
+    }
+  }, [subscription.isNew, hasEntered]);
 
   // Sync expanded state
   useEffect(() => {
     setExpanded(isExpanded);
+    if (isExpanded) {
+      // Wait for animation to finish before allowing overflow
+      const timer = setTimeout(() => setIsFullyExpanded(true), 300);
+      return () => clearTimeout(timer);
+    } else {
+      setIsFullyExpanded(false);
+    }
   }, [isExpanded]);
 
   // Collapse on outside click
@@ -17,8 +43,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
 
     const handleClickOutside = (e) => {
       if (!e.target.closest(`[data-subscription-id="${subscription._id}"]`)) {
-        setExpanded(false);
-        if (onCollapse) onCollapse();
+        handleCancel();
       }
     };
 
@@ -30,7 +55,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
       clearTimeout(timeoutId);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [expanded, onCollapse, subscription._id]);
+  }, [expanded, subscription._id]);
 
   // Calculate progress
   const calculateProgress = useCallback(() => {
@@ -56,24 +81,19 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     return { progress, label: displayLabel };
   }, [subscription.nextDueDate]);
 
-  const handleSave = async ({ name, date }) => {
-    // Optimistic UI: Update immediately
+  const handleSave = async (data) => {
     const updatedSubscription = {
       ...subscription,
-      name: name,
-      nextDueDate: date || null,
+      ...data,
+      nextDueDate: data.date || null
     };
 
-    // Collapse immediately for smooth UX
-    setExpanded(false);
-    if (onCollapse) onCollapse();
+    handleCancel();
 
-    // Sync with API in background
     try {
       await onUpdate(updatedSubscription);
     } catch (error) {
       console.error('Failed to update:', error);
-      // If API fails, re-expand to let user retry
       setExpanded(true);
       if (onExpand) onExpand(subscription._id);
     }
@@ -95,11 +115,87 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   };
 
   const handleDeleteClick = async () => {
-    // Delete directly without confirmation
+    setIsDeleting(true);
+    setTimeout(async () => {
+      try {
+        await onDelete(subscription._id);
+      } catch (error) {
+        console.error('Failed to delete:', error);
+        setIsDeleting(false);
+      }
+    }, 300);
+  };
+
+  const calculateNextDate = (baseDate, cycle, cDays, cMonths) => {
+    const nextDate = new Date(baseDate);
+    switch (cycle) {
+      case 'monthly':
+        nextDate.setMonth(nextDate.getMonth() + 1);
+        break;
+      case 'yearly':
+        nextDate.setFullYear(nextDate.getFullYear() + 1);
+        break;
+      case 'weekly':
+        nextDate.setDate(nextDate.getDate() + 7);
+        break;
+      case 'daily':
+        nextDate.setDate(nextDate.getDate() + 1);
+        break;
+      case 'custom':
+        if (cDays) {
+          nextDate.setDate(nextDate.getDate() + parseInt(cDays));
+        }
+        break;
+      case 'monthly_custom':
+        if (cMonths) {
+          nextDate.setMonth(nextDate.getMonth() + parseInt(cMonths));
+        }
+        break;
+      default:
+        nextDate.setMonth(nextDate.getMonth() + 1);
+    }
+    return nextDate;
+  };
+
+  const handleMarkPaid = async ({ strategy, resetDate }) => {
+    triggerHaptic('success');
+    setShowMarkPaidModal(false);
+    if (onMarkPaidModalClose) onMarkPaidModalClose();
+
+    if (!subscription.nextDueDate) return;
+
+    let nextDate;
+    const currentDueDate = new Date(subscription.nextDueDate);
+
+    if (strategy === 'keep') {
+      nextDate = calculateNextDate(
+        currentDueDate,
+        subscription.billingCycle,
+        subscription.customDays,
+        subscription.customMonths
+      ).toISOString();
+    } else {
+      // Reset cycle based on the provided resetDate (default today)
+      const baseDate = new Date(resetDate);
+      nextDate = calculateNextDate(
+        baseDate,
+        subscription.billingCycle,
+        subscription.customDays,
+        subscription.customMonths
+      ).toISOString();
+    }
+
+    // Update subscription with new date
+    const updatedSubscription = {
+      ...subscription,
+      nextDueDate: nextDate,
+    };
+
+    // Optimistic update
     try {
-      await onDelete(subscription._id);
+      await onUpdate(updatedSubscription);
     } catch (error) {
-      console.error('Failed to delete:', error);
+      console.error('Failed to mark paid:', error);
     }
   };
 
@@ -110,66 +206,134 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   return (
     <li
       data-subscription-id={subscription._id}
-      className={styles.subscriptionItem}
+      className={`${styles.subscriptionItem} ${subscription.isNew && !hasEntered ? styles.itemEnter : ''} ${isDeleting ? styles.itemExit : ''}`}
       onClick={handleToggleExpand}
       style={{
         flexDirection: 'column',
         alignItems: 'stretch',
-        cursor: 'pointer'
+        cursor: 'pointer',
+        overflow: isFullyExpanded ? 'visible' : 'hidden', // Allow dropdowns to spill out when fully expanded
+        zIndex: isFullyExpanded ? 10 : 1 // Bring to front when expanded so dropdowns go over other items
       }}
     >
-      {/* Collapsed View */}
-      {!expanded && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px',
-          width: '100%'
-        }}>
-          {/* Name */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <span style={{
-              fontFamily: "'Google Sans Flex', sans-serif",
-              fontSize: '17px',
-              fontWeight: '500',
-              color: COLORS.textPrimary,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              display: 'block'
-            }}>
-              {subscription.name || 'New Subscription'}
-            </span>
+      {/* Collapsed View Wrapper */}
+      <div
+        className={`${styles.expandableWrapper} ${!expanded ? styles.open : ''}`}
+      >
+        <div className={styles.expandableInner}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '20px',
+            width: '100%',
+            padding: 'var(--padding-collapsed)',
+            opacity: !expanded ? 1 : 0,
+            transition: 'opacity 0.2s ease',
+            pointerEvents: !expanded ? 'auto' : 'none'
+          }}>
+            {/* Name */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span style={{
+                fontFamily: "'Google Sans Flex', sans-serif",
+                fontSize: '17px',
+                fontWeight: '500',
+                color: COLORS.textPrimary,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                display: 'block'
+              }}>
+                {subscription.name || 'New Subscription'}
+              </span>
+              {/* Cost Subtitle */}
+              {subscription.cost > 0 && (
+                <span style={{
+                  fontFamily: "'Google Sans Flex', sans-serif",
+                  fontSize: '13px',
+                  color: COLORS.textSecondary,
+                  display: 'block',
+                  marginTop: '4px',
+                  fontWeight: '400'
+                }}>
+                  {subscription.currency} {subscription.cost} / {subscription.billingCycle === 'custom' ? `Every ${subscription.customDays} days` : subscription.billingCycle}
+                </span>
+              )}
+            </div>
+
+            {/* Days Left */}
+            <div style={{ flexShrink: 0 }}>
+              <span style={{
+                fontFamily: "'Google Sans Flex', sans-serif",
+                fontSize: '13px',
+                color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
+                whiteSpace: 'nowrap'
+              }}>
+                {label}
+              </span>
+            </div>
           </div>
 
-          {/* Days Left */}
-          <div style={{ flexShrink: 0 }}>
-            <span style={{
-              fontFamily: "'Google Sans Flex', sans-serif",
-              fontSize: '13px',
-              color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
-              whiteSpace: 'nowrap'
+
+        </div>
+      </div>
+
+      {/* Expanded View Wrapper */}
+      <div
+        className={`${styles.expandableWrapper} ${expanded ? styles.open : ''}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className={styles.expandableInner} style={{ overflow: isFullyExpanded ? 'visible' : 'hidden' }}>
+          <div style={{
+            opacity: expanded ? 1 : 0,
+            transition: 'opacity 0.3s ease 0.1s', // Slight delay for opacity
+            overflow: isFullyExpanded ? 'visible' : 'hidden' // Allow dropdowns to overflow when fully expanded
+          }}>
+
+
+
+            <div style={{
+              padding: 'var(--padding-expanded)',
+              backgroundColor: COLORS.surface,
+              borderRadius: '24px', // Match modal radius if possible, or keep it clean
+              marginTop: '8px'
             }}>
-              {label}
-            </span>
+              <SubscriptionForm
+                initialName={subscription.name}
+                initialDate={subscription.nextDueDate ? new Date(subscription.nextDueDate).toISOString().split('T')[0] : ''}
+                initialCost={subscription.cost}
+                initialCurrency={subscription.currency}
+                initialCycle={subscription.billingCycle}
+                initialCustomDays={subscription.customDays}
+                initialCustomMonths={subscription.customMonths}
+                initialCategory={subscription.category}
+                initialNotes={subscription.notes}
+                onSubmit={handleSave}
+                onCancel={handleCancel}
+                showDelete={true}
+                onDelete={handleDeleteClick}
+                showMarkPaid={hasDueDate}
+                onMarkPaid={(e) => {
+                  e.stopPropagation();
+                  setShowMarkPaidModal(true);
+                  if (onMarkPaidModalOpen) onMarkPaidModalOpen();
+                }}
+              />
+            </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Expanded View */}
-      {expanded && (
-        <div style={{ width: '100%' }} onClick={(e) => e.stopPropagation()}>
-          <SubscriptionForm
-            initialName={subscription.name}
-            initialDate={subscription.nextDueDate ? new Date(subscription.nextDueDate).toISOString().split('T')[0] : ''}
-            onSave={handleSave}
-            onCancel={handleCancel}
-            showDelete={true}
-            onDelete={handleDeleteClick}
-          />
-        </div>
-      )}
+      {/* Mark Paid Modal */}
+      <MarkPaidModal
+        isOpen={showMarkPaidModal}
+        onClose={() => {
+          setShowMarkPaidModal(false);
+          if (onMarkPaidModalClose) onMarkPaidModalClose();
+        }}
+        onConfirm={handleMarkPaid}
+        subscription={subscription}
+      />
     </li>
   );
 };

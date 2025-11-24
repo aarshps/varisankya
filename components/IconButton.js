@@ -1,10 +1,15 @@
 import React from 'react';
 import { COLORS } from '../lib/colors';
+import useHaptics from '../lib/useHaptics';
 
 const IconButton = ({ onClick, icon, color, hoverColor, bgColor = 'transparent', hoverBgColor, disabled, style, title, ...props }) => {
+    const { triggerHaptic } = useHaptics();
     return (
         <button
-            onClick={onClick}
+            onClick={(e) => {
+                triggerHaptic('light');
+                if (onClick) onClick(e);
+            }}
             disabled={disabled}
             title={title}
             style={{

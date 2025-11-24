@@ -43,7 +43,24 @@ export const ModalButton = ({ onClick, children, variant = 'primary', type = 'bu
 };
 
 const Modal = ({ isOpen, onClose, title, children }) => {
-    if (!isOpen) return null;
+    const [shouldRender, setShouldRender] = React.useState(isOpen);
+    const [isClosing, setIsClosing] = React.useState(false);
+
+    React.useEffect(() => {
+        if (isOpen) {
+            setShouldRender(true);
+            setIsClosing(false);
+        } else if (shouldRender) {
+            setIsClosing(true);
+            const timer = setTimeout(() => {
+                setShouldRender(false);
+                setIsClosing(false);
+            }, 180); // Slightly less than 200ms to avoid flicker
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen, shouldRender]);
+
+    if (!shouldRender) return null;
 
     return (
         <div
@@ -58,30 +75,24 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 zIndex: 1000,
+                animation: isClosing ? 'fadeOut 0.2s var(--easing-standard) forwards' : 'fadeIn 0.2s var(--easing-standard) forwards'
             }}
-            onClick={onClose}
+            onClick={!isClosing ? onClose : undefined}
         >
             <div
                 className={styles.modalOpen}
                 style={{
                     backgroundColor: COLORS.surface,
-                    borderRadius: '28px',
-                    padding: '24px',
+                    borderRadius: '24px',
+                    padding: 'var(--padding-modal)',
                     width: '90%',
                     maxWidth: '400px',
                     boxShadow: '0 4px 24px rgba(0, 0, 0, 0.4)',
+                    animation: isClosing ? 'scaleOut 0.2s var(--easing-standard) forwards' : 'scaleIn 0.2s var(--easing-standard) forwards'
                 }}
                 onClick={(e) => e.stopPropagation()}
             >
-                <h2 style={{
-                    margin: '0 0 24px 0',
-                    fontSize: '24px',
-                    fontWeight: '400',
-                    color: COLORS.textPrimary,
-                    fontFamily: "'Google Sans Flex', sans-serif"
-                }}>
-                    {title}
-                </h2>
+                {/* Title removed as per request */}
                 {children}
             </div>
         </div>

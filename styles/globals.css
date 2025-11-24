@@ -8,6 +8,18 @@ body {
   color: #E3E3E3;
 }
 
+:root {
+  --padding-collapsed: 20px 24px;
+  --padding-expanded: 20px 24px;
+  --padding-modal: 24px 24px;
+  --margin-modal-title: 12px;
+  --margin-modal-title: 12px;
+  --gap-standard: 12px;
+  --easing-standard: cubic-bezier(0.4, 0.0, 0.2, 1);
+  --easing-enter: cubic-bezier(0.0, 0.0, 0.2, 1);
+  --easing-exit: cubic-bezier(0.4, 0.0, 1, 1);
+}
+
 a {
   color: inherit;
   text-decoration: none;

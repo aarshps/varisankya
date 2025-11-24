@@ -1,7 +1,9 @@
 import React from 'react';
 import styles from '../styles/Home.module.css';
+import useHaptics from '../lib/useHaptics';
 
 export default function FloatingButtonComponent({ onClick, showUndo, onUndo }) {
+    const { triggerHaptic } = useHaptics();
     const [visible, setVisible] = React.useState(true);
     const lastScrollY = React.useRef(0);
 
@@ -64,7 +66,10 @@ export default function FloatingButtonComponent({ onClick, showUndo, onUndo }) {
                 {showUndo && (
                     <button
                         className={styles.undoButton}
-                        onClick={onUndo}
+                        onClick={() => {
+                            triggerHaptic('medium');
+                            onUndo();
+                        }}
                     >
                         Undo
                     </button>
@@ -73,7 +78,10 @@ export default function FloatingButtonComponent({ onClick, showUndo, onUndo }) {
                 {/* Add Button */}
                 <button
                     className={styles.fab}
-                    onClick={onClick}
+                    onClick={() => {
+                        triggerHaptic('medium');
+                        onClick();
+                    }}
                 >
                     Add
                 </button>
