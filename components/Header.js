@@ -97,7 +97,6 @@ export default function Header({ session, onSignOut, onAddClick }) {
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 onClick={() => {
-                  triggerHaptic('medium');
                   setShowLogout(!showLogout);
                 }}
               >

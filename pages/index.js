@@ -37,30 +37,35 @@ export default function Home() {
     if (error) {
       setUrlError(error);
     }
+  }, []);
 
-    // Fake click workaround to prime haptics
-    const fakeClick = () => {
-      if (typeof document !== 'undefined') {
-        const btn = document.createElement('button');
-        btn.style.position = 'absolute';
-        btn.style.opacity = '0';
-        btn.style.pointerEvents = 'none';
-        document.body.appendChild(btn);
-        btn.click();
-        document.body.removeChild(btn);
+  // Initialize haptics on first user interaction
+  useEffect(() => {
+    let initialized = false;
 
-        // Also try to trigger a tiny vibration if allowed
-        if (navigator.vibrate) {
-          try { navigator.vibrate(1); } catch (e) { }
-        }
+    const initializeHaptics = () => {
+      if (!initialized) {
+        initialized = true;
+        triggerHaptic('ultra-light');
+
+        // Remove listeners after first trigger
+        window.removeEventListener('click', initializeHaptics);
+        window.removeEventListener('touchstart', initializeHaptics);
+        window.removeEventListener('scroll', initializeHaptics);
       }
     };
 
-    // Try immediately and after a small delay
-    fakeClick();
-    setTimeout(fakeClick, 500);
+    // Listen for first real user interaction
+    window.addEventListener('click', initializeHaptics, { passive: true });
+    window.addEventListener('touchstart', initializeHaptics, { passive: true });
+    window.addEventListener('scroll', initializeHaptics, { passive: true });
 
-  }, []);
+    return () => {
+      window.removeEventListener('click', initializeHaptics);
+      window.removeEventListener('touchstart', initializeHaptics);
+      window.removeEventListener('scroll', initializeHaptics);
+    };
+  }, [triggerHaptic]);
 
   // Fetch subscriptions
   const fetchSubscriptions = useCallback(async () => {
@@ -89,23 +94,12 @@ export default function Home() {
     }
   }, [status, fetchSubscriptions]);
 
-  // Haptic feedback when loading finishes and on initial page load
+  // Haptic feedback when loading finishes
   useEffect(() => {
     if (!loading && hasFetched.current) {
       triggerHaptic('light');
     }
   }, [loading, triggerHaptic]);
-
-  // Initial haptic on page load to prime the haptics system
-  useEffect(() => {
-    if (status === 'authenticated') {
-      // Trigger initial haptic after a short delay to ensure page is ready
-      const timer = setTimeout(() => {
-        triggerHaptic('ultra-light');
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [status, triggerHaptic]);
 
   // Subscription handlers
   const handleAddSubscription = () => {
