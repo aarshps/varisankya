@@ -11,36 +11,32 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const overdue = [];
-        const expiringSoon = []; // Next 7 days
+        const urgent = []; // Overdue or expiring in 7 days
         const upcoming = []; // 8-30 days
-        let totalMonthlyCost = 0;
+        let inactiveCount = 0;
 
         subscriptions.forEach(sub => {
-            const cost = parseFloat(sub.cost) || 0;
-            totalMonthlyCost += cost;
+            if (!sub.nextDueDate) {
+                inactiveCount++;
+                return;
+            }
 
-            if (sub.nextDueDate) {
-                const dueDate = new Date(sub.nextDueDate);
-                dueDate.setHours(0, 0, 0, 0);
-                const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+            const dueDate = new Date(sub.nextDueDate);
+            dueDate.setHours(0, 0, 0, 0);
+            const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
 
-                if (daysUntil < 0) {
-                    overdue.push({ ...sub, daysUntil, cost });
-                } else if (daysUntil <= 7) {
-                    expiringSoon.push({ ...sub, daysUntil, cost });
-                } else if (daysUntil <= 30) {
-                    upcoming.push({ ...sub, daysUntil, cost });
-                }
+            if (daysUntil <= 7) {
+                urgent.push({ ...sub, daysUntil });
+            } else if (daysUntil <= 30) {
+                upcoming.push({ ...sub, daysUntil });
             }
         });
 
         return {
             total: subscriptions.length,
-            overdue: overdue.sort((a, b) => a.daysUntil - b.daysUntil),
-            expiringSoon: expiringSoon.sort((a, b) => a.daysUntil - b.daysUntil),
+            urgent: urgent.sort((a, b) => a.daysUntil - b.daysUntil),
             upcoming: upcoming.sort((a, b) => a.daysUntil - b.daysUntil),
-            totalMonthlyCost
+            inactiveCount
         };
     }, [subscriptions]);
 
@@ -151,30 +147,21 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                         borderRadius: '12px',
                         textAlign: 'center'
                     }}>
-                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: COLORS.success }}>
-                            ${summaryData.totalMonthlyCost.toFixed(0)}
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: COLORS.textSecondary }}>
+                            {summaryData.inactiveCount}
                         </div>
                         <div style={{ fontSize: '11px', color: COLORS.textSecondary, marginTop: '2px' }}>
-                            Monthly
+                            Inactive
                         </div>
                     </div>
                 </div>
 
                 {/* Status Cards */}
-                {summaryData.overdue.length > 0 && (
-                    <StatusCard
-                        title="Overdue"
-                        items={summaryData.overdue}
-                        color={COLORS.destructive}
-                        emptyText="All caught up!"
-                    />
-                )}
-
                 <StatusCard
-                    title="Expiring Soon (7 days)"
-                    items={summaryData.expiringSoon}
-                    color="#FFA726"
-                    emptyText="Nothing due this week"
+                    title="Urgent (Overdue or ≤7 days)"
+                    items={summaryData.urgent}
+                    color={COLORS.destructive}
+                    emptyText="Nothing urgent!"
                 />
 
                 <StatusCard
