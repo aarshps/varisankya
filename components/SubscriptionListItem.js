@@ -207,18 +207,20 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   const itemRef = React.useRef(null);
 
   // Scroll haptics
-  useEffect(() => {
-    if (expanded) return; // Disable scroll haptics while expanded to avoid noise
+  const mountTime = React.useRef(Date.now());
 
-    let isFirst = true;
+  useEffect(() => {
+    // Always keep observer connected, but gate the vibration
+    // This prevents disconnect/reconnect issues
+
     const observer = new IntersectionObserver(
       (entries) => {
-        if (isFirst) {
-          isFirst = false;
-          return;
-        }
+        // Prevent vibration on initial load (first 1 second)
+        if (Date.now() - mountTime.current < 1000) return;
+
         entries.forEach((entry) => {
           // Trigger haptic on any intersection change (enter/exit)
+          // Only if not expanded
           if (!expanded) {
             triggerHaptic('ultra-light');
           }

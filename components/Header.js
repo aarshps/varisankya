@@ -89,6 +89,10 @@ export default function Header({ session, onSignOut, onAddClick }) {
                   triggerHaptic('medium');
                   e.currentTarget.style.transform = 'scale(0.92)';
                 }}
+                onTouchStart={(e) => {
+                  triggerHaptic('medium');
+                  e.currentTarget.style.transform = 'scale(0.92)';
+                }}
                 onClick={() => {
                   setShowLogout(!showLogout);
                 }}
