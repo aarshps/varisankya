@@ -195,7 +195,7 @@ const SubscriptionForm = ({
                         </Button>
                     )}
                     {showMarkPaid && (
-                        <Button onClick={handleMarkPaid} variant="primary">
+                        <Button onClick={handleMarkPaid} variant="success">
                             Paid
                         </Button>
                     )}
@@ -210,7 +210,7 @@ const SubscriptionForm = ({
                     </Button>
                     <Button
                         onClick={handleSubmit}
-                        variant="success"
+                        variant="primary"
                         disabled={!name.trim() || !isDirty}
                     >
                         Save
