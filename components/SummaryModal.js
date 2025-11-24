@@ -151,7 +151,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                             {summaryData.inactiveCount}
                         </div>
                         <div style={{ fontSize: '11px', color: COLORS.textSecondary, marginTop: '2px' }}>
-                            Inactive
+                            No Due Date
                         </div>
                     </div>
                 </div>
