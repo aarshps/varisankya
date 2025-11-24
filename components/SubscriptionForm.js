@@ -99,6 +99,7 @@ const SubscriptionForm = ({
                 placeholder="Service Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                onFocus={() => triggerHaptic('ultra-light')}
                 className={styles.input}
                 style={{ width: '100%' }}
             />
@@ -117,6 +118,7 @@ const SubscriptionForm = ({
                     placeholder="Cost"
                     value={cost}
                     onChange={(e) => setCost(e.target.value)}
+                    onFocus={() => triggerHaptic('ultra-light')}
                     className={styles.input}
                     style={{ flex: 1 }}
                 />
@@ -142,6 +144,7 @@ const SubscriptionForm = ({
                     placeholder="Number of Days"
                     value={customDays}
                     onChange={(e) => setCustomDays(e.target.value)}
+                    onFocus={() => triggerHaptic('ultra-light')}
                     className={styles.input}
                     min="1"
                 />
@@ -154,6 +157,7 @@ const SubscriptionForm = ({
                     placeholder="Number of Months"
                     value={customMonths}
                     onChange={(e) => setCustomMonths(e.target.value)}
+                    onFocus={() => triggerHaptic('ultra-light')}
                     className={styles.input}
                     min="1"
                 />
@@ -171,6 +175,7 @@ const SubscriptionForm = ({
                 placeholder="Notes (optional)"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
+                onFocus={() => triggerHaptic('ultra-light')}
                 className={styles.textarea}
             />
 

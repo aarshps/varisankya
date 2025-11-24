@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { COLORS } from '../lib/colors';
 import styles from '../styles/Home.module.css';
+import useHaptics from '../lib/useHaptics';
 
 const DropdownComponent = ({ value, onChange, options, placeholder = 'Select', style }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const { triggerHaptic } = useHaptics();
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -18,6 +20,7 @@ const DropdownComponent = ({ value, onChange, options, placeholder = 'Select', s
     }, []);
 
     const handleSelect = (optionValue) => {
+        triggerHaptic('selection');
         onChange(optionValue);
         setIsOpen(false);
     };
@@ -28,7 +31,10 @@ const DropdownComponent = ({ value, onChange, options, placeholder = 'Select', s
     return (
         <div ref={dropdownRef} style={{ position: 'relative', width: '100%', ...style }}>
             <div
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => {
+                    triggerHaptic('light');
+                    setIsOpen(!isOpen);
+                }}
                 style={{
                     height: '48px',
                     padding: '0 16px',

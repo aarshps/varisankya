@@ -207,17 +207,29 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   const itemRef = React.useRef(null);
 
   // Scroll haptics
-  const mountTime = React.useRef(Date.now());
+  const hasUserInteracted = React.useRef(false);
+
+  // Mark as interacted on any user action
+  useEffect(() => {
+    const markInteracted = () => {
+      hasUserInteracted.current = true;
+    };
+
+    // Listen for any user interaction
+    window.addEventListener('click', markInteracted, { once: true });
+    window.addEventListener('touchstart', markInteracted, { once: true });
+    window.addEventListener('scroll', markInteracted, { once: true });
+
+    return () => {
+      window.removeEventListener('click', markInteracted);
+      window.removeEventListener('touchstart', markInteracted);
+      window.removeEventListener('scroll', markInteracted);
+    };
+  }, []);
 
   useEffect(() => {
-    // Always keep observer connected, but gate the vibration
-    // This prevents disconnect/reconnect issues
-
     const observer = new IntersectionObserver(
       (entries) => {
-        // Prevent vibration on initial load (first 1 second)
-        if (Date.now() - mountTime.current < 1000) return;
-
         entries.forEach((entry) => {
           // Trigger haptic on any intersection change (enter/exit)
           // Only if not expanded

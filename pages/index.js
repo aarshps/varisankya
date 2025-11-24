@@ -89,12 +89,23 @@ export default function Home() {
     }
   }, [status, fetchSubscriptions]);
 
-  // Haptic feedback when loading finishes
+  // Haptic feedback when loading finishes and on initial page load
   useEffect(() => {
     if (!loading && hasFetched.current) {
       triggerHaptic('light');
     }
   }, [loading, triggerHaptic]);
+
+  // Initial haptic on page load to prime the haptics system
+  useEffect(() => {
+    if (status === 'authenticated') {
+      // Trigger initial haptic after a short delay to ensure page is ready
+      const timer = setTimeout(() => {
+        triggerHaptic('ultra-light');
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [status, triggerHaptic]);
 
   // Subscription handlers
   const handleAddSubscription = () => {
