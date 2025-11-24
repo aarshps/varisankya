@@ -192,6 +192,9 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
       nextDueDate: nextDate,
     };
 
+    // Collapse the item before update
+    handleCancel();
+
     // Optimistic update
     try {
       await onUpdate(updatedSubscription);
