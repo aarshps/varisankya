@@ -89,6 +89,13 @@ export default function Home() {
     }
   }, [status, fetchSubscriptions]);
 
+  // Haptic feedback when loading finishes
+  useEffect(() => {
+    if (!loading && hasFetched.current) {
+      triggerHaptic('light');
+    }
+  }, [loading, triggerHaptic]);
+
   // Subscription handlers
   const handleAddSubscription = () => {
     setIsAddingSubscription(true);
