@@ -1,4 +1,200 @@
 import React, { useMemo } from 'react';
 import Modal from './Modal';
 import Button from './Button';
+import { COLORS } from '../lib/colors';
+import useHaptics from '../lib/useHaptics';
+
+const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
+    const { triggerHaptic } = useHaptics();
+
+    const summaryData = useMemo(() => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const overdue = [];
+        const expiringSoon = []; // Next 7 days
+        const upcoming = []; // 8-30 days
+        let totalMonthlyCost = 0;
+
+        subscriptions.forEach(sub => {
+            const cost = parseFloat(sub.cost) || 0;
+            totalMonthlyCost += cost;
+
+            if (sub.nextDueDate) {
+                const dueDate = new Date(sub.nextDueDate);
+                dueDate.setHours(0, 0, 0, 0);
+                const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+
+                if (daysUntil < 0) {
+                    overdue.push({ ...sub, daysUntil, cost });
+                } else if (daysUntil <= 7) {
+                    expiringSoon.push({ ...sub, daysUntil, cost });
+                } else if (daysUntil <= 30) {
+                    upcoming.push({ ...sub, daysUntil, cost });
+                }
+            }
+        });
+
+        return {
+            total: subscriptions.length,
+            overdue: overdue.sort((a, b) => a.daysUntil - b.daysUntil),
+            expiringSoon: expiringSoon.sort((a, b) => a.daysUntil - b.daysUntil),
+            upcoming: upcoming.sort((a, b) => a.daysUntil - b.daysUntil),
+            totalMonthlyCost
+        };
+    }, [subscriptions]);
+
+    const handleClose = () => {
+        triggerHaptic('medium');
+        onClose();
+    };
+
+    const StatusCard = ({ title, items, color, emptyText }) => (
+        <div style={{
+            background: COLORS.surface,
+            borderRadius: '12px',
+            padding: '12px',
+            border: `1px solid ${color}20`
+        }}>
+            <div style={{
+                fontSize: '13px',
+                fontWeight: '600',
+                color: color,
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+            }}>
+                <div style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    backgroundColor: color
+                }} />
+                {title} ({items.length})
+            </div>
+            {items.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {items.slice(0, 3).map((item, i) => (
+                        <div key={i} style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            fontSize: '12px',
+                            color: COLORS.textSecondary,
+                            padding: '6px 8px',
+                            background: COLORS.surfaceVariant,
+                            borderRadius: '8px'
+                        }}>
+                            <span style={{ fontWeight: '500', color: COLORS.textPrimary }}>{item.name}</span>
+                            <span style={{ color: color, fontWeight: '600' }}>
+                                {item.daysUntil === 0 ? 'Today' :
+                                    item.daysUntil < 0 ? `${Math.abs(item.daysUntil)}d ago` :
+                                        `${item.daysUntil}d`}
+                            </span>
+                        </div>
+                    ))}
+                    {items.length > 3 && (
+                        <div style={{
+                            fontSize: '11px',
+                            color: COLORS.textSecondary,
+                            textAlign: 'center',
+                            marginTop: '2px'
+                        }}>
+                            +{items.length - 3} more
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div style={{
+                    fontSize: '11px',
+                    color: COLORS.textSecondary,
+                    textAlign: 'center',
+                    padding: '8px'
+                }}>
+                    {emptyText}
+                </div>
+            )}
+        </div>
+    );
+
+    return (
+        <Modal isOpen={isOpen} onClose={handleClose} title="Subscription Overview">
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                padding: '8px 0'
+            }}>
+                {/* Quick Stats */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '12px'
+                }}>
+                    <div style={{
+                        padding: '12px',
+                        background: COLORS.surfaceVariant,
+                        borderRadius: '12px',
+                        textAlign: 'center'
+                    }}>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: COLORS.primary }}>
+                            {summaryData.total}
+                        </div>
+                        <div style={{ fontSize: '11px', color: COLORS.textSecondary, marginTop: '2px' }}>
+                            Active
+                        </div>
+                    </div>
+                    <div style={{
+                        padding: '12px',
+                        background: COLORS.surfaceVariant,
+                        borderRadius: '12px',
+                        textAlign: 'center'
+                    }}>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: COLORS.success }}>
+                            ${summaryData.totalMonthlyCost.toFixed(0)}
+                        </div>
+                        <div style={{ fontSize: '11px', color: COLORS.textSecondary, marginTop: '2px' }}>
+                            Monthly
+                        </div>
+                    </div>
+                </div>
+
+                {/* Status Cards */}
+                {summaryData.overdue.length > 0 && (
+                    <StatusCard
+                        title="Overdue"
+                        items={summaryData.overdue}
+                        color={COLORS.destructive}
+                        emptyText="All caught up!"
+                    />
+                )}
+
+                <StatusCard
+                    title="Expiring Soon (7 days)"
+                    items={summaryData.expiringSoon}
+                    color="#FFA726"
+                    emptyText="Nothing due this week"
+                />
+
+                <StatusCard
+                    title="Upcoming (8-30 days)"
+                    items={summaryData.upcoming}
+                    color={COLORS.primary}
+                    emptyText="Nothing in next month"
+                />
+
+                {/* OK Button */}
+                <Button
+                    onClick={handleClose}
+                    variant="primary"
+                    style={{ width: '100%', height: '48px', marginTop: '8px' }}
+                >
+                    Got It
+                </Button>
+            </div>
+        </Modal>
+    );
+};
+
 export default SummaryModal;
