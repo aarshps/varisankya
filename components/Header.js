@@ -86,7 +86,7 @@ export default function Header({ session, onSignOut, onAddClick }) {
                   backgroundColor: '#1E1E1E' // Ensure opaque background
                 }}
                 onClick={() => {
-                  // Haptic handled by useEffect
+                  triggerHaptic('light');
                   setShowLogout(!showLogout);
                 }}
                 onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.92)'}

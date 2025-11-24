@@ -204,8 +204,39 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   const hasDueDate = subscription.nextDueDate;
   const statusColor = progress > 70 ? COLORS.destructive : (hasDueDate ? COLORS.primary : COLORS.neutral);
 
+  const itemRef = React.useRef(null);
+
+  // Let's retry the implementation with the "isFirst" logic
+  useEffect(() => {
+    let isFirst = true;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isFirst) {
+          isFirst = false;
+          return;
+        }
+        entries.forEach((entry) => {
+          // Trigger haptic on any intersection change (enter/exit)
+          triggerHaptic('light');
+        });
+      },
+      {
+        // Offset top by approx header height (assuming ~60px) to feel like it's passing under
+        rootMargin: '-60px 0px 0px 0px',
+        threshold: 0
+      }
+    );
+
+    if (itemRef.current) {
+      observer.observe(itemRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [triggerHaptic]);
+
   return (
     <li
+      ref={itemRef}
       data-subscription-id={subscription._id}
       className={`${styles.subscriptionItem} ${subscription.isNew && !hasEntered ? styles.itemEnter : ''} ${isDeleting ? styles.itemExit : ''}`}
       onClick={handleToggleExpand}
