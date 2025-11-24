@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import React, { useMemo } from 'react';
 import Modal from './Modal';
 import Button from './Button';
 import { COLORS } from '../lib/colors';
