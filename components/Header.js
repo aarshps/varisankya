@@ -8,6 +8,26 @@ export default function Header({ session, onSignOut, onAddClick }) {
   const { triggerHaptic } = useHaptics();
   const [showLogout, setShowLogout] = useState(false);
 
+  // Haptic feedback on showLogout change
+  useEffect(() => {
+    // Skip initial render if needed, but here we want feedback on change
+    // We can check if it's different from initial state, but simple check is enough
+    // Actually, we only want to trigger when it changes.
+    // Since this effect runs on mount (false), we might want to skip that if we don't want haptic on load.
+    // However, it's false by default so it's fine.
+    // But wait, if we want it on "appears and disappears", we should trigger it.
+    // Let's use a ref to track mount.
+  }, [showLogout]);
+
+  const mounted = React.useRef(false);
+  useEffect(() => {
+    if (mounted.current) {
+      triggerHaptic('light');
+    } else {
+      mounted.current = true;
+    }
+  }, [showLogout, triggerHaptic]);
+
   // Auto-hide logout button
   useEffect(() => {
     if (showLogout) {
@@ -39,6 +59,7 @@ export default function Header({ session, onSignOut, onAddClick }) {
             }}>
               <Button
                 onClick={() => {
+                  triggerHaptic('medium');
                   setShowLogout(false);
                   onSignOut();
                 }}
@@ -65,7 +86,7 @@ export default function Header({ session, onSignOut, onAddClick }) {
                   backgroundColor: '#1E1E1E' // Ensure opaque background
                 }}
                 onClick={() => {
-                  triggerHaptic('light');
+                  // Haptic handled by useEffect
                   setShowLogout(!showLogout);
                 }}
                 onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.92)'}
