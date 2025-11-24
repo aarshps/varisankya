@@ -206,8 +206,10 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
 
   const itemRef = React.useRef(null);
 
-  // Let's retry the implementation with the "isFirst" logic
+  // Scroll haptics
   useEffect(() => {
+    if (expanded) return; // Disable scroll haptics while expanded to avoid noise
+
     let isFirst = true;
     const observer = new IntersectionObserver(
       (entries) => {
@@ -217,7 +219,9 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         }
         entries.forEach((entry) => {
           // Trigger haptic on any intersection change (enter/exit)
-          triggerHaptic('ultra-light');
+          if (!expanded) {
+            triggerHaptic('ultra-light');
+          }
         });
       },
       {
@@ -232,7 +236,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     }
 
     return () => observer.disconnect();
-  }, [triggerHaptic]);
+  }, [triggerHaptic, expanded]);
 
   return (
     <li
