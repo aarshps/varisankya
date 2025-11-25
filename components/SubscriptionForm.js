@@ -15,7 +15,7 @@ const BILLING_CYCLES = [
     { value: 'daily', label: 'Daily' },
     { value: 'custom', label: 'Custom (Days)' },
 ];
-const CATEGORIES = ['Entertainment', 'OTT', 'Utilities', 'Software', 'Social', 'Insurance', 'Gym/Fitness', 'Investment', 'Other'];
+export const CATEGORIES = ['Entertainment', 'OTT', 'Utilities', 'Software', 'Social', 'Insurance', 'Gym/Fitness', 'Investment', 'Other'];
 
 const SubscriptionForm = ({
     initialName = '',
@@ -35,6 +35,7 @@ const SubscriptionForm = ({
     isActive = true,
     showDelete = false,
     showMarkPaid = false,
+    categories = CATEGORIES, // Default to the static list if not provided
 }) => {
     const [name, setName] = useState(initialName);
     const [date, setDate] = useState(initialDate);
@@ -179,7 +180,7 @@ const SubscriptionForm = ({
 
             {/* Row 4: Category */}
             <DropdownComponent
-                options={CATEGORIES.map(c => ({ value: c, label: c }))}
+                options={categories.map(c => ({ value: c, label: c }))}
                 value={category}
                 onChange={setCategory}
             />

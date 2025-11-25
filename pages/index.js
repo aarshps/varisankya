@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import styles from '../styles/Home.module.css';
 import HeaderComponent from '../components/HeaderComponent';
 import PageContentComponent from '../components/PageContentComponent';
@@ -8,7 +8,7 @@ import SubscriptionList from '../components/SubscriptionList';
 import FloatingButtonComponent from '../components/FloatingButtonComponent';
 import Loader from '../components/Loader';
 import Modal from '../components/Modal';
-import SubscriptionForm from '../components/SubscriptionForm';
+import SubscriptionForm, { CATEGORIES } from '../components/SubscriptionForm';
 import SummaryModal from '../components/SummaryModal';
 import useHaptics, { markHapticsInitialized } from '../lib/useHaptics';
 
@@ -35,6 +35,42 @@ export default function Home() {
   const [showUndo, setShowUndo] = useState(false);
   const undoTimerRef = useRef(null);
   const notificationTimerRef = useRef(null);
+
+  // Smart Category Sorting
+  const sortedCategories = useMemo(() => {
+    if (!subscriptions || subscriptions.length === 0) return CATEGORIES;
+
+    // 1. Calculate Frequency
+    const frequencyMap = {};
+    subscriptions.forEach(sub => {
+      if (sub.active !== false) { // Only count active subscriptions
+        frequencyMap[sub.category] = (frequencyMap[sub.category] || 0) + 1;
+      }
+    });
+
+    // 2. Calculate Recency (Last 5 created subscriptions)
+    // Sort by createdAt descending
+    const recentSubs = [...subscriptions]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 5);
+
+    const recencySet = new Set(recentSubs.map(s => s.category));
+
+    // 3. Calculate Score
+    // Score = Frequency + (IsRecent ? 5 : 0)
+    const categoryScores = CATEGORIES.map(cat => {
+      const freq = frequencyMap[cat] || 0;
+      const isRecent = recencySet.has(cat);
+      const score = freq + (isRecent ? 5 : 0);
+      return { category: cat, score };
+    });
+
+    // 4. Sort by Score (Descending)
+    return categoryScores
+      .sort((a, b) => b.score - a.score)
+      .map(item => item.category);
+
+  }, [subscriptions]);
 
   // Check for error in URL query params
   useEffect(() => {
@@ -556,6 +592,7 @@ export default function Home() {
           onSubmit={handleSaveNewSubscription}
           onCancel={() => setIsAddingSubscription(false)}
           showDelete={false}
+          categories={sortedCategories} // Pass smart sorted categories
         />
       </Modal>
 
