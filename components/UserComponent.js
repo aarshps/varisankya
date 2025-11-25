@@ -68,6 +68,10 @@ export default function UserComponent({ session, onSignOut }) {
                         }}
                         referrerPolicy="no-referrer"
                         style={{
+                            width: '36px',
+                            height: '36px',
+                            minWidth: '36px',
+                            minHeight: '36px',
                             borderRadius: '50%',
                             border: `2px solid ${COLORS.surfaceVariant}`,
                             cursor: 'pointer',
@@ -85,6 +89,8 @@ export default function UserComponent({ session, onSignOut }) {
                         style={{
                             width: '36px',
                             height: '36px',
+                            minWidth: '36px',
+                            minHeight: '36px',
                             borderRadius: '50%',
                             border: `2px solid ${COLORS.surfaceVariant}`,
                             cursor: 'pointer',
