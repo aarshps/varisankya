@@ -199,11 +199,11 @@ const SubscriptionForm = ({
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginTop: '8px',
+                marginTop: '4px',
                 flexWrap: 'wrap',
-                gap: '12px'
+                gap: '8px'
             }}>
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     {showDelete && (
                         <Button
                             onClick={(e) => {
@@ -294,7 +294,7 @@ const SubscriptionForm = ({
                     )}
                 </div>
 
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginLeft: 'auto' }}>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     <Button
                         onClick={handleCancel}
                         variant="neutral"
