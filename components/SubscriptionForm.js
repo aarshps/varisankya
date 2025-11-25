@@ -15,7 +15,7 @@ const BILLING_CYCLES = [
     { value: 'daily', label: 'Daily' },
     { value: 'custom', label: 'Custom (Days)' },
 ];
-const CATEGORIES = ['Entertainment', 'OTT', 'Utilities', 'Software', 'Social', 'Insurance', 'Gym/Fitness', 'Other'];
+const CATEGORIES = ['Entertainment', 'OTT', 'Utilities', 'Software', 'Social', 'Insurance', 'Gym/Fitness', 'Investment', 'Other'];
 
 const SubscriptionForm = ({
     initialName = '',
