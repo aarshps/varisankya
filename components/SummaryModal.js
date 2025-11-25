@@ -49,7 +49,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
     const StatusCard = ({ title, items, color, emptyText }) => (
         <div style={{
             background: COLORS.surface,
-            borderRadius: '12px',
+            borderRadius: '24px',
             padding: '10px',
             border: `1px solid ${color}20`
         }}>
@@ -81,7 +81,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                             color: COLORS.textSecondary,
                             padding: '6px 8px',
                             background: COLORS.surfaceVariant,
-                            borderRadius: '8px'
+                            borderRadius: '16px'
                         }}>
                             <span style={{ fontWeight: '500', color: COLORS.textPrimary }}>{item.name}</span>
                             <span style={{ color: color, fontWeight: '600' }}>
@@ -132,7 +132,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                     <div style={{
                         padding: '10px',
                         background: COLORS.surfaceVariant,
-                        borderRadius: '12px',
+                        borderRadius: '24px',
                         textAlign: 'center'
                     }}>
                         <div style={{ fontSize: '24px', fontWeight: 'bold', color: COLORS.primary }}>
@@ -145,7 +145,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                     <div style={{
                         padding: '12px',
                         background: COLORS.surfaceVariant,
-                        borderRadius: '12px',
+                        borderRadius: '24px',
                         textAlign: 'center'
                     }}>
                         <div style={{ fontSize: '24px', fontWeight: 'bold', color: COLORS.textSecondary }}>
