@@ -28,8 +28,8 @@ export default function UserComponent({ session, onSignOut }) {
                 alignItems: 'center',
                 padding: '8px 20px 8px 16px', // Right padding matches header padding to keep profile pic in place
                 backgroundColor: showLogout ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-                borderTopLeftRadius: '28px',
-                borderBottomLeftRadius: '28px',
+                borderTopLeftRadius: '32px',
+                borderBottomLeftRadius: '32px',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 zIndex: 10
             }}>

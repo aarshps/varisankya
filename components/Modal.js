@@ -83,7 +83,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                 className={styles.modalOpen}
                 style={{
                     backgroundColor: COLORS.surface,
-                    borderRadius: '24px',
+                    borderRadius: '32px',
                     padding: 'var(--padding-modal)',
                     width: '90%',
                     maxWidth: '400px',
