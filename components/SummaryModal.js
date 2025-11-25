@@ -50,7 +50,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
         <div style={{
             background: COLORS.surface,
             borderRadius: '24px',
-            padding: '10px',
+            padding: '16px',
             border: `1px solid ${color}20`
         }}>
             <div style={{
@@ -79,7 +79,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                             alignItems: 'center',
                             fontSize: '12px',
                             color: COLORS.textSecondary,
-                            padding: '6px 8px',
+                            padding: '8px 12px',
                             background: COLORS.surfaceVariant,
                             borderRadius: '16px'
                         }}>
@@ -130,7 +130,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                     gap: '12px'
                 }}>
                     <div style={{
-                        padding: '10px',
+                        padding: '16px',
                         background: COLORS.surfaceVariant,
                         borderRadius: '24px',
                         textAlign: 'center'
@@ -143,7 +143,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                         </div>
                     </div>
                     <div style={{
-                        padding: '12px',
+                        padding: '16px',
                         background: COLORS.surfaceVariant,
                         borderRadius: '24px',
                         textAlign: 'center'
