@@ -55,7 +55,7 @@ export default function FloatingButtonComponent({ onClick, showUndo, onUndo }) {
                 style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '12px',
+                    gap: '8px',
                     pointerEvents: visible ? 'auto' : 'none',
                     transform: visible ? 'translateY(0)' : 'translateY(100px)',
                     opacity: visible ? 1 : 0,

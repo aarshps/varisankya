@@ -176,7 +176,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                 <Button
                     onClick={handleClose}
                     variant="primary"
-                    style={{ width: '100%', height: '48px', marginTop: '8px' }}
+                    style={{ width: '100%', height: '48px', marginTop: '4px' }}
                 >
                     Got It
                 </Button>
