@@ -173,13 +173,24 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                 />
 
                 {/* OK Button */}
-                <Button
-                    onClick={handleClose}
-                    variant="primary"
-                    style={{ width: '100%', height: '48px', marginTop: '4px' }}
-                >
-                    Got It
-                </Button>
+                <div style={{
+                    marginTop: '16px',
+                    marginRight: '-24px',
+                    marginBottom: '-24px',
+                    marginLeft: '-24px',
+                    padding: '16px 24px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderBottomLeftRadius: '24px',
+                    borderBottomRightRadius: '24px'
+                }}>
+                    <Button
+                        onClick={handleClose}
+                        variant="primary"
+                        style={{ width: '100%', height: '48px' }}
+                    >
+                        Got It
+                    </Button>
+                </div>
             </div>
         </Modal>
     );

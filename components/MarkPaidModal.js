@@ -241,7 +241,19 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription }) => {
                 )}
 
                 {/* Action Buttons */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '4px' }}>
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: '8px',
+                    marginTop: '16px',
+                    marginRight: '-24px',
+                    marginBottom: '-24px',
+                    marginLeft: '-24px',
+                    padding: '16px 24px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderBottomLeftRadius: '24px',
+                    borderBottomRightRadius: '24px'
+                }}>
                     <Button onClick={handleClose} variant="neutral">
                         Cancel
                     </Button>

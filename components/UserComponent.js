@@ -24,16 +24,19 @@ export default function UserComponent({ session, onSignOut }) {
         <div style={{ display: 'flex', alignItems: 'center', height: '36px', position: 'relative' }}>
             <div style={{
                 position: 'absolute',
-                right: '48px',
-                top: 0,
-                height: '36px',
+                right: '56px',
+                top: '-8px',
+                height: 'auto',
                 display: 'flex',
                 alignItems: 'center',
                 zIndex: 0,
                 opacity: showLogout ? 1 : 0,
                 transform: showLogout ? 'translateX(0)' : 'translateX(20px)',
                 pointerEvents: showLogout ? 'auto' : 'none',
-                transition: 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0, 0, 1)'
+                transition: 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.2, 0, 0, 1)',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '16px',
+                padding: '8px'
             }}>
                 <Button
                     onClick={() => {

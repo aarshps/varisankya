@@ -199,7 +199,14 @@ const SubscriptionForm = ({
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                marginTop: '4px',
+                marginTop: '16px',
+                marginRight: '-24px',
+                marginBottom: '-24px',
+                marginLeft: '-24px',
+                padding: '16px 24px',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                borderBottomLeftRadius: '24px',
+                borderBottomRightRadius: '24px',
                 flexWrap: 'wrap',
                 gap: '8px'
             }}>
