@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from '../styles/Home.module.css';
 import Button from './Button';
 import DropdownComponent from './DropdownComponent';
@@ -30,7 +30,9 @@ const SubscriptionForm = ({
     onSubmit,
     onCancel,
     onDelete,
+    onStop,
     onMarkPaid,
+    isActive = true,
     showDelete = false,
     showMarkPaid = false,
 }) => {
@@ -44,6 +46,9 @@ const SubscriptionForm = ({
     const [category, setCategory] = useState(initialCategory);
     const [notes, setNotes] = useState(initialNotes);
     const { triggerHaptic } = useHaptics();
+
+    const longPressTimerRef = useRef(null);
+    const isLongPress = useRef(false);
 
     // Sync state with props when they change (e.g., after mark paid updates)
     useEffect(() => {
@@ -77,11 +82,6 @@ const SubscriptionForm = ({
     const handleCancel = () => {
         triggerHaptic('light');
         onCancel();
-    };
-
-    const handleDelete = () => {
-        triggerHaptic('warning');
-        onDelete();
     };
 
     const handleMarkPaid = (e) => {
@@ -204,8 +204,86 @@ const SubscriptionForm = ({
             }}>
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                     {showDelete && (
-                        <Button onClick={handleDelete} variant="destructive">
-                            Delete
+                        <Button
+                            onClick={(e) => {
+                                if (isLongPress.current) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    return;
+                                }
+                                triggerHaptic('warning');
+                                onStop();
+                            }}
+                            onMouseDown={() => {
+                                isLongPress.current = false;
+                                // Buildup haptics
+                                let intensity = 10;
+                                const buildupInterval = setInterval(() => {
+                                    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                                        navigator.vibrate(intensity);
+                                        intensity += 10; // Increase intensity
+                                    }
+                                }, 100);
+
+                                const timeoutId = setTimeout(() => {
+                                    clearInterval(buildupInterval);
+                                    isLongPress.current = true;
+                                    // Persistent and high vibration
+                                    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                                        navigator.vibrate([100, 50, 100, 50, 500]);
+                                    }
+                                    onDelete();
+                                }, 800);
+
+                                // Store IDs
+                                longPressTimerRef.current = { timeoutId, buildupInterval };
+                            }}
+                            onMouseUp={() => {
+                                if (longPressTimerRef.current) {
+                                    clearTimeout(longPressTimerRef.current.timeoutId);
+                                    clearInterval(longPressTimerRef.current.buildupInterval);
+                                }
+                            }}
+                            onMouseLeave={() => {
+                                if (longPressTimerRef.current) {
+                                    clearTimeout(longPressTimerRef.current.timeoutId);
+                                    clearInterval(longPressTimerRef.current.buildupInterval);
+                                }
+                            }}
+                            onTouchStart={() => {
+                                isLongPress.current = false;
+                                // Buildup haptics
+                                let intensity = 10;
+                                const buildupInterval = setInterval(() => {
+                                    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                                        navigator.vibrate(intensity);
+                                        intensity += 10;
+                                    }
+                                }, 100);
+
+                                const timeoutId = setTimeout(() => {
+                                    clearInterval(buildupInterval);
+                                    isLongPress.current = true;
+                                    // Persistent and high vibration
+                                    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                                        navigator.vibrate([100, 50, 100, 50, 500]);
+                                    }
+                                    onDelete();
+                                }, 800);
+
+                                // Store IDs
+                                longPressTimerRef.current = { timeoutId, buildupInterval };
+                            }}
+                            onTouchEnd={() => {
+                                if (longPressTimerRef.current) {
+                                    clearTimeout(longPressTimerRef.current.timeoutId);
+                                    clearInterval(longPressTimerRef.current.buildupInterval);
+                                }
+                            }}
+                            variant="destructive"
+                            style={{ userSelect: 'none', WebkitUserSelect: 'none' }} // Prevent text selection
+                        >
+                            {isActive ? 'Stop' : 'Resume'}
                         </Button>
                     )}
                     {showMarkPaid && (

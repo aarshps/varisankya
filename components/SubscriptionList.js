@@ -69,6 +69,13 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate, ...pro
   };
 
   const sortedSubscriptions = [...subscriptions].sort((a, b) => {
+    // Active first
+    const activeA = a.active !== false; // Default to true
+    const activeB = b.active !== false;
+    if (activeA !== activeB) {
+      return activeA ? -1 : 1;
+    }
+
     const daysLeftA = getDaysLeft(a);
     const daysLeftB = getDaysLeft(b);
     return daysLeftA - daysLeftB; // Ascending order (fewer days = higher priority)

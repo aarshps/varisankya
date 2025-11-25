@@ -275,12 +275,14 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
-                display: 'block'
+                display: 'block',
+                opacity: subscription.active === false ? 0.6 : 1, // Dim if inactive
+                textDecoration: subscription.active === false ? 'line-through' : 'none' // Optional: strike-through
               }}>
                 {subscription.name || 'New Subscription'}
               </span>
-              {/* Cost Subtitle */}
-              {subscription.cost > 0 && (
+              {/* Cost Subtitle - Only if active */}
+              {subscription.active !== false && subscription.cost > 0 && (
                 <span style={{
                   fontFamily: "'Google Sans Flex', sans-serif",
                   fontSize: '13px',
@@ -294,16 +296,31 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
               )}
             </div>
 
-            {/* Days Left */}
+            {/* Right Side: Days Left or Inactive Label */}
             <div style={{ flexShrink: 0 }}>
-              <span style={{
-                fontFamily: "'Google Sans Flex', sans-serif",
-                fontSize: '13px',
-                color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
-                whiteSpace: 'nowrap'
-              }}>
-                {label}
-              </span>
+              {subscription.active === false ? (
+                <span style={{
+                  fontFamily: "'Google Sans Flex', sans-serif",
+                  fontSize: '13px',
+                  color: COLORS.textSecondary,
+                  fontWeight: '500',
+                  padding: '4px 8px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px',
+                  opacity: 0.8
+                }}>
+                  Inactive
+                </span>
+              ) : (
+                <span style={{
+                  fontFamily: "'Google Sans Flex', sans-serif",
+                  fontSize: '13px',
+                  color: statusColor === COLORS.destructive ? COLORS.destructive : COLORS.textPrimary,
+                  whiteSpace: 'nowrap'
+                }}>
+                  {label}
+                </span>
+              )}
             </div>
           </div>
 
@@ -344,7 +361,22 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                 onSubmit={handleSave}
                 onCancel={handleCancel}
                 showDelete={true}
+                isActive={subscription.active !== false}
                 onDelete={handleDeleteClick}
+                onStop={async () => {
+                  // Toggle active state
+                  const newActiveState = subscription.active === false ? true : false;
+                  const updatedSubscription = {
+                    ...subscription,
+                    active: newActiveState
+                  };
+                  handleCancel(); // Collapse
+                  try {
+                    await onUpdate(updatedSubscription);
+                  } catch (error) {
+                    console.error('Failed to update active state:', error);
+                  }
+                }}
                 showMarkPaid={hasDueDate}
                 onMarkPaid={(e) => {
                   e.stopPropagation();

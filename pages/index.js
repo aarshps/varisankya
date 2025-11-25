@@ -29,10 +29,12 @@ export default function Home() {
   // Summary Modal State - Show on page load
   const [showSummaryModal, setShowSummaryModal] = useState(false);
 
-  // Undo Delete State
-  const [deletedItem, setDeletedItem] = useState(null);
+  // Undo State
+  const [undoItem, setUndoItem] = useState(null);
+  const [undoType, setUndoType] = useState(null); // 'delete' or 'stop'
   const [showUndo, setShowUndo] = useState(false);
   const undoTimerRef = useRef(null);
+  const notificationTimerRef = useRef(null);
 
   // Check for error in URL query params
   useEffect(() => {
@@ -211,10 +213,41 @@ export default function Home() {
   };
 
   const handleUpdateSubscription = async (updatedSub) => {
+    // Check for Stop action (active changing from true/undefined to false)
+    const originalSub = subscriptions.find(s => s._id === updatedSub._id);
+    const isStopAction = originalSub && (originalSub.active !== false) && (updatedSub.active === false);
+
     // Optimistic update
     setSubscriptions(subscriptions.map(sub =>
       sub._id === updatedSub._id ? updatedSub : sub
     ));
+
+    if (isStopAction) {
+      setUndoItem(originalSub);
+      setUndoType('stop');
+      setShowUndo(true);
+
+      // Clear previous timers
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+      if (notificationTimerRef.current) clearInterval(notificationTimerRef.current);
+
+      let countdown = 5;
+      setNotification({ type: 'neutral', message: `Subscription stopped. Undo? (${countdown}s)` });
+
+      notificationTimerRef.current = setInterval(() => {
+        countdown -= 1;
+        if (countdown > 0) {
+          setNotification({ type: 'neutral', message: `Subscription stopped. Undo? (${countdown}s)` });
+        } else {
+          clearInterval(notificationTimerRef.current);
+          setShowUndo(false);
+          setUndoItem(null);
+          setUndoType(null);
+          setNotification({ type: 'success', message: 'Subscription stopped successfully' });
+          undoTimerRef.current = setTimeout(() => setNotification(null), 3000);
+        }
+      }, 1000);
+    }
 
     try {
       console.log('[Frontend] Updating subscription:', updatedSub);
@@ -228,26 +261,23 @@ export default function Home() {
 
       const result = await res.json();
       console.log('[Frontend] Updated subscription result:', result);
-      setNotification({ type: 'success', message: 'Subscription updated successfully' });
+      if (!isStopAction) {
+        setNotification({ type: 'success', message: 'Subscription updated successfully' });
+      }
 
-      // No need to update state again if successful as we did optimistic update
-      // But we might want to sync back any server-side changes if needed
     } catch (error) {
       console.error('[Frontend] Error updating subscription:', error);
       setNotification({ type: 'error', message: 'Failed to update subscription' });
-      // Revert changes? For now we just notify error.
-      // Ideally we would revert to previous state but that requires tracking it.
       fetchSubscriptions(); // Refresh to ensure consistency
     }
   };
-
-  const notificationTimerRef = useRef(null);
 
   const handleDeleteSubscription = async (id) => {
     // Store item for undo
     const subToDelete = subscriptions.find(sub => sub._id === id);
     if (subToDelete) {
-      setDeletedItem(subToDelete);
+      setUndoItem(subToDelete);
+      setUndoType('delete');
       setShowUndo(true);
 
       // Clear previous timers
@@ -266,7 +296,8 @@ export default function Home() {
           // Time's up
           clearInterval(notificationTimerRef.current);
           setShowUndo(false);
-          setDeletedItem(null);
+          setUndoItem(null);
+          setUndoType(null);
           setNotification({ type: 'success', message: 'Subscription deleted successfully' });
           // Clear success message after 3 seconds
           undoTimerRef.current = setTimeout(() => setNotification(null), 3000);
@@ -296,44 +327,67 @@ export default function Home() {
     }
   };
 
-  const handleUndoDelete = async () => {
-    if (!deletedItem) return;
+  const handleUndo = async () => {
+    if (!undoItem) return;
 
     // Clear timers immediately
     if (notificationTimerRef.current) clearInterval(notificationTimerRef.current);
     if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
 
-    // Restore item
-    const stableId = deletedItem.localId || deletedItem._id;
-    setSubscriptions(prev => [{ ...deletedItem, localId: stableId, isNew: true }, ...prev]);
-    setShowUndo(false);
+    if (undoType === 'delete') {
+      // Restore item (Create)
+      const stableId = undoItem.localId || undoItem._id;
+      setSubscriptions(prev => [{ ...undoItem, localId: stableId, isNew: true }, ...prev]);
+      setShowUndo(false);
 
-    // Re-create on server
-    try {
-      const { _id, ...dataToRestore } = deletedItem;
+      try {
+        const { _id, ...dataToRestore } = undoItem;
 
-      const res = await fetch('/api/subscriptions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToRestore),
-      });
+        const res = await fetch('/api/subscriptions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dataToRestore),
+        });
 
-      if (!res.ok) throw new Error('Failed to restore subscription');
-      const restoredSub = await res.json();
+        if (!res.ok) throw new Error('Failed to restore subscription');
+        const restoredSub = await res.json();
 
-      // Update the restored item with the new ID from server
-      const stableId = deletedItem.localId || deletedItem._id;
-      setSubscriptions(prev => prev.map(sub =>
-        sub._id === deletedItem._id ? { ...restoredSub, localId: stableId, isNew: true } : sub
-      ));
+        // Update the restored item with the new ID from server
+        setSubscriptions(prev => prev.map(sub =>
+          sub._id === undoItem._id ? { ...restoredSub, localId: stableId, isNew: true } : sub
+        ));
 
-      setNotification({ type: 'success', message: 'Subscription restored' });
-    } catch (error) {
-      console.error('Error restoring subscription:', error);
-      setNotification({ type: 'error', message: 'Failed to restore subscription' });
-      setSubscriptions(prev => prev.filter(sub => sub._id !== deletedItem._id));
+        setNotification({ type: 'success', message: 'Subscription restored' });
+      } catch (error) {
+        console.error('Error restoring subscription:', error);
+        setNotification({ type: 'error', message: 'Failed to restore subscription' });
+        setSubscriptions(prev => prev.filter(sub => sub._id !== undoItem._id));
+      }
+    } else if (undoType === 'stop') {
+      // Restore item (Update active: true)
+      const restoredSub = { ...undoItem, active: true };
+      setSubscriptions(prev => prev.map(sub => sub._id === undoItem._id ? restoredSub : sub));
+      setShowUndo(false);
+
+      try {
+        const res = await fetch('/api/subscriptions', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(restoredSub),
+        });
+
+        if (!res.ok) throw new Error('Failed to restore subscription state');
+        setNotification({ type: 'success', message: 'Subscription resumed' });
+      } catch (error) {
+        console.error('Error restoring subscription state:', error);
+        setNotification({ type: 'error', message: 'Failed to resume subscription' });
+        // Revert
+        setSubscriptions(prev => prev.map(sub => sub._id === undoItem._id ? undoItem : sub));
+      }
     }
-    setDeletedItem(null);
+
+    setUndoItem(null);
+    setUndoType(null);
   };
 
   // Clear notification after 3 seconds
@@ -510,7 +564,7 @@ export default function Home() {
         <FloatingButtonComponent
           onClick={handleAddSubscription}
           showUndo={showUndo}
-          onUndo={handleUndoDelete}
+          onUndo={handleUndo}
         />
       )}
     </div>
