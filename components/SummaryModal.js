@@ -11,13 +11,14 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
+        const activeSubs = subscriptions.filter(s => s.active !== false);
         const urgent = []; // Overdue or expiring in 7 days
         const upcoming = []; // 8-30 days
-        let inactiveCount = 0;
+        let noDueDateCount = 0;
 
-        subscriptions.forEach(sub => {
+        activeSubs.forEach(sub => {
             if (!sub.nextDueDate) {
-                inactiveCount++;
+                noDueDateCount++;
                 return;
             }
 
@@ -33,10 +34,10 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
         });
 
         return {
-            total: subscriptions.length,
+            activeCount: activeSubs.length,
             urgent: urgent.sort((a, b) => a.daysUntil - b.daysUntil),
             upcoming: upcoming.sort((a, b) => a.daysUntil - b.daysUntil),
-            inactiveCount
+            noDueDateCount
         };
     }, [subscriptions]);
 
@@ -135,7 +136,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                         textAlign: 'center'
                     }}>
                         <div style={{ fontSize: '24px', fontWeight: 'bold', color: COLORS.primary }}>
-                            {summaryData.total}
+                            {summaryData.activeCount}
                         </div>
                         <div style={{ fontSize: '11px', color: COLORS.textSecondary, marginTop: '2px' }}>
                             Active
@@ -148,7 +149,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                         textAlign: 'center'
                     }}>
                         <div style={{ fontSize: '24px', fontWeight: 'bold', color: COLORS.textSecondary }}>
-                            {summaryData.inactiveCount}
+                            {summaryData.noDueDateCount}
                         </div>
                         <div style={{ fontSize: '11px', color: COLORS.textSecondary, marginTop: '2px' }}>
                             No Due Date
