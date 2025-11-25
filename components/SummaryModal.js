@@ -181,7 +181,9 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                     padding: '16px 24px',
                     backgroundColor: 'rgba(255, 255, 255, 0.05)',
                     borderBottomLeftRadius: '32px',
-                    borderBottomRightRadius: '32px'
+                    borderBottomRightRadius: '32px',
+                    borderTopLeftRadius: '32px',
+                    borderTopRightRadius: '32px'
                 }}>
                     <Button
                         onClick={handleClose}

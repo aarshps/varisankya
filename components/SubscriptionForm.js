@@ -207,6 +207,8 @@ const SubscriptionForm = ({
                 backgroundColor: 'rgba(255, 255, 255, 0.05)',
                 borderBottomLeftRadius: '32px',
                 borderBottomRightRadius: '32px',
+                borderTopLeftRadius: '32px',
+                borderTopRightRadius: '32px',
                 flexWrap: 'wrap',
                 gap: '8px'
             }}>

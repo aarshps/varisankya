@@ -38,7 +38,7 @@ const DropdownComponent = ({ value, onChange, options, placeholder = 'Select', s
                 style={{
                     height: '48px',
                     padding: '0 16px',
-                    borderRadius: '16px',
+                    borderRadius: '32px',
                     backgroundColor: COLORS.surfaceVariant,
                     border: `1px solid ${isOpen ? COLORS.primary : COLORS.border}`,
                     color: COLORS.textPrimary,
@@ -82,7 +82,7 @@ const DropdownComponent = ({ value, onChange, options, placeholder = 'Select', s
                     left: 0,
                     right: 0,
                     backgroundColor: COLORS.surfaceVariant,
-                    borderRadius: '12px',
+                    borderRadius: '24px',
                     border: `1px solid ${COLORS.border}`,
                     boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                     zIndex: 1000,
@@ -101,7 +101,7 @@ const DropdownComponent = ({ value, onChange, options, placeholder = 'Select', s
                                 onClick={() => handleSelect(optValue)}
                                 style={{
                                     padding: '10px 12px',
-                                    borderRadius: '8px',
+                                    borderRadius: '16px',
                                     cursor: 'pointer',
                                     color: isSelected ? COLORS.primary : COLORS.textPrimary,
                                     backgroundColor: isSelected ? COLORS.primarySelectedBg : 'transparent',
