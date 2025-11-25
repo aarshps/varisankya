@@ -348,10 +348,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
 
 
             <div style={{
-              padding: 'var(--padding-expanded)',
-              backgroundColor: COLORS.surface,
-              borderRadius: '32px', // Match modal radius if possible, or keep it clean
-              marginTop: '8px'
+              padding: 'var(--padding-expanded)'
             }}>
               <SubscriptionForm
                 initialName={subscription.name}

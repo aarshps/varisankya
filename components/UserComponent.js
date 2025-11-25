@@ -38,7 +38,7 @@ export default function UserComponent({ session, onSignOut }) {
                     display: 'flex',
                     alignItems: 'center',
                     overflow: 'hidden',
-                    width: showLogout ? 'auto' : '0px',
+                    maxWidth: showLogout ? '200px' : '0px',
                     opacity: showLogout ? 1 : 0,
                     marginRight: showLogout ? '12px' : '0px',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
