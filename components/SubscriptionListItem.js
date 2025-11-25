@@ -4,7 +4,7 @@ import SubscriptionForm from './SubscriptionForm';
 import MarkPaidModal from './MarkPaidModal';
 import { COLORS } from '../lib/colors';
 import useHaptics from '../lib/useHaptics';
-
+import { motion } from 'framer-motion';
 
 const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, onExpand, onCollapse, onMarkPaidModalOpen, onMarkPaidModalClose }) => {
   const { triggerHaptic } = useHaptics();
@@ -236,7 +236,12 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
   }, [triggerHaptic, expanded]);
 
   return (
-    <li
+    <motion.li
+      layout // Enable layout animations for reordering
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+      transition={{ layout: { type: "spring", stiffness: 300, damping: 30 } }}
       ref={itemRef}
       data-subscription-id={subscription._id}
       className={`${styles.subscriptionItem} ${subscription.isNew && !hasEntered ? styles.itemEnter : ''} ${isDeleting ? styles.itemExit : ''}`}
@@ -399,8 +404,9 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         onConfirm={handleMarkPaid}
         subscription={subscription}
       />
-    </li>
+    </motion.li>
   );
 };
 
 export default React.memo(SubscriptionListItem);
+

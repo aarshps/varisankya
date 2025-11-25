@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import styles from '../styles/Home.module.css';
 import SubscriptionListItem from './SubscriptionListItem';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate, ...props }) => {
   const [expandedId, setExpandedId] = useState(null);
@@ -82,24 +83,30 @@ const SubscriptionList = React.memo(({ subscriptions, onDelete, onUpdate, ...pro
   });
 
   return (
-    <ul className={styles.subscriptionsContainer} style={{ listStyle: 'none', margin: 0, width: '100%' }}>
-      {sortedSubscriptions.map((s) => {
-        const stableId = s.localId || s._id;
-        return (
-          <SubscriptionListItem
-            key={stableId}
-            subscription={s}
-            onDelete={onDelete}
-            onUpdate={onUpdate}
-            isExpanded={expandedId === stableId}
-            onExpand={() => handleExpand(stableId)}
-            onCollapse={handleCollapse}
-            onMarkPaidModalOpen={props.onMarkPaidModalOpen}
-            onMarkPaidModalClose={props.onMarkPaidModalClose}
-          />
-        );
-      })}
-    </ul>
+    <motion.ul
+      className={styles.subscriptionsContainer}
+      style={{ listStyle: 'none', margin: 0, width: '100%' }}
+      layout // Enable layout animations for the list itself if needed
+    >
+      <AnimatePresence initial={false} mode="popLayout">
+        {sortedSubscriptions.map((s) => {
+          const stableId = s.localId || s._id;
+          return (
+            <SubscriptionListItem
+              key={stableId}
+              subscription={s}
+              onDelete={onDelete}
+              onUpdate={onUpdate}
+              isExpanded={expandedId === stableId}
+              onExpand={() => handleExpand(stableId)}
+              onCollapse={handleCollapse}
+              onMarkPaidModalOpen={props.onMarkPaidModalOpen}
+              onMarkPaidModalClose={props.onMarkPaidModalClose}
+            />
+          );
+        })}
+      </AnimatePresence>
+    </motion.ul>
   );
 }, (prevProps, nextProps) => {
   // Only re-render if subscriptions array, onDelete, or onUpdate have changed
