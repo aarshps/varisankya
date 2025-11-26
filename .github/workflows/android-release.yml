@@ -44,7 +44,6 @@ jobs:
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS || vars.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           cd android
           chmod +x gradlew
@@ -52,26 +51,21 @@ jobs:
           # Sanitize secrets
           KEYSTORE_PASSWORD=$(echo "$KEYSTORE_PASSWORD" | tr -d '\n\r')
           KEY_ALIAS=$(echo "$KEY_ALIAS" | tr -d '\n\r')
-          KEY_PASSWORD=$(echo "$KEY_PASSWORD" | tr -d '\n\r')
           
           echo "Debug: Checking Secret Lengths (Security Safe)"
           echo "KEY_ALIAS length: ${#KEY_ALIAS}"
           echo "KEYSTORE_PASSWORD length: ${#KEYSTORE_PASSWORD}"
-          echo "KEY_PASSWORD length: ${#KEY_PASSWORD}"
           
-          echo "Verifying Keystore (Store Password)..."
+          echo "Verifying Keystore..."
           keytool -list -v -keystore app/release.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS"
           
-          echo "Verifying Key Password (by attempting to change it to itself)..."
-          # This command will fail if the OLD keypass is wrong. We set new keypass to the same value.
-          keytool -keypasswd -keystore app/release.keystore -alias "$KEY_ALIAS" -storepass "$KEYSTORE_PASSWORD" -keypass "$KEY_PASSWORD" -new "$KEY_PASSWORD"
-          
+          echo "Note: Using PKCS12 keystore - key password must match store password"
           echo "Building..."
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=$(pwd)/app/release.keystore \
             -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
             -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
-            -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
+            -Pandroid.injected.signing.key.password="$KEYSTORE_PASSWORD"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
