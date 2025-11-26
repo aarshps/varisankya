@@ -186,10 +186,22 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
       ).toISOString();
     }
 
-    // Update subscription with new date
+    // Calculate the date being marked as paid
+    const paidDate = strategy === 'keep'
+      ? (subscription.nextDueDate ? new Date(subscription.nextDueDate).toISOString() : new Date().toISOString())
+      : new Date(resetDate).toISOString();
+
+    // Create history entry
+    const historyEntry = {
+      date: paidDate,
+      cost: subscription.cost
+    };
+
+    // Update subscription with new date and history
     const updatedSubscription = {
       ...subscription,
       nextDueDate: nextDate,
+      paymentHistory: [...(subscription.paymentHistory || []), historyEntry]
     };
 
     // Collapse the item before update
@@ -385,6 +397,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   setShowMarkPaidModal(true);
                   if (onMarkPaidModalOpen) onMarkPaidModalOpen();
                 }}
+                paymentHistory={subscription.paymentHistory}
               />
             </div>
           </div>

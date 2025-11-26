@@ -32,6 +32,7 @@ export default function Header({ session, onSignOut, onAddClick }) {
   useEffect(() => {
     if (showLogout) {
       const timer = setTimeout(() => {
+        triggerHaptic('light');
         setShowLogout(false);
       }, 3000);
       return () => clearTimeout(timer);
@@ -98,17 +99,7 @@ export default function Header({ session, onSignOut, onAddClick }) {
                 onTouchEnd={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 onClick={() => {
                   // Initialize haptics if not already done (ensures first click works)
-                  if (typeof navigator !== 'undefined' && navigator.vibrate) {
-                    try {
-                      navigator.vibrate(40); // medium duration
-                      // Mark as initialized for future haptic calls
-                      if (typeof markHapticsInitialized === 'function') {
-                        markHapticsInitialized();
-                      }
-                    } catch (e) {
-                      console.debug('Haptic failed:', e);
-                    }
-                  }
+                  triggerHaptic('medium');
                   setShowLogout(!showLogout);
                 }}
               >

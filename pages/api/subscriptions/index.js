@@ -74,7 +74,8 @@ export default async function handler(req, res) {
         nextDueDate: s.nextDueDate,
         active: s.active !== false, // Default to true if undefined
         createdAt: s.createdAt,
-        updatedAt: s.updatedAt
+        updatedAt: s.updatedAt,
+        paymentHistory: s.paymentHistory || []
       }));
 
       if (normalized.length > 0) {
@@ -123,7 +124,7 @@ export default async function handler(req, res) {
     console.log('[API] PUT /subscriptions - Body:', JSON.stringify(req.body, null, 2));
     // Accept either id or _id (MongoDB standard)
     const id = req.body.id || req.body._id;
-    const { name, nextDueDate, cost, currency, billingCycle, customDays, category, notes, active } = req.body;
+    const { name, nextDueDate, cost, currency, billingCycle, customDays, category, notes, active, paymentHistory } = req.body;
 
     if (!id) {
       console.warn('[API] PUT /subscriptions - Missing ID');
@@ -141,7 +142,9 @@ export default async function handler(req, res) {
         category,
         notes,
         nextDueDate: nextDueDate ? new Date(nextDueDate) : null,
+        nextDueDate: nextDueDate ? new Date(nextDueDate) : null,
         active: active, // Pass through active status
+        paymentHistory: paymentHistory, // Update payment history
         updatedAt: new Date(),
       };
 

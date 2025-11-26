@@ -36,6 +36,7 @@ const SubscriptionForm = ({
     showDelete = false,
     showMarkPaid = false,
     categories = CATEGORIES, // Default to the static list if not provided
+    paymentHistory = [],
 }) => {
     const [name, setName] = useState(initialName);
     const [date, setDate] = useState(initialDate);
@@ -193,6 +194,47 @@ const SubscriptionForm = ({
                 onFocus={() => triggerHaptic('ultra-light')}
                 className={styles.textarea}
             />
+
+            {/* Payment History */}
+            {paymentHistory && paymentHistory.length > 0 && (
+                <div style={{
+                    marginTop: '16px',
+                    marginBottom: '8px',
+                    padding: '0 4px'
+                }}>
+                    <div style={{
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: COLORS.textSecondary,
+                        marginBottom: '8px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                    }}>
+                        Payment History
+                    </div>
+                    <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '8px'
+                    }}>
+                        {[...paymentHistory]
+                            .sort((a, b) => new Date(b.date) - new Date(a.date))
+                            .slice(0, 5) // Show last 5
+                            .map((entry, index) => (
+                                <div key={index} style={{
+                                    fontSize: '12px',
+                                    color: COLORS.textPrimary,
+                                    backgroundColor: COLORS.surfaceVariant,
+                                    padding: '4px 10px',
+                                    borderRadius: '12px',
+                                    border: `1px solid ${COLORS.border}`
+                                }}>
+                                    {new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                </div>
+                            ))}
+                    </div>
+                </div>
+            )}
 
             {/* Action Buttons */}
             <div style={{
