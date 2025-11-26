@@ -42,6 +42,28 @@ export const ModalButton = ({ onClick, children, variant = 'primary', type = 'bu
     );
 };
 
+export const ModalFooter = ({ children, style }) => {
+    return (
+        <div style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '8px',
+            marginTop: '16px',
+            marginLeft: 'auto',
+            marginRight: '-24px',
+            marginBottom: '-24px',
+            width: 'fit-content',
+            padding: '16px 24px',
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '32px 32px 32px 0',
+            flexWrap: 'wrap',
+            ...style
+        }}>
+            {children}
+        </div>
+    );
+};
+
 const Modal = ({ isOpen, onClose, title, children }) => {
     const [shouldRender, setShouldRender] = React.useState(isOpen);
     const [isClosing, setIsClosing] = React.useState(false);

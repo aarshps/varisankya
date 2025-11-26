@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Modal from './Modal';
+import Modal, { ModalFooter } from './Modal';
 import Button from './Button';
 import DatePickerComponent from './DatePickerComponent';
 import { COLORS } from '../lib/colors';
@@ -325,26 +325,14 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                 )}
 
                 {/* Action Buttons */}
-                <div style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    gap: '8px',
-                    marginTop: '16px',
-                    marginLeft: 'auto',
-                    marginRight: '-24px',
-                    marginBottom: '-24px',
-                    width: 'fit-content',
-                    padding: '16px 24px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    borderRadius: '32px 32px 32px 0'
-                }}>
+                <ModalFooter>
                     <Button onClick={handleClose} variant="neutral">
                         Cancel
                     </Button>
                     <Button onClick={handleConfirm} variant="success">
                         Confirm
                     </Button>
-                </div>
+                </ModalFooter>
             </div>
         </Modal>
     );

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import Modal from './Modal';
+import Modal, { ModalFooter } from './Modal';
 import Button from './Button';
 import { COLORS } from '../lib/colors';
 import useHaptics from '../lib/useHaptics';
@@ -173,18 +173,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                 />
 
                 {/* OK Button */}
-                <div style={{
-                    marginTop: '16px',
-                    marginRight: '-24px',
-                    marginBottom: '-24px',
-                    marginLeft: '-24px',
-                    padding: '16px 24px',
-                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    borderBottomLeftRadius: '32px',
-                    borderBottomRightRadius: '32px',
-                    borderTopLeftRadius: '32px',
-                    borderTopRightRadius: '32px'
-                }}>
+                <ModalFooter>
                     <Button
                         onClick={handleClose}
                         variant="primary"
@@ -192,7 +181,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                     >
                         Got It
                     </Button>
-                </div>
+                </ModalFooter>
             </div>
         </Modal>
     );

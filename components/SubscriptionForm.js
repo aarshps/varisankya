@@ -3,6 +3,7 @@ import styles from '../styles/Home.module.css';
 import Button from './Button';
 import DropdownComponent from './DropdownComponent';
 import DatePickerComponent from './DatePickerComponent';
+import { ModalFooter } from './Modal';
 import { COLORS } from '../lib/colors';
 import useHaptics from '../lib/useHaptics';
 
@@ -197,23 +198,7 @@ const SubscriptionForm = ({
 
 
             {/* Action Buttons */}
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginTop: '8px',
-                marginRight: '-24px',
-                marginBottom: '-24px',
-                marginLeft: '-24px',
-                padding: '16px 24px',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                borderBottomLeftRadius: '32px',
-                borderBottomRightRadius: '32px',
-                borderTopLeftRadius: '32px',
-                borderTopRightRadius: '32px',
-                flexWrap: 'wrap',
-                gap: '8px'
-            }}>
+            <ModalFooter style={{ justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     {showDelete && (
                         <Button
@@ -320,7 +305,7 @@ const SubscriptionForm = ({
                         Save
                     </Button>
                 </div>
-            </div>
+            </ModalFooter>
         </div>
     );
 };
