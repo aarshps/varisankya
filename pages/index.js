@@ -457,40 +457,9 @@ export default function Home() {
     const isCapacitor = typeof window !== 'undefined' && window.Capacitor;
 
     if (isCapacitor) {
-      try {
-        const { Browser } = await import('@capacitor/browser');
-
-        // Open OAuth in in-app browser using production URL
-        const authUrl = `${getApiUrl()}/api/auth/signin/google`;
-        await Browser.open({
-          url: authUrl,
-          presentationStyle: 'popover'
-        });
-
-        // Listen for browser close event
-        Browser.addListener('browserFinished', async () => {
-          // Wait a moment for session to be established
-          await new Promise(resolve => setTimeout(resolve, 1000));
-
-          // Check session status
-          const { data: session } = await fetch(`${getApiUrl()}/api/auth/session`).then(r => r.json()).catch(() => ({ data: null }));
-
-          if (session) {
-            // Session established, reload the page
-            window.location.reload();
-          } else {
-            setIsSigningIn(false);
-          }
-
-          Browser.removeAllListeners();
-        });
-
-      } catch (error) {
-        console.error('Error during Capacitor sign-in:', error);
-        setIsSigningIn(false);
-        // Fallback to regular sign-in
-        signIn('google', { callbackUrl: '/' });
-      }
+      // Navigate directly to the remote auth endpoint
+      // This keeps the flow in the main WebView (native feel) and transitions to the remote app
+      window.location.href = "https://varisankya.vercel.app/api/auth/signin/google?callbackUrl=https://varisankya.vercel.app";
     } else {
       // Web browser - use normal NextAuth flow
       signIn('google', { callbackUrl: '/' });
