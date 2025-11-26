@@ -42,7 +42,7 @@ export default function Header({ session, onSignOut, onAddClick }) {
   return (
     <header className={styles.header}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '36px' }}>
-        <img src="/android-logo.png" alt="Varisankya Logo" width={36} height={36} style={{ borderRadius: '8px', flexShrink: 0 }} />
+        <img src="/logo.png" alt="Varisankya Logo" width={36} height={36} style={{ borderRadius: '8px', flexShrink: 0 }} />
         <span style={{ fontWeight: '500', fontSize: '20px', lineHeight: '36px', color: COLORS.textPrimary }}>Varisankya</span>
       </div>
 

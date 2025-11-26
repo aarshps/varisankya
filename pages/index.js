@@ -11,7 +11,6 @@ import Modal from '../components/Modal';
 import SubscriptionForm, { CATEGORIES } from '../components/SubscriptionForm';
 import SummaryModal from '../components/SummaryModal';
 import useHaptics, { markHapticsInitialized } from '../lib/useHaptics';
-import { scheduleDueNotifications } from '../lib/notifications';
 
 export default function Home() {
   const { triggerHaptic } = useHaptics();
@@ -175,12 +174,7 @@ export default function Home() {
     }
   }, [loading, triggerHaptic]);
 
-  // Schedule notifications when subscriptions change
-  useEffect(() => {
-    if (subscriptions.length > 0) {
-      scheduleDueNotifications(subscriptions);
-    }
-  }, [subscriptions]);
+
 
   // Handler for closing summary modal and initializing haptics
   const handleCloseSummaryModal = () => {
@@ -562,8 +556,8 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/android-logo.png" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/android-logo.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/logo.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/logo.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/site.webmanifest" />
       </Head>
