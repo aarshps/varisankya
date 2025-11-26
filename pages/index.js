@@ -12,6 +12,7 @@ import SubscriptionForm, { CATEGORIES } from '../components/SubscriptionForm';
 import SummaryModal from '../components/SummaryModal';
 import useHaptics, { markHapticsInitialized } from '../lib/useHaptics';
 import { scheduleDueNotifications } from '../lib/notifications';
+import getApiUrl from '../lib/apiUrl';
 
 export default function Home() {
   const { triggerHaptic } = useHaptics();
@@ -137,7 +138,7 @@ export default function Home() {
     try {
       setLoading(true);
       console.log('[Frontend] Fetching subscriptions...');
-      const res = await fetch('/api/subscriptions');
+      const res = await fetch(`${getApiUrl()}/api/subscriptions`);
       if (!res.ok) throw new Error('Failed to fetch subscriptions');
       const data = await res.json();
       console.log('[Frontend] Fetched subscriptions:', data);
@@ -231,7 +232,7 @@ export default function Home() {
 
     try {
       console.log('[Frontend] Adding subscription...');
-      const res = await fetch('/api/subscriptions', {
+      const res = await fetch(`${getApiUrl()}/api/subscriptions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, nextDueDate: date, cost, currency, billingCycle, customDays, category, notes }),
@@ -295,7 +296,7 @@ export default function Home() {
 
     try {
       console.log('[Frontend] Updating subscription:', updatedSub);
-      const res = await fetch('/api/subscriptions', {
+      const res = await fetch(`${getApiUrl()}/api/subscriptions`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedSub),
@@ -353,7 +354,7 @@ export default function Home() {
     setSubscriptions(subscriptions.filter(sub => sub._id !== id));
 
     try {
-      const res = await fetch(`/api/subscriptions?id=${id}`, {
+      const res = await fetch(`${getApiUrl()}/api/subscriptions?id=${id}`, {
         method: 'DELETE',
       });
 
@@ -387,7 +388,7 @@ export default function Home() {
       try {
         const { _id, ...dataToRestore } = undoItem;
 
-        const res = await fetch('/api/subscriptions', {
+        const res = await fetch(`${getApiUrl()}/api/subscriptions`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dataToRestore),
@@ -414,7 +415,7 @@ export default function Home() {
       setShowUndo(false);
 
       try {
-        const res = await fetch('/api/subscriptions', {
+        const res = await fetch(`${getApiUrl()}/api/subscriptions`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(restoredSub),
@@ -472,7 +473,7 @@ export default function Home() {
           await new Promise(resolve => setTimeout(resolve, 1000));
 
           // Check session status
-          const { data: session } = await fetch('/api/auth/session').then(r => r.json()).catch(() => ({ data: null }));
+          const { data: session } = await fetch(`${getApiUrl()}/api/auth/session`).then(r => r.json()).catch(() => ({ data: null }));
 
           if (session) {
             // Session established, reload the page
