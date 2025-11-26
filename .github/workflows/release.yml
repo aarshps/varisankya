@@ -1,24 +1,67 @@
-name: Android Release
+name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
-  workflow_run:
-    workflows: ["Version Bump"]
-    types:
-      - completed
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
 
 jobs:
-  build:
+  bump-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Read and Increment Version
+        id: version
+        run: |
+          # Read current version from build.gradle
+          VERSION_CODE=$(grep -oP 'versionCode\s+\K\d+' android/app/build.gradle)
+          VERSION_NAME=$(grep -oP 'versionName\s+"\K[^"]+' android/app/build.gradle)
+          
+          # Increment version code
+          NEW_VERSION_CODE=$((VERSION_CODE + 1))
+          
+          # Update build.gradle
+          sed -i "s/versionCode $VERSION_CODE/versionCode $NEW_VERSION_CODE/" android/app/build.gradle
+          
+          # Set outputs
+          echo "tag=v$VERSION_NAME.$NEW_VERSION_CODE" >> $GITHUB_OUTPUT
+          
+          echo "Bumping version to v$VERSION_NAME.$NEW_VERSION_CODE"
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add android/app/build.gradle
+          # [skip ci] prevents this commit from triggering this workflow again
+          git commit -m "chore: bump version to ${{ steps.version.outputs.tag }} [skip ci]"
+          git push
+
+      - name: Create and Push Tag
+        run: |
+          git tag ${{ steps.version.outputs.tag }}
+          git push origin ${{ steps.version.outputs.tag }}
+
+  build-android:
+    needs: bump-version
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
-          ref: ${{ github.event.workflow_run.head_branch }}
+          ref: ${{ needs.bump-version.outputs.tag }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -60,7 +103,7 @@ jobs:
           KEY_ALIAS=$(echo "$KEY_ALIAS" | tr -d '\n\r')
           
           # Get tag name from ref
-          TAG_NAME=${GITHUB_REF#refs/tags/}
+          TAG_NAME=${{ needs.bump-version.outputs.tag }}
           echo "Building for tag: $TAG_NAME"
           
           echo "Building APK..."
@@ -73,7 +116,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: android/app/build/outputs/apk/release/varisankya-${{ github.ref_name }}.apk
+          tag_name: ${{ needs.bump-version.outputs.tag }}
+          files: android/app/build/outputs/apk/release/varisankya-${{ needs.bump-version.outputs.tag }}.apk
           draft: false
           prerelease: false
         env:
