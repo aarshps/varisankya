@@ -34,8 +34,8 @@ jobs:
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          # Write secret to file, stripping whitespace/newlines which might corrupt base64
-          echo "$ANDROID_KEYSTORE_BASE64" | tr -d '\n\r ' > release.keystore.b64
+          # Write secret to file using printf to avoid newline issues
+          printf "%s" "$ANDROID_KEYSTORE_BASE64" > release.keystore.b64
           
           # Decode
           base64 -d release.keystore.b64 > android/app/release.keystore
@@ -49,14 +49,22 @@ jobs:
           cd android
           chmod +x gradlew
           
-          # Sanitize secrets (trim whitespace/newlines)
-          # xargs can sometimes leave newlines, tr is safer
+          # Sanitize secrets
           KEYSTORE_PASSWORD=$(echo "$KEYSTORE_PASSWORD" | tr -d '\n\r')
           KEY_ALIAS=$(echo "$KEY_ALIAS" | tr -d '\n\r')
           KEY_PASSWORD=$(echo "$KEY_PASSWORD" | tr -d '\n\r')
           
-          echo "Verifying Keystore..."
+          echo "Debug: Checking Secret Lengths (Security Safe)"
+          echo "KEY_ALIAS length: ${#KEY_ALIAS}"
+          echo "KEYSTORE_PASSWORD length: ${#KEYSTORE_PASSWORD}"
+          echo "KEY_PASSWORD length: ${#KEY_PASSWORD}"
+          
+          echo "Verifying Keystore (Store Password)..."
           keytool -list -v -keystore app/release.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS"
+          
+          echo "Verifying Key Password (by attempting to change it to itself)..."
+          # This command will fail if the OLD keypass is wrong. We set new keypass to the same value.
+          keytool -keypasswd -keystore app/release.keystore -alias "$KEY_ALIAS" -storepass "$KEYSTORE_PASSWORD" -keypass "$KEY_PASSWORD" -new "$KEY_PASSWORD"
           
           echo "Building..."
           ./gradlew assembleRelease \
