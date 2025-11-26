@@ -81,7 +81,7 @@ const SummaryModal = ({ isOpen, onClose, subscriptions }) => {
                             color: COLORS.textSecondary,
                             padding: '8px 12px',
                             background: COLORS.surfaceVariant,
-                            borderRadius: '16px'
+                            borderRadius: '24px'
                         }}>
                             <span style={{ fontWeight: '500', color: COLORS.textPrimary }}>{item.name}</span>
                             <span style={{ color: color, fontWeight: '600' }}>
