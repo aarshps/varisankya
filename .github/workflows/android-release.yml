@@ -31,9 +31,20 @@ jobs:
         run: npx cap sync android
 
       - name: Decode Keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" > release.keystore.b64
+          # Write secret to file, stripping whitespace/newlines which might corrupt base64
+          echo "$ANDROID_KEYSTORE_BASE64" | tr -d '\n\r ' > release.keystore.b64
+          
+          # Decode
           base64 -d release.keystore.b64 > android/app/release.keystore
+          
+          # Debug info
+          echo "Base64 file size:"
+          ls -l release.keystore.b64
+          echo "Decoded Keystore size:"
+          ls -l android/app/release.keystore
 
       - name: Verify Keystore and Build
         env:
