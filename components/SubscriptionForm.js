@@ -195,39 +195,29 @@ const SubscriptionForm = ({
                 className={styles.textarea}
             />
 
-            {/* Payment History */}
+            {/* Payment History - Minimal */}
             {paymentHistory && paymentHistory.length > 0 && (
                 <div style={{
-                    marginTop: '16px',
-                    marginBottom: '8px',
+                    marginTop: '12px',
                     padding: '0 4px'
                 }}>
                     <div style={{
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        color: COLORS.textSecondary,
-                        marginBottom: '8px',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                    }}>
-                        Payment History
-                    </div>
-                    <div style={{
                         display: 'flex',
                         flexWrap: 'wrap',
-                        gap: '8px'
+                        gap: '6px'
                     }}>
                         {[...paymentHistory]
                             .sort((a, b) => new Date(b.date) - new Date(a.date))
-                            .slice(0, 5) // Show last 5
+                            .slice(0, 4) // Show last 4
                             .map((entry, index) => (
                                 <div key={index} style={{
-                                    fontSize: '12px',
-                                    color: COLORS.textPrimary,
-                                    backgroundColor: COLORS.surfaceVariant,
-                                    padding: '4px 10px',
-                                    borderRadius: '12px',
-                                    border: `1px solid ${COLORS.border}`
+                                    fontSize: '11px',
+                                    color: COLORS.textSecondary,
+                                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+                                    padding: '2px 8px',
+                                    borderRadius: '10px',
+                                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                                    whiteSpace: 'nowrap'
                                 }}>
                                     {new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                 </div>
