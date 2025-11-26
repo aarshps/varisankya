@@ -1,6 +1,7 @@
 {
   "name": "varisankya",
   "version": "0.1.0",
+  "author": "Aarsh",
   "private": true,
   "scripts": {
     "dev": "next dev",
