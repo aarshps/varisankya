@@ -11,6 +11,7 @@ import Modal from '../components/Modal';
 import SubscriptionForm, { CATEGORIES } from '../components/SubscriptionForm';
 import SummaryModal from '../components/SummaryModal';
 import useHaptics, { markHapticsInitialized } from '../lib/useHaptics';
+import { scheduleDueNotifications } from '../lib/notifications';
 
 export default function Home() {
   const { triggerHaptic } = useHaptics();
@@ -173,6 +174,13 @@ export default function Home() {
       triggerHaptic('light');
     }
   }, [loading, triggerHaptic]);
+
+  // Schedule notifications when subscriptions change
+  useEffect(() => {
+    if (subscriptions.length > 0) {
+      scheduleDueNotifications(subscriptions);
+    }
+  }, [subscriptions]);
 
   // Handler for closing summary modal and initializing haptics
   const handleCloseSummaryModal = () => {
