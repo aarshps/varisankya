@@ -49,10 +49,11 @@ jobs:
           cd android
           chmod +x gradlew
           
-          # Sanitize secrets (trim whitespace)
-          KEYSTORE_PASSWORD=$(echo "$KEYSTORE_PASSWORD" | xargs)
-          KEY_ALIAS=$(echo "$KEY_ALIAS" | xargs)
-          KEY_PASSWORD=$(echo "$KEY_PASSWORD" | xargs)
+          # Sanitize secrets (trim whitespace/newlines)
+          # xargs can sometimes leave newlines, tr is safer
+          KEYSTORE_PASSWORD=$(echo "$KEYSTORE_PASSWORD" | tr -d '\n\r')
+          KEY_ALIAS=$(echo "$KEY_ALIAS" | tr -d '\n\r')
+          KEY_PASSWORD=$(echo "$KEY_PASSWORD" | tr -d '\n\r')
           
           echo "Verifying Keystore..."
           keytool -list -v -keystore app/release.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS"
