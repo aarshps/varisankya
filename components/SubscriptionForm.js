@@ -231,7 +231,7 @@ const SubscriptionForm = ({
                                 const buildupInterval = setInterval(() => {
                                     if (typeof navigator !== 'undefined' && navigator.vibrate) {
                                         navigator.vibrate(intensity);
-                                        intensity += 10; // Increase intensity
+                                        intensity += 5; // Increase intensity
                                     }
                                 }, 100);
 
@@ -240,7 +240,7 @@ const SubscriptionForm = ({
                                     isLongPress.current = true;
                                     // Persistent and high vibration
                                     if (typeof navigator !== 'undefined' && navigator.vibrate) {
-                                        navigator.vibrate([100, 50, 100, 50, 500]);
+                                        navigator.vibrate([50, 30, 50, 30, 200]);
                                     }
                                     onDelete();
                                 }, 800);
@@ -267,7 +267,7 @@ const SubscriptionForm = ({
                                 const buildupInterval = setInterval(() => {
                                     if (typeof navigator !== 'undefined' && navigator.vibrate) {
                                         navigator.vibrate(intensity);
-                                        intensity += 10;
+                                        intensity += 5;
                                     }
                                 }, 100);
 
@@ -276,7 +276,7 @@ const SubscriptionForm = ({
                                     isLongPress.current = true;
                                     // Persistent and high vibration
                                     if (typeof navigator !== 'undefined' && navigator.vibrate) {
-                                        navigator.vibrate([100, 50, 100, 50, 500]);
+                                        navigator.vibrate([50, 30, 50, 30, 200]);
                                     }
                                     onDelete();
                                 }, 800);
