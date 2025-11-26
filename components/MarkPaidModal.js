@@ -136,17 +136,7 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                 {/* Payment History Timeline */}
                 {paymentHistory && paymentHistory.length > 0 && (
                     <div style={{ marginBottom: '16px' }}>
-                        <div style={{
-                            fontSize: '11px',
-                            fontWeight: '600',
-                            color: COLORS.textSecondary,
-                            marginBottom: '12px',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                            paddingLeft: '8px'
-                        }}>
-                            Payment Timeline
-                        </div>
+
                         <div style={{
                             position: 'relative',
                             padding: '16px 12px 12px 12px',
