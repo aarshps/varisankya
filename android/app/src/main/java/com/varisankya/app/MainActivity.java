@@ -28,6 +28,7 @@ public class MainActivity extends BridgeActivity {
             android.webkit.CookieManager cookieManager = android.webkit.CookieManager.getInstance();
             cookieManager.setAcceptCookie(true);
             cookieManager.setAcceptThirdPartyCookies(webView, true);
+            cookieManager.flush();
         }
     }
 }
