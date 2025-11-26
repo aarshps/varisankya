@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Remove output: 'export' since we need API routes for authentication
-  trailingSlash: true, // This ensures all routes have trailing slashes for consistency
+  output: 'export', // Enable static HTML export
+  trailingSlash: true,
   images: {
+    unoptimized: true, // Required for static export
     remotePatterns: [
       {
         protocol: 'https',

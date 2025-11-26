@@ -3,7 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
     appId: 'com.varisankya.app',
     appName: 'Varisankya',
-    webDir: 'public',
+    webDir: 'out',
     plugins: {
         CapacitorHttp: {
             enabled: true
