@@ -5,6 +5,11 @@ const config: CapacitorConfig = {
     appName: 'Varisankya',
     webDir: 'public',
     plugins: {
+        GoogleAuth: {
+            scopes: ['profile', 'email'],
+            serverClientId: '632270986797-irj4q05686000593441584t04297426e.apps.googleusercontent.com',
+            forceCodeForRefreshToken: true,
+        },
     },
     server: {
         url: 'https://varisankya.vercel.app',
