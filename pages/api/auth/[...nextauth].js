@@ -109,25 +109,4 @@ export const authOptions = {
   debug: config.isDevelopment(),
 };
 
-const handler = (req, res) => {
-  const isAndroidApp = req.headers['user-agent']?.includes('VarisankyaApp');
-
-  const finalAuthOptions = {
-    ...authOptions,
-    cookies: isAndroidApp ? {
-      sessionToken: {
-        name: `next-auth.session-token`,
-        options: {
-          httpOnly: true,
-          sameSite: 'none',
-          path: '/',
-          secure: true
-        }
-      }
-    } : {}
-  };
-
-  return NextAuth(req, res, finalAuthOptions);
-};
-
-export default handler;
+export default NextAuth(authOptions);

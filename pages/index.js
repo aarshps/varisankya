@@ -451,47 +451,7 @@ export default function Home() {
   // Handle sign in
   const handleSignIn = async () => {
     setIsSigningIn(true);
-
-    // Check if  const handleSignIn = async () => {
-    const isCapacitor = typeof window !== 'undefined' && window.Capacitor?.isNativePlatform();
-
-    if (isCapacitor) {
-      try {
-        // Dynamic import to avoid SSR issues
-        const { GoogleAuth } = await import('@codetrix-studio/capacitor-google-auth');
-
-        // Initialize the plugin (required for web, good practice for native)
-        await GoogleAuth.initialize();
-
-        // Native Sign In
-        const user = await GoogleAuth.signIn();
-
-        if (user && user.authentication && user.authentication.idToken) {
-          // Send ID Token to our backend to create a session
-          const response = await fetch('/api/auth/mobile-login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ idToken: user.authentication.idToken }),
-          });
-
-          if (response.ok) {
-            // Session created successfully! Reload to pick up the cookie.
-            window.location.reload();
-          } else {
-            console.error('Failed to verify token with backend');
-            alert('Login failed. Please try again.');
-          }
-        }
-      } catch (error) {
-        console.error('Native Google Sign-In Error:', error);
-        // Fallback or alert
-      }
-    } else {
-      // Web browser - use normal NextAuth flow
-      signIn('google', { callbackUrl: '/' });
-    }
+    signIn('google', { callbackUrl: '/' });
   };
 
   // Handle sign out
