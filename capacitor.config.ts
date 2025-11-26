@@ -5,9 +5,6 @@ const config: CapacitorConfig = {
     appName: 'Varisankya',
     webDir: 'public',
     plugins: {
-        CapacitorHttp: {
-            enabled: true
-        }
     },
     server: {
         url: 'https://varisankya.vercel.app',
