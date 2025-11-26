@@ -107,17 +107,6 @@ export const authOptions = {
     strategy: "jwt",
   },
   debug: config.isDevelopment(),
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'none',
-        path: '/',
-        secure: true
-      }
-    }
-  }
 };
 
 export default NextAuth(authOptions);
