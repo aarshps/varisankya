@@ -133,52 +133,93 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
     return (
         <Modal isOpen={isOpen} onClose={handleClose} title="Mark as Paid">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {/* Payment History Strip */}
+                {/* Payment History Timeline */}
                 {paymentHistory && paymentHistory.length > 0 && (
-                    <div style={{ marginBottom: '12px' }}>
+                    <div style={{ marginBottom: '16px' }}>
                         <div style={{
                             fontSize: '11px',
                             fontWeight: '600',
                             color: COLORS.textSecondary,
-                            marginBottom: '8px',
+                            marginBottom: '12px',
                             textTransform: 'uppercase',
                             letterSpacing: '0.5px',
-                            paddingLeft: '4px'
+                            paddingLeft: '8px'
                         }}>
-                            Recent Payments
+                            Payment Timeline
                         </div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                            {[...paymentHistory]
-                                .sort((a, b) => new Date(b.date) - new Date(a.date))
-                                .slice(0, 3) // Show last 3
-                                .map((entry, index) => (
-                                    <div key={index} style={{
-                                        flex: 1,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        padding: '12px 8px',
-                                        backgroundColor: COLORS.surfaceVariant,
-                                        borderRadius: '16px',
-                                        border: `1px solid ${COLORS.border}`
-                                    }}>
-                                        <span style={{
-                                            fontSize: '14px',
-                                            fontWeight: '600',
-                                            color: COLORS.textPrimary
-                                        }}>
-                                            {new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                        </span>
-                                        <span style={{
-                                            fontSize: '11px',
-                                            color: COLORS.textSecondary,
-                                            marginTop: '2px'
-                                        }}>
-                                            {new Date(entry.date).getFullYear()}
-                                        </span>
-                                    </div>
-                                ))}
+                        <div style={{
+                            position: 'relative',
+                            padding: '20px 16px 16px 16px',
+                            backgroundColor: COLORS.surfaceVariant,
+                            borderRadius: '24px',
+                            border: `1px solid ${COLORS.border}`
+                        }}>
+                            {/* Connecting Line */}
+                            <div style={{
+                                position: 'absolute',
+                                top: '26px',
+                                left: '30px',
+                                right: '30px',
+                                height: '2px',
+                                backgroundColor: COLORS.border,
+                                zIndex: 0
+                            }} />
+
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                position: 'relative',
+                                zIndex: 1
+                            }}>
+                                {[...paymentHistory]
+                                    .sort((a, b) => new Date(a.date) - new Date(b.date)) // Oldest to Newest (Left to Right)
+                                    .slice(-5) // Show last 5
+                                    .map((entry, index, array) => {
+                                        const isLast = index === array.length - 1;
+                                        return (
+                                            <div key={index} style={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                gap: '8px',
+                                                flex: 1
+                                            }}>
+                                                {/* Dot */}
+                                                <div style={{
+                                                    width: '12px',
+                                                    height: '12px',
+                                                    borderRadius: '50%',
+                                                    backgroundColor: isLast ? COLORS.primary : COLORS.surface,
+                                                    border: `2px solid ${isLast ? COLORS.primary : COLORS.textSecondary}`,
+                                                    boxShadow: isLast ? `0 0 0 4px ${COLORS.primary}20` : 'none'
+                                                }} />
+
+                                                {/* Date */}
+                                                <div style={{
+                                                    display: 'flex',
+                                                    flexDirection: 'column',
+                                                    alignItems: 'center'
+                                                }}>
+                                                    <span style={{
+                                                        fontSize: '11px',
+                                                        fontWeight: isLast ? '700' : '500',
+                                                        color: isLast ? COLORS.textPrimary : COLORS.textSecondary,
+                                                        whiteSpace: 'nowrap'
+                                                    }}>
+                                                        {new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                                    </span>
+                                                    <span style={{
+                                                        fontSize: '9px',
+                                                        color: COLORS.textSecondary,
+                                                        opacity: 0.8
+                                                    }}>
+                                                        {new Date(entry.date).getFullYear()}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                            </div>
                         </div>
                     </div>
                 )}
