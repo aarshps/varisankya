@@ -149,7 +149,7 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                         </div>
                         <div style={{
                             position: 'relative',
-                            padding: '20px 16px 16px 16px',
+                            padding: '16px 12px 12px 12px',
                             backgroundColor: COLORS.surfaceVariant,
                             borderRadius: '24px',
                             border: `1px solid ${COLORS.border}`
@@ -157,9 +157,9 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                             {/* Connecting Line */}
                             <div style={{
                                 position: 'absolute',
-                                top: '26px',
-                                left: '30px',
-                                right: '30px',
+                                top: '21px',
+                                left: '24px',
+                                right: '24px',
                                 height: '2px',
                                 backgroundColor: COLORS.border,
                                 zIndex: 0
@@ -176,22 +176,25 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                                     .slice(-5) // Show last 5
                                     .map((entry, index, array) => {
                                         const isLast = index === array.length - 1;
+                                        const dotColor = isLast ? COLORS.textSecondary : COLORS.surface;
+                                        const borderColor = isLast ? COLORS.textSecondary : COLORS.textSecondary;
+
                                         return (
                                             <div key={index} style={{
                                                 display: 'flex',
                                                 flexDirection: 'column',
                                                 alignItems: 'center',
-                                                gap: '8px',
+                                                gap: '6px',
                                                 flex: 1
                                             }}>
                                                 {/* Dot */}
                                                 <div style={{
-                                                    width: '12px',
-                                                    height: '12px',
+                                                    width: '10px',
+                                                    height: '10px',
                                                     borderRadius: '50%',
-                                                    backgroundColor: isLast ? COLORS.primary : COLORS.surface,
-                                                    border: `2px solid ${isLast ? COLORS.primary : COLORS.textSecondary}`,
-                                                    boxShadow: isLast ? `0 0 0 4px ${COLORS.primary}20` : 'none'
+                                                    backgroundColor: dotColor,
+                                                    border: `2px solid ${borderColor}`,
+                                                    boxShadow: isLast ? `0 0 0 3px ${COLORS.textSecondary}20` : 'none'
                                                 }} />
 
                                                 {/* Date */}
@@ -201,7 +204,7 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                                                     alignItems: 'center'
                                                 }}>
                                                     <span style={{
-                                                        fontSize: '11px',
+                                                        fontSize: '10px',
                                                         fontWeight: isLast ? '700' : '500',
                                                         color: isLast ? COLORS.textPrimary : COLORS.textSecondary,
                                                         whiteSpace: 'nowrap'
@@ -209,7 +212,7 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                                                         {new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                                     </span>
                                                     <span style={{
-                                                        fontSize: '9px',
+                                                        fontSize: '8px',
                                                         color: COLORS.textSecondary,
                                                         opacity: 0.8
                                                     }}>
