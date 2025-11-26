@@ -23,6 +23,11 @@ public class MainActivity extends BridgeActivity {
             
             // Ensure it's treated as an app, not a browser
             webSettings.setMixedContentMode(android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+            
+            // Enable Cookies
+            android.webkit.CookieManager cookieManager = android.webkit.CookieManager.getInstance();
+            cookieManager.setAcceptCookie(true);
+            cookieManager.setAcceptThirdPartyCookies(webView, true);
         }
     }
 }

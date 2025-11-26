@@ -458,7 +458,7 @@ export default function Home() {
     if (isCapacitor) {
       // Navigate directly to the remote auth endpoint
       // This keeps the flow in the main WebView (native feel) and transitions to the remote app
-      window.location.href = "/api/auth/signin/google?callbackUrl=/";
+      window.location.href = "/api/auth/signin/google?callbackUrl=https://varisankya.vercel.app/";
     } else {
       // Web browser - use normal NextAuth flow
       signIn('google', { callbackUrl: '/' });
