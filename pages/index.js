@@ -8,7 +8,7 @@ import SubscriptionList from '../components/SubscriptionList';
 import FloatingButtonComponent from '../components/FloatingButtonComponent';
 import Loader from '../components/Loader';
 import Modal from '../components/Modal';
-import SubscriptionForm, { CATEGORIES } from '../components/SubscriptionForm';
+import SubscriptionForm, { CATEGORIES, CURRENCIES } from '../components/SubscriptionForm';
 import SummaryModal from '../components/SummaryModal';
 import useHaptics, { markHapticsInitialized } from '../lib/useHaptics';
 
@@ -69,6 +69,41 @@ export default function Home() {
     return categoryScores
       .sort((a, b) => b.score - a.score)
       .map(item => item.category);
+
+  }, [subscriptions]);
+
+  // Smart Currency Sorting
+  const sortedCurrencies = useMemo(() => {
+    if (!subscriptions || subscriptions.length === 0) return CURRENCIES;
+
+    // 1. Calculate Frequency
+    const frequencyMap = {};
+    subscriptions.forEach(sub => {
+      if (sub.active !== false) {
+        frequencyMap[sub.currency] = (frequencyMap[sub.currency] || 0) + 1;
+      }
+    });
+
+    // 2. Calculate Recency (Last 5 created subscriptions)
+    const recentSubs = [...subscriptions]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 5);
+
+    const recencySet = new Set(recentSubs.map(s => s.currency));
+
+    // 3. Calculate Score
+    // Score = Frequency + (IsRecent ? 5 : 0)
+    const currencyScores = CURRENCIES.map(curr => {
+      const freq = frequencyMap[curr] || 0;
+      const isRecent = recencySet.has(curr);
+      const score = freq + (isRecent ? 5 : 0);
+      return { currency: curr, score };
+    });
+
+    // 4. Sort by Score (Descending)
+    return currencyScores
+      .sort((a, b) => b.score - a.score)
+      .map(item => item.currency);
 
   }, [subscriptions]);
 
@@ -595,6 +630,7 @@ export default function Home() {
           onCancel={() => setIsAddingSubscription(false)}
           showDelete={false}
           categories={sortedCategories} // Pass smart sorted categories
+          currencies={sortedCurrencies} // Pass smart sorted currencies
         />
       </Modal>
 

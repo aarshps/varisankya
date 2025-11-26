@@ -89,17 +89,22 @@ Unlike typical multi-tenant apps that store all users' data in one table, Varisa
 varisankya/
 ├── components/              # UI Components
 │   ├── AppNameComponent.js # Branding
+│   ├── Button.js           # Generic Button
 │   ├── DatePickerComponent.js # Custom date picker
 │   ├── DropdownComponent.js # Custom styled dropdown
 │   ├── FloatingButtonComponent.js # FAB with scroll logic
-│   ├── HeaderComponent.js  # App header
+│   ├── Header.js           # App header logic
+│   ├── HeaderComponent.js  # App header UI
+│   ├── IconButton.js       # Icon Button
 │   ├── ListComponent.js    # Subscription list container
 │   ├── SubscriptionListItem.js # Individual subscription card
 │   ├── MarkPaidModal.js    # Modal for marking subscriptions as paid
+│   ├── SummaryModal.js     # Modal for subscription summary
 │   ├── Loader.js           # Loading spinner
 │   ├── LogoComponent.js    # App logo
 │   ├── Modal.js            # Generic modal wrapper
 │   ├── PageContentComponent.js # Layout wrapper
+│   ├── ProgressBar.js      # Progress bar component
 │   ├── SubscriptionForm.js # Add/Edit form
 │   └── UserComponent.js    # User profile & logout
 ├── lib/                     # Core Logic

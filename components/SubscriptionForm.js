@@ -7,7 +7,7 @@ import { ModalFooter } from './Modal';
 import { COLORS } from '../lib/colors';
 import useHaptics from '../lib/useHaptics';
 
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'INR', 'JPY', 'CAD', 'AUD'];
+export const CURRENCIES = ['USD', 'EUR', 'GBP', 'INR', 'JPY', 'CAD', 'AUD'];
 const BILLING_CYCLES = [
     { value: 'monthly', label: 'Monthly' },
     { value: 'monthly_custom', label: 'Every X Months' },
@@ -22,7 +22,7 @@ const SubscriptionForm = ({
     initialName = '',
     initialDate = '',
     initialCost = '',
-    initialCurrency = 'USD',
+    initialCurrency, // Remove default here to handle logic inside
     initialCycle = 'monthly',
     initialCustomDays = '',
     initialCustomMonths = '',
@@ -37,11 +37,13 @@ const SubscriptionForm = ({
     showDelete = false,
     showMarkPaid = false,
     categories = CATEGORIES, // Default to the static list if not provided
+    currencies = CURRENCIES, // Default to static list
 }) => {
     const [name, setName] = useState(initialName);
     const [date, setDate] = useState(initialDate);
     const [cost, setCost] = useState(initialCost);
-    const [currency, setCurrency] = useState(initialCurrency);
+    // Default to first currency in the smart list if no initial value provided
+    const [currency, setCurrency] = useState(initialCurrency || currencies[0]);
     const [billingCycle, setBillingCycle] = useState(initialCycle);
     const [customDays, setCustomDays] = useState(initialCustomDays);
     const [customMonths, setCustomMonths] = useState(initialCustomMonths);
@@ -139,7 +141,7 @@ const SubscriptionForm = ({
                     style={{ flex: 1 }}
                 />
                 <DropdownComponent
-                    options={CURRENCIES.map(c => ({ value: c, label: c }))}
+                    options={currencies.map(c => ({ value: c, label: c }))}
                     value={currency}
                     onChange={setCurrency}
                     style={{ flex: 1 }}
