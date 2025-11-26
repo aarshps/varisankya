@@ -12,9 +12,9 @@ public class MainActivity extends BridgeActivity {
             android.webkit.WebView webView = this.bridge.getWebView();
             android.webkit.WebSettings webSettings = webView.getSettings();
             
-            // Set user agent to not trigger browser mode
+            // Set user agent to not trigger browser mode and identify as native app
             String userAgent = webSettings.getUserAgentString();
-            userAgent = userAgent.replace("; wv", "");
+            userAgent = userAgent.replace("; wv", "") + " VarisankyaApp";
             webSettings.setUserAgentString(userAgent);
             
             // Disable any browser-like features
