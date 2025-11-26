@@ -36,7 +36,6 @@ const SubscriptionForm = ({
     showDelete = false,
     showMarkPaid = false,
     categories = CATEGORIES, // Default to the static list if not provided
-    paymentHistory = [],
 }) => {
     const [name, setName] = useState(initialName);
     const [date, setDate] = useState(initialDate);
@@ -195,36 +194,7 @@ const SubscriptionForm = ({
                 className={styles.textarea}
             />
 
-            {/* Payment History - Minimal */}
-            {paymentHistory && paymentHistory.length > 0 && (
-                <div style={{
-                    marginTop: '12px',
-                    padding: '0 4px'
-                }}>
-                    <div style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: '6px'
-                    }}>
-                        {[...paymentHistory]
-                            .sort((a, b) => new Date(b.date) - new Date(a.date))
-                            .slice(0, 4) // Show last 4
-                            .map((entry, index) => (
-                                <div key={index} style={{
-                                    fontSize: '11px',
-                                    color: COLORS.textSecondary,
-                                    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-                                    padding: '2px 8px',
-                                    borderRadius: '10px',
-                                    border: '1px solid rgba(255, 255, 255, 0.05)',
-                                    whiteSpace: 'nowrap'
-                                }}>
-                                    {new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                </div>
-                            ))}
-                    </div>
-                </div>
-            )}
+
 
             {/* Action Buttons */}
             <div style={{

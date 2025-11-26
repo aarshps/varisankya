@@ -397,7 +397,6 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
                   setShowMarkPaidModal(true);
                   if (onMarkPaidModalOpen) onMarkPaidModalOpen();
                 }}
-                paymentHistory={subscription.paymentHistory}
               />
             </div>
           </div>
@@ -413,6 +412,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         }}
         onConfirm={handleMarkPaid}
         subscription={subscription}
+        paymentHistory={subscription.paymentHistory}
       />
     </motion.li>
   );

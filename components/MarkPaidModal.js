@@ -5,7 +5,7 @@ import DatePickerComponent from './DatePickerComponent';
 import { COLORS } from '../lib/colors';
 import useHaptics from '../lib/useHaptics';
 
-const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription }) => {
+const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistory }) => {
     const [strategy, setStrategy] = useState('keep');
     const [resetDate, setResetDate] = useState(new Date().toISOString().split('T')[0]);
     const { triggerHaptic } = useHaptics();
@@ -133,6 +133,56 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription }) => {
     return (
         <Modal isOpen={isOpen} onClose={handleClose} title="Mark as Paid">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {/* Payment History Strip */}
+                {paymentHistory && paymentHistory.length > 0 && (
+                    <div style={{ marginBottom: '12px' }}>
+                        <div style={{
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            color: COLORS.textSecondary,
+                            marginBottom: '8px',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            paddingLeft: '4px'
+                        }}>
+                            Recent Payments
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            {[...paymentHistory]
+                                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                                .slice(0, 3) // Show last 3
+                                .map((entry, index) => (
+                                    <div key={index} style={{
+                                        flex: 1,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        padding: '12px 8px',
+                                        backgroundColor: COLORS.surfaceVariant,
+                                        borderRadius: '16px',
+                                        border: `1px solid ${COLORS.border}`
+                                    }}>
+                                        <span style={{
+                                            fontSize: '14px',
+                                            fontWeight: '600',
+                                            color: COLORS.textPrimary
+                                        }}>
+                                            {new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                        </span>
+                                        <span style={{
+                                            fontSize: '11px',
+                                            color: COLORS.textSecondary,
+                                            marginTop: '2px'
+                                        }}>
+                                            {new Date(entry.date).getFullYear()}
+                                        </span>
+                                    </div>
+                                ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Option 1: Keep Schedule */}
                 <label style={{
                     display: 'flex',
