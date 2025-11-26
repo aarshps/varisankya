@@ -149,8 +149,8 @@ varisankya/
    Create a `.env.local` file in the root:
 
    ```env
-   # MongoDB Connection URI (Local)
-   MONGODB_URI=mongodb://localhost:27017/varisankya
+   # MongoDB Connection URI
+   # MONGODB_URI=your_connection_string_here
 
    # NextAuth Configuration
    NEXTAUTH_URL=http://localhost:3000
