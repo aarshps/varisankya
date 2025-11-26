@@ -67,19 +67,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '21'
-
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          build-root-directory: android
-          cache-read-only: false
-
       - name: Install Dependencies
         run: npm install
 
@@ -97,27 +90,16 @@ jobs:
           base64 -d release.keystore.b64 > android/app/release.keystore
 
       - name: Build APK
+        uses: gradle/gradle-build-action@v2
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS || vars.KEY_ALIAS }}
-        run: |
-          cd android
-          chmod +x gradlew
-          
-          # Sanitize secrets
-          KEYSTORE_PASSWORD=$(echo "$KEYSTORE_PASSWORD" | tr -d '\n\r')
-          KEY_ALIAS=$(echo "$KEY_ALIAS" | tr -d '\n\r')
-          
-          # Get tag name from ref
-          TAG_NAME=${{ needs.bump-version.outputs.tag }}
-          echo "Building for tag: $TAG_NAME"
-          
-          echo "Building APK..."
-          ./gradlew assembleRelease \
-            -Pandroid.injected.signing.store.file=$(pwd)/app/release.keystore \
-            -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
-            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
-            -Pandroid.injected.signing.key.password="$KEYSTORE_PASSWORD"
+        with:
+          build-root-directory: android
+          cache-read-only: false
+          arguments: assembleRelease -Pandroid.injected.signing.store.file=${{ github.workspace }}/android/app/release.keystore -Pandroid.injected.signing.store.password=${{ env.KEYSTORE_PASSWORD }} -Pandroid.injected.signing.key.alias=${{ env.KEY_ALIAS }} -Pandroid.injected.signing.key.password=${{ env.KEYSTORE_PASSWORD }}
+
+      # Removed manual Build APK step as it is now handled by gradle-build-action
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
