@@ -460,8 +460,8 @@ export default function Home() {
       try {
         const { Browser } = await import('@capacitor/browser');
 
-        // Open OAuth in in-app browser
-        const authUrl = `${window.location.origin}/api/auth/signin/google`;
+        // Open OAuth in in-app browser using production URL
+        const authUrl = `${getApiUrl()}/api/auth/signin/google`;
         await Browser.open({
           url: authUrl,
           presentationStyle: 'popover'
