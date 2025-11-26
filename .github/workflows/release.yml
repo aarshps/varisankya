@@ -90,6 +90,9 @@ jobs:
           # Decode
           base64 -d release.keystore.b64 > android/app/release.keystore
 
+      - name: Make Gradlew Executable
+        run: chmod +x android/gradlew
+
       - name: Build APK
         uses: gradle/gradle-build-action@v2
         env:
