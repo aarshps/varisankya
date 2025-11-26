@@ -101,7 +101,7 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           name: Release ${{ steps.version.outputs.tag }}
-          files: android/app/build/outputs/apk/release/varisankya-${{ steps.version.outputs.version_name }}.apk
+          files: android/app/build/outputs/apk/release/varisankya-${{ steps.version.outputs.tag }}.apk
           draft: false
           prerelease: false
         env:
