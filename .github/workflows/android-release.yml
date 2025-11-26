@@ -35,7 +35,7 @@ jobs:
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" > release.keystore.b64
           base64 -d release.keystore.b64 > android/app/release.keystore
 
-      - name: Build Release APK
+      - name: Verify Keystore and Build
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS || vars.KEY_ALIAS }}
@@ -43,6 +43,16 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
+          
+          # Sanitize secrets (trim whitespace)
+          KEYSTORE_PASSWORD=$(echo "$KEYSTORE_PASSWORD" | xargs)
+          KEY_ALIAS=$(echo "$KEY_ALIAS" | xargs)
+          KEY_PASSWORD=$(echo "$KEY_PASSWORD" | xargs)
+          
+          echo "Verifying Keystore..."
+          keytool -list -v -keystore app/release.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS"
+          
+          echo "Building..."
           ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=$(pwd)/app/release.keystore \
             -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
