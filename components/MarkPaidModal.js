@@ -336,10 +336,7 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                     width: 'fit-content',
                     padding: '16px 24px',
                     backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                    borderTopLeftRadius: '32px',
-                    borderBottomRightRadius: '32px',
-                    borderTopRightRadius: '0',
-                    borderBottomLeftRadius: '0'
+                    borderRadius: '32px'
                 }}>
                     <Button onClick={handleClose} variant="neutral">
                         Cancel
