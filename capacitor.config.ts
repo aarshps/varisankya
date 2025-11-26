@@ -8,6 +8,14 @@ const config: CapacitorConfig = {
         CapacitorHttp: {
             enabled: true
         }
+    },
+    server: {
+        allowNavigation: [
+            "varisankya.vercel.app",
+            "*.varisankya.vercel.app",
+            "accounts.google.com",
+            "*.google.com"
+        ]
     }
 };
 
