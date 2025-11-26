@@ -39,12 +39,6 @@ jobs:
           
           # Decode
           base64 -d release.keystore.b64 > android/app/release.keystore
-          
-          # Debug info
-          echo "Base64 file size:"
-          ls -l release.keystore.b64
-          echo "Decoded Keystore size:"
-          ls -l android/app/release.keystore
 
       - name: Verify Keystore and Build
         env:
