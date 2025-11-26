@@ -10,6 +10,7 @@ const config: CapacitorConfig = {
         }
     },
     server: {
+        url: 'https://varisankya.vercel.app',
         allowNavigation: [
             "varisankya.vercel.app",
             "*.varisankya.vercel.app",

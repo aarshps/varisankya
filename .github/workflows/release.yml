@@ -77,14 +77,6 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Build Next.js App for Android
-        run: |
-          # Use Android-specific config for static export
-          cp next.config.android.js next.config.js
-          npm run build
-          # Restore original config
-          git checkout next.config.js
-
       - name: Sync Capacitor
         run: npx cap sync android
 
