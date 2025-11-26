@@ -223,7 +223,7 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                     alignItems: 'center',
                     cursor: 'pointer',
                     padding: '12px 16px',
-                    borderRadius: '16px',
+                    borderRadius: '24px',
                     border: `1px solid ${strategy === 'keep' ? COLORS.primary : 'transparent'}`,
                     backgroundColor: strategy === 'keep' ? `${COLORS.primary}10` : 'transparent',
                     transition: 'all 0.2s var(--easing-standard)'
@@ -264,7 +264,7 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                     flexDirection: 'column',
                     cursor: 'pointer',
                     padding: '12px 16px',
-                    borderRadius: '16px',
+                    borderRadius: '24px',
                     border: `1px solid ${strategy === 'reset' ? COLORS.primary : 'transparent'}`,
                     backgroundColor: strategy === 'reset' ? `${COLORS.primary}10` : 'transparent',
                     transition: 'all 0.2s var(--easing-standard)'
@@ -314,7 +314,7 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                         display: 'flex',
                         marginTop: '4px',
                         border: `1px solid ${COLORS.border}`,
-                        borderRadius: '16px',
+                        borderRadius: '24px',
                         overflow: 'hidden',
                         backgroundColor: COLORS.background
                     }}>
