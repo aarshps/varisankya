@@ -449,9 +449,51 @@ export default function Home() {
   }, [notification, triggerHaptic]);
 
   // Handle sign in
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     setIsSigningIn(true);
-    signIn('google', { callbackUrl: '/' });
+
+    // Check if running in Capacitor
+    const isCapacitor = typeof window !== 'undefined' && window.Capacitor;
+
+    if (isCapacitor) {
+      try {
+        const { Browser } = await import('@capacitor/browser');
+
+        // Open OAuth in in-app browser
+        const authUrl = `${window.location.origin}/api/auth/signin/google`;
+        await Browser.open({
+          url: authUrl,
+          presentationStyle: 'popover'
+        });
+
+        // Listen for browser close event
+        Browser.addListener('browserFinished', async () => {
+          // Wait a moment for session to be established
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
+          // Check session status
+          const { data: session } = await fetch('/api/auth/session').then(r => r.json()).catch(() => ({ data: null }));
+
+          if (session) {
+            // Session established, reload the page
+            window.location.reload();
+          } else {
+            setIsSigningIn(false);
+          }
+
+          Browser.removeAllListeners();
+        });
+
+      } catch (error) {
+        console.error('Error during Capacitor sign-in:', error);
+        setIsSigningIn(false);
+        // Fallback to regular sign-in
+        signIn('google', { callbackUrl: '/' });
+      }
+    } else {
+      // Web browser - use normal NextAuth flow
+      signIn('google', { callbackUrl: '/' });
+    }
   };
 
   // Handle sign out
