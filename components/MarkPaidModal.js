@@ -1,18 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Modal, { ModalFooter } from './Modal';
 import Button from './Button';
 import DatePickerComponent from './DatePickerComponent';
+import PaymentHistoryTimeline from './PaymentHistoryTimeline';
 import { COLORS } from '../lib/colors';
 import useHaptics from '../lib/useHaptics';
 
-const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistory }) => {
+const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistory, onDeleteHistoryItem }) => {
     const [strategy, setStrategy] = useState('keep');
     const [resetDate, setResetDate] = useState(new Date().toISOString().split('T')[0]);
+    const [amount, setAmount] = useState(subscription.cost);
     const { triggerHaptic } = useHaptics();
+
+    // Reset amount when modal opens
+    React.useEffect(() => {
+        if (isOpen) {
+            setAmount(subscription.cost);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]); // Only run when isOpen changes
 
     const handleConfirm = () => {
         triggerHaptic('success');
-        onConfirm({ strategy, resetDate });
+        onConfirm({ strategy, resetDate, amount });
         // Reset state for next time
         setStrategy('keep');
         setResetDate(new Date().toISOString().split('T')[0]);
@@ -135,100 +146,14 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {/* Payment History Timeline */}
                 {paymentHistory && paymentHistory.length > 0 && (
-                    <div style={{ marginBottom: '16px' }}>
-
-                        <div style={{
-                            position: 'relative',
-                            padding: '16px 12px 12px 12px',
-                            backgroundColor: COLORS.surfaceVariant,
-                            borderRadius: '24px',
-                            border: `1px solid ${COLORS.border}`
-                        }}>
-                            {/* Connecting Line */}
-                            <div style={{
-                                position: 'absolute',
-                                top: '21px',
-                                left: '24px',
-                                right: '24px',
-                                height: '2px',
-                                backgroundColor: COLORS.border,
-                                zIndex: 0
-                            }} />
-
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                position: 'relative',
-                                zIndex: 1
-                            }}>
-                                {[...paymentHistory]
-                                    .sort((a, b) => new Date(a.date) - new Date(b.date)) // Oldest to Newest (Left to Right)
-                                    .slice(-5) // Show last 5
-                                    .map((entry, index, array) => {
-                                        const isLast = index === array.length - 1;
-                                        const dotColor = isLast ? COLORS.textSecondary : COLORS.surface;
-                                        const borderColor = isLast ? COLORS.textSecondary : COLORS.textSecondary;
-
-                                        return (
-                                            <div key={index} style={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                gap: '6px',
-                                                flex: 1
-                                            }}>
-                                                {/* Dot */}
-                                                <div style={{
-                                                    width: '10px',
-                                                    height: '10px',
-                                                    borderRadius: '50%',
-                                                    backgroundColor: dotColor,
-                                                    border: `2px solid ${borderColor}`,
-                                                    boxShadow: isLast ? `0 0 0 3px ${COLORS.textSecondary}20` : 'none'
-                                                }} />
-
-                                                {/* Date */}
-                                                <div style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center'
-                                                }}>
-                                                    <span style={{
-                                                        fontSize: '10px',
-                                                        fontWeight: isLast ? '700' : '500',
-                                                        color: isLast ? COLORS.textPrimary : COLORS.textSecondary,
-                                                        whiteSpace: 'nowrap'
-                                                    }}>
-                                                        {new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                                                    </span>
-                                                    <span style={{
-                                                        fontSize: '8px',
-                                                        color: COLORS.textSecondary,
-                                                        opacity: 0.8
-                                                    }}>
-                                                        {new Date(entry.date).getFullYear()}
-                                                    </span>
-                                                    {/* Amount Display */}
-                                                    {entry.cost !== undefined && (
-                                                        <span style={{
-                                                            fontSize: '9px',
-                                                            color: isLast ? COLORS.primary : COLORS.textSecondary,
-                                                            fontWeight: isLast ? '600' : '400',
-                                                            marginTop: '2px'
-                                                        }}>
-                                                            {subscription.currency} {entry.cost}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                            </div>
-                        </div>
-                    </div>
+                    <PaymentHistoryTimeline
+                        paymentHistory={paymentHistory}
+                        subscription={subscription}
+                        onDeleteHistoryItem={onDeleteHistoryItem}
+                        triggerHaptic={triggerHaptic}
+                    />
                 )}
 
-                {/* Option 1: Keep Schedule */}
                 <label style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -317,6 +242,44 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                             />
                         </div>
                     )}
+                </div>
+
+                {/* Amount Input */}
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px 16px',
+                    borderRadius: '24px',
+                    border: `1px solid ${COLORS.border}`,
+                    backgroundColor: COLORS.surface
+                }}>
+                    <span style={{
+                        fontSize: '16px',
+                        fontWeight: '500',
+                        color: COLORS.textPrimary
+                    }}>
+                        Amount
+                    </span>
+                    <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ color: COLORS.textSecondary, fontSize: '14px' }}>{subscription.currency}</span>
+                        <input
+                            type="number"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            style={{
+                                width: '80px',
+                                textAlign: 'right',
+                                fontSize: '16px',
+                                fontWeight: '500',
+                                color: COLORS.textPrimary,
+                                border: 'none',
+                                background: 'transparent',
+                                outline: 'none'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
                 </div>
 
                 {/* Extended Forecast Display */}

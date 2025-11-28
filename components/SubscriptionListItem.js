@@ -158,7 +158,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     return nextDate;
   };
 
-  const handleMarkPaid = async ({ strategy, resetDate }) => {
+  const handleMarkPaid = async ({ strategy, resetDate, amount }) => {
     triggerHaptic('success');
     setShowMarkPaidModal(false);
     if (onMarkPaidModalClose) onMarkPaidModalClose();
@@ -194,7 +194,7 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
     // Create history entry
     const historyEntry = {
       date: paidDate,
-      cost: subscription.cost
+      cost: amount !== undefined ? amount : subscription.cost
     };
 
     // Update subscription with new date and history
@@ -413,6 +413,21 @@ const SubscriptionListItem = ({ subscription, onDelete, onUpdate, isExpanded, on
         onConfirm={handleMarkPaid}
         subscription={subscription}
         paymentHistory={subscription.paymentHistory}
+        onDeleteHistoryItem={async (historyIndex) => {
+          const updatedHistory = [...(subscription.paymentHistory || [])];
+          updatedHistory.splice(historyIndex, 1);
+
+          const updatedSubscription = {
+            ...subscription,
+            paymentHistory: updatedHistory
+          };
+
+          try {
+            await onUpdate(updatedSubscription);
+          } catch (error) {
+            console.error('Failed to delete history item:', error);
+          }
+        }}
       />
     </motion.li>
   );

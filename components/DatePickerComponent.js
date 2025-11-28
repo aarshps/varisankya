@@ -40,6 +40,7 @@ const DatePickerComponent = ({ value, onChange, style }) => {
             setMonth(current.month);
             setYear(current.year);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value]);
 
     const handleChange = (d, m, y) => {

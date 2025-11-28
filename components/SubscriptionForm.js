@@ -205,6 +205,7 @@ const SubscriptionForm = ({
                     {showDelete && (
                         <Button
                             onClick={(e) => {
+                                if (isDirty) return; // Prevent action if dirty
                                 if (isLongPress.current) {
                                     e.preventDefault();
                                     e.stopPropagation();
@@ -214,6 +215,7 @@ const SubscriptionForm = ({
                                 onStop();
                             }}
                             onMouseDown={() => {
+                                if (isDirty) return; // Prevent action if dirty
                                 isLongPress.current = false;
                                 // Buildup haptics
                                 let intensity = 10;
@@ -250,6 +252,7 @@ const SubscriptionForm = ({
                                 }
                             }}
                             onTouchStart={() => {
+                                if (isDirty) return; // Prevent action if dirty
                                 isLongPress.current = false;
                                 // Buildup haptics
                                 let intensity = 10;
@@ -280,13 +283,25 @@ const SubscriptionForm = ({
                                 }
                             }}
                             variant="destructive"
-                            style={{ userSelect: 'none', WebkitUserSelect: 'none' }} // Prevent text selection
+                            style={{
+                                userSelect: 'none',
+                                WebkitUserSelect: 'none',
+                                opacity: isDirty ? 0.5 : 1, // Visual feedback
+                                pointerEvents: isDirty ? 'none' : 'auto' // Disable interaction
+                            }}
                         >
                             {isActive ? 'Stop' : 'Resume'}
                         </Button>
                     )}
                     {showMarkPaid && (
-                        <Button onClick={handleMarkPaid} variant="success">
+                        <Button
+                            onClick={handleMarkPaid}
+                            variant="success"
+                            style={{
+                                opacity: isDirty ? 0.5 : 1,
+                                pointerEvents: isDirty ? 'none' : 'auto'
+                            }}
+                        >
                             Paid
                         </Button>
                     )}

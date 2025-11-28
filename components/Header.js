@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useState, useEffect } from 'react';
 import styles from '../styles/Home.module.css';
 import { COLORS } from '../lib/colors';
@@ -37,7 +38,7 @@ export default function Header({ session, onSignOut, onAddClick }) {
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [showLogout]);
+  }, [showLogout, triggerHaptic]);
 
   return (
     <header className={styles.header}>
