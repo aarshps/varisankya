@@ -27,6 +27,8 @@
   z-index: 20;
   padding-top: max(12px, env(safe-area-inset-top));
   flex-shrink: 0;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
 }
 
 .title {
