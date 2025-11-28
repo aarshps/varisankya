@@ -208,6 +208,17 @@ const MarkPaidModal = ({ isOpen, onClose, onConfirm, subscription, paymentHistor
                                                     }}>
                                                         {new Date(entry.date).getFullYear()}
                                                     </span>
+                                                    {/* Amount Display */}
+                                                    {entry.cost !== undefined && (
+                                                        <span style={{
+                                                            fontSize: '9px',
+                                                            color: isLast ? COLORS.primary : COLORS.textSecondary,
+                                                            fontWeight: isLast ? '600' : '400',
+                                                            marginTop: '2px'
+                                                        }}>
+                                                            {subscription.currency} {entry.cost}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                         );
