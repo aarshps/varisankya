@@ -325,6 +325,10 @@
 
     </LinearLayout>
 
+    <!-- Extended FAB: .Primary variant gives the vibrant wallpaper-derived
+         accent under Dynamic Colors (now enabled in VarisankyaApplication).
+         textColor / iconTint set explicitly to colorOnPrimary so the
+         textAppearance cascade can't override them. -->
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab_add_subscription"
         style="@style/Widget.Material3.ExtendedFloatingActionButton.Primary"
