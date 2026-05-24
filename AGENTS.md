@@ -7,7 +7,7 @@ This repository utilizes AI agents (such as Claude Code, Gemini CLI, Cline, etc.
 This repo has exactly **one canonical branch**: **`main`**. Everything you do should land on `main` unless the user explicitly tells you otherwise.
 
 - ✅ **`main`** — the only active development branch. The Varisankya subscription-manager app. All releases (tags `v3.5`, `v3.7`, `v3.8-*`, ongoing) are cut from here.
-- ❌ **`master`** — legacy/deprecated. Contains a minimal "Hello World + Google Sign-In" starter that was the seed of this project. **Do not branch from it, do not push to it, do not document it.** It is kept for archival purposes only and will be removed.
+- ❌ **`master`** — **removed**. There was previously a `master` branch carrying a minimal "Hello World + Google Sign-In" starter (the seed of the project); it was deleted from the remote on the v3.8-beta.5 cleanup pass and is not coming back. If a `master` branch ever reappears, it is not authoritative — work on `main`.
 - ✅ **Wiki** (`varisankya-android.wiki` repo) — human-facing docs live on the wiki's `master` branch (GitHub wikis only have one branch). The wiki documents `main`-branch behavior.
 
 Companion repos:
