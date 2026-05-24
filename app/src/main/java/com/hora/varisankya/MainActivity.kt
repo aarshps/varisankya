@@ -52,6 +52,7 @@ import android.graphics.BitmapFactory
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import com.hora.varisankya.util.Analytics
 import com.hora.varisankya.util.BiometricAuthManager
 import com.hora.varisankya.util.ThemeHelper
 import com.hora.varisankya.util.AnimationHelper
@@ -609,7 +610,7 @@ class MainActivity : BaseActivity() {
 
 
     private fun showAddSubscriptionSheet(subscription: Subscription? = null) {
-
+        if (subscription == null) Analytics.subscriptionAddOpen() else Analytics.subscriptionEditOpen()
         val addSubscriptionBottomSheet = AddSubscriptionBottomSheet(subscription) {
             // Firestore's snapshot listener handles reload
         }
@@ -657,6 +658,7 @@ class MainActivity : BaseActivity() {
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
+                    Analytics.authSignIn()
                     updateUI(true)
                     setupNotifications()
                     viewModel.loadSubscriptions() // Reload data for new user

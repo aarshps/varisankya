@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hora.varisankya.PaymentRecord
 import com.hora.varisankya.Subscription
+import com.hora.varisankya.util.Analytics
 import com.hora.varisankya.util.DateHelper
 import com.hora.varisankya.util.PaymentRepository
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +22,10 @@ class NotificationActionReceiver : BroadcastReceiver() {
         if (intent.action == ACTION_MARK_PAID) {
             val subId = intent.getStringExtra(EXTRA_SUB_ID) ?: return
             val notifId = intent.getIntExtra(EXTRA_NOTIF_ID, -1)
-            
+
+            Analytics.init(context)
+            Analytics.notificationMarkPaidAction()
+
             // Go Async for network operations
             val pendingResult = goAsync()
             val scope = CoroutineScope(Dispatchers.IO)

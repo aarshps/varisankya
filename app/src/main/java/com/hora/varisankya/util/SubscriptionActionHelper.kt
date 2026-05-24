@@ -10,6 +10,7 @@ import com.hora.varisankya.Subscription
 import com.hora.varisankya.SubscriptionAdapter
 import com.hora.varisankya.viewmodel.MainViewModel
 import com.hora.varisankya.PreferenceHelper
+import com.hora.varisankya.util.Analytics
 
 class SubscriptionActionHelper(
     private val activity: FragmentActivity,
@@ -35,6 +36,7 @@ class SubscriptionActionHelper(
             message = "Mark ${subscription.name} as paid for this cycle? This will update the due date.",
             positiveButtonText = "Mark Paid",
             onConfirm = {
+                Analytics.paymentMarkPaidSwipe()
                 viewModel.markAsPaid(subscription,
                     onSuccess = {
                         PreferenceHelper.performSuccessHaptic(contentRoot)

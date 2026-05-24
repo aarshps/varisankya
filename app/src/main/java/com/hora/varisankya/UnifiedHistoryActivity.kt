@@ -16,6 +16,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import com.hora.varisankya.util.AnimationHelper
+import com.hora.varisankya.util.Analytics
 import com.hora.varisankya.util.PaymentRepository
 import com.google.android.material.transition.platform.MaterialSharedAxis
 import android.view.Window
@@ -65,7 +66,9 @@ class UnifiedHistoryActivity : BaseActivity() {
 
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
-        
+
+        Analytics.screenAllPaymentsOpen()
+
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -555,6 +558,7 @@ class UnifiedHistoryActivity : BaseActivity() {
             return
         }
 
+        Analytics.paymentHistoryCleanup(count)
         batch.commit()
             .addOnSuccessListener {
                 loadAllPayments()

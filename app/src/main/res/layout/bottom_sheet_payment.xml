@@ -11,139 +11,152 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <!-- Static header: title + due card + actions are always visible without scrolling -->
+    <LinearLayout
+        android:id="@+id/payment_sheet_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:paddingHorizontal="24dp"
+            android:text="Manage Payments"
+            android:textAppearance="?attr/textAppearanceHeadlineSmall"
+            android:textStyle="bold" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="?attr/materialCardViewFilledStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+            app:cardCornerRadius="28dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <TextView
+                    android:id="@+id/text_due_date_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Due: ..."
+                    android:textAppearance="?attr/textAppearanceTitleLarge"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_next_due_date_preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="..."
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="?attr/colorSecondary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <Button
+            android:id="@+id/btn_pay_current"
+            style="@style/Widget.App.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:padding="16dp"
+            android:text="Mark as Paid" />
+
+        <Button
+            android:id="@+id/btn_add_payment_only"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:padding="16dp"
+            android:text="@string/add_payment_keep_due_date" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:paddingHorizontal="24dp"
+            android:text="Payment History"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="bold"
+            android:letterSpacing="0.05" />
+    </LinearLayout>
+
+    <!-- Scrollable history list — bounded by maxHeight so a long history does
+         not push the static header up off the screen. Within this area the
+         RecyclerView scrolls; the sheet itself stays put. -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/payment_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="-8dp"
         android:fillViewport="true">
 
-        <LinearLayout
-            android:id="@+id/payment_sheet_root"
+        <FrameLayout
+            android:id="@+id/history_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:paddingHorizontal="8dp"
             android:paddingBottom="32dp">
 
-            <TextView
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_history"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="24dp"
-                android:layout_marginBottom="16dp"
-                android:text="Payment History"
-                android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                android:textStyle="bold" />
+                android:layout_marginBottom="8dp"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_payment_timeline"
+                tools:visibility="visible" />
 
-            <FrameLayout
-                android:id="@+id/history_container"
+            <LinearLayout
+                android:id="@+id/no_history_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="8dp">
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="32dp"
+                android:visibility="gone">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_history"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:visibility="gone"
-                    tools:itemCount="3"
-                    tools:listitem="@layout/item_payment_timeline"
-                    tools:visibility="visible" />
+                <ImageView
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:alpha="0.3"
+                    android:src="@drawable/ic_history"
+                    app:tint="?attr/colorOnSurfaceVariant" />
 
-                <LinearLayout
-                    android:id="@+id/no_history_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:padding="32dp"
-                    android:visibility="gone">
-
-                    <ImageView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:alpha="0.3"
-                        android:src="@drawable/ic_history"
-                        app:tint="?attr/colorOnSurfaceVariant" />
-
-                    <TextView
-                        android:id="@+id/text_no_history"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:text="No payments recorded"
-                        android:textAppearance="?attr/textAppearanceBodyLarge"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:gravity="center" />
-                </LinearLayout>
-
-                <com.google.android.material.progressindicator.CircularProgressIndicator
-                    android:id="@+id/progress_history"
+                <TextView
+                    android:id="@+id/text_no_history"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:indeterminate="true"
-                    app:indicatorColor="?attr/colorPrimary"
-                    android:layout_gravity="center"
-                    android:layout_margin="24dp" />
-            </FrameLayout>
+                    android:layout_marginTop="16dp"
+                    android:gravity="center"
+                    android:text="No payments recorded"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
 
-
-            <com.google.android.material.card.MaterialCardView
-                style="?attr/materialCardViewFilledStyle"
-                android:layout_width="match_parent"
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progress_history"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="24dp"
-                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
-                app:cardCornerRadius="28dp"
-                app:strokeWidth="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="24dp">
-
-                    <TextView
-                        android:id="@+id/text_due_date_info"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Due: ..."
-                        android:textAppearance="?attr/textAppearanceTitleLarge"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/text_next_due_date_preview"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="..."
-                        android:textAppearance="?attr/textAppearanceBodyLarge"
-                        android:textColor="?attr/colorSecondary" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <Button
-                android:id="@+id/btn_pay_current"
-                style="@style/Widget.App.Button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:padding="16dp"
-                android:text="Mark as Paid" />
-
-            <Button
-                android:id="@+id/btn_add_payment_only"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="8dp"
-                android:padding="16dp"
-                android:text="@string/add_payment_keep_due_date" />
-
-        </LinearLayout>
+                android:layout_gravity="center"
+                android:layout_margin="24dp"
+                android:indeterminate="true"
+                app:indicatorColor="?attr/colorPrimary" />
+        </FrameLayout>
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>

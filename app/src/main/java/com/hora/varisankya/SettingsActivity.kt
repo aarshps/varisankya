@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit
 
 import androidx.biometric.BiometricManager
 import com.google.android.material.materialswitch.MaterialSwitch
+import com.hora.varisankya.util.Analytics
 import com.hora.varisankya.util.BiometricAuthManager
 import com.hora.varisankya.util.AnimationHelper
 import com.google.android.material.snackbar.Snackbar
@@ -60,6 +61,8 @@ class SettingsActivity : BaseActivity() {
         supportActionBar?.title = "Settings"
         
         auth = FirebaseAuth.getInstance()
+
+        Analytics.screenSettingsOpen()
 
         setupLogoutButton()
         setupCurrencySetting()
@@ -90,6 +93,7 @@ class SettingsActivity : BaseActivity() {
 
         aboutLayout.setOnClickListener {
             PreferenceHelper.performClickHaptic(it)
+            Analytics.screenAboutOpen()
             AboutBottomSheet().show(supportFragmentManager, "AboutBottomSheet")
         }
     }
@@ -118,6 +122,7 @@ class SettingsActivity : BaseActivity() {
                         onSuccess = {
                             // Success: Actually enable it
                             PreferenceHelper.setBiometricEnabled(context, true)
+                            Analytics.settingAppLockToggle(true)
                         },
                         onError = {
                             // Fail: Revert switch
@@ -131,6 +136,7 @@ class SettingsActivity : BaseActivity() {
             } else {
                 // Turning OFF: Just disable it (or could auth here too, but usually simple off is okay)
                 PreferenceHelper.setBiometricEnabled(context, false)
+                Analytics.settingAppLockToggle(false)
             }
         }
     }
@@ -187,6 +193,7 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun performLogout() {
+        Analytics.authSignOut()
         PreferenceHelper.performSuccessHaptic(window.decorView)
         
         // Fire and forget: Clear system credential state in background
@@ -232,6 +239,7 @@ class SettingsActivity : BaseActivity() {
             ) { selected ->
                 val code = CurrencyHelper.getCodeFromDisplay(selected)
                 PreferenceHelper.setCurrency(this, code)
+                Analytics.settingCurrencyChange(code)
                 updateDisplay()
             }.show(supportFragmentManager, "CurrencySelection")
         }
@@ -251,9 +259,18 @@ class SettingsActivity : BaseActivity() {
             if (checkedIds.isNotEmpty()) {
                 PreferenceHelper.performClickHaptic(group)
                 when (checkedIds[0]) {
-                    R.id.theme_light -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    R.id.theme_dark -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    R.id.theme_device -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                    R.id.theme_light -> {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                        Analytics.settingThemeChange("light")
+                    }
+                    R.id.theme_dark -> {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                        Analytics.settingThemeChange("dark")
+                    }
+                    R.id.theme_device -> {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                        Analytics.settingThemeChange("system")
+                    }
                 }
                 updateGroupShapes(group)
             }
@@ -278,6 +295,7 @@ class SettingsActivity : BaseActivity() {
                 // Only recreate if preference actually changed
                 if (enableGoogleFont != PreferenceHelper.isGoogleFontEnabled(this)) {
                     PreferenceHelper.setGoogleFontEnabled(this, enableGoogleFont)
+                    Analytics.settingFontChange(if (enableGoogleFont) "google_sans" else "system")
                     
                     // Restart Activity to apply theme
                     val intent = intent
@@ -317,6 +335,7 @@ class SettingsActivity : BaseActivity() {
                 currentMinute = picker.minute
                 
                 PreferenceHelper.setNotificationTime(this, picker.hour, picker.minute)
+                Analytics.settingNotificationTimeChange()
                 updateTimeText(timeChip, picker.hour, picker.minute)
                 rescheduleNotifications()
                 
@@ -358,6 +377,7 @@ class SettingsActivity : BaseActivity() {
             override fun onStopTrackingTouch(slider: Slider) {
                 val days = slider.value.toInt()
                 PreferenceHelper.setNotificationDays(this@SettingsActivity, days)
+                Analytics.settingNotificationDaysChange(days)
             }
         })
     }
@@ -427,6 +447,7 @@ class SettingsActivity : BaseActivity() {
                 PreferenceHelper.performClickHaptic(group)
                 val enableHaptics = checkedIds[0] == R.id.haptics_on
                 PreferenceHelper.setHapticsEnabled(this, enableHaptics)
+                Analytics.settingHapticsToggle(enableHaptics)
                 updateGroupShapes(group)
             }
         }

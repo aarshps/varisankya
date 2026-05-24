@@ -29,6 +29,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import com.hora.varisankya.util.AnimationHelper
+import com.hora.varisankya.util.Analytics
 import com.hora.varisankya.util.PaymentRepository
 
 class PaymentBottomSheet(
@@ -88,6 +89,7 @@ class PaymentBottomSheet(
         }
 
         currentDueDate = subscription.dueDate ?: Date()
+        Analytics.paymentManageOpen()
         setupUI()
         loadHistory()
         calculateDates(currentDueDate!!)
@@ -134,12 +136,14 @@ class PaymentBottomSheet(
         btnPayCurrent.setOnClickListener {
             val haptic = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) HapticFeedbackConstants.CONFIRM else HapticFeedbackConstants.LONG_PRESS
             PreferenceHelper.performHaptics(it, haptic)
+            Analytics.paymentPayCurrent()
             recordPayment(Date(), projectedNextDate)
         }
 
         btnAddPaymentOnly.setOnClickListener {
             val haptic = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) HapticFeedbackConstants.CONFIRM else HapticFeedbackConstants.LONG_PRESS
             PreferenceHelper.performHaptics(it, haptic)
+            Analytics.paymentAddOnly()
             promptForPaymentDateAndRecord()
         }
 
@@ -306,6 +310,7 @@ class PaymentBottomSheet(
             .collection("payments").document(paymentId)
             .delete()
             .addOnSuccessListener {
+                Analytics.paymentDelete()
                 // Mirror delete to the flat collection (idempotent if absent).
                 PaymentRepository.mirrorDeleteOnFlat(firestore, userId, paymentId)
                 if (isAdded) {
@@ -339,6 +344,7 @@ class PaymentBottomSheet(
             .collection("payments").document(paymentId)
             .update("date", newDate)
             .addOnSuccessListener {
+                Analytics.paymentEditDate()
                 // Mirror update to the flat collection (best-effort).
                 PaymentRepository.mirrorUpdateOnFlat(
                     firestore, userId, paymentId, mapOf("date" to newDate)

@@ -15,6 +15,7 @@ import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hora.varisankya.util.AnimationHelper
+import com.hora.varisankya.util.Analytics
 import com.google.android.material.transition.platform.MaterialSharedAxis
 import android.view.Window
 
@@ -54,6 +55,8 @@ class SearchActivity : BaseActivity() {
 
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
+
+        Analytics.screenSearchOpen()
 
         searchEditText = findViewById(R.id.search_edit_text)
         categoryChipGroup = findViewById(R.id.search_category_chip_group)

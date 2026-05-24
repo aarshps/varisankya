@@ -27,6 +27,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import com.hora.varisankya.util.Analytics
 import com.hora.varisankya.util.AnimationHelper
 import com.hora.varisankya.util.ChipHelper
 import com.hora.varisankya.R
@@ -195,6 +196,7 @@ class AddSubscriptionBottomSheet(
 
                 val userId = auth.currentUser?.uid ?: return@setOnClickListener
                 firestore.collection("users").document(userId).collection("subscriptions").document(subscription.id!!).delete()
+                Analytics.subscriptionDelete()
                 dismiss()
             }
 
@@ -258,12 +260,14 @@ class AddSubscriptionBottomSheet(
             )
 
             val collection = firestore.collection("users").document(userId).collection("subscriptions")
-            if (subscription?.id != null) {
-                collection.document(subscription.id).set(dataMap)
+            val isNew = subscription?.id == null
+            if (!isNew) {
+                collection.document(subscription!!.id!!).set(dataMap)
             } else {
                 collection.add(dataMap)
             }
-            
+            Analytics.subscriptionSave(isNew = isNew, recurrence = finalRecurrence)
+
             onSave()
             dismiss()
         }
