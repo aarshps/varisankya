@@ -57,8 +57,9 @@ class SettingsActivity : BaseActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back)
-        supportActionBar?.setDisplayShowTitleEnabled(true)
-        supportActionBar?.title = "Settings"
+        // Title is owned by CollapsingToolbarLayout (app:title in XML); hide the
+        // toolbar's own title so we don't render it twice.
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         
         auth = FirebaseAuth.getInstance()
 

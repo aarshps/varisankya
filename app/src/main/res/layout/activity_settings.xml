@@ -15,12 +15,28 @@
         android:background="?attr/colorSurfaceContainerLow"
         app:elevation="0dp">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+        <!-- Native Pixel/M3 large-app-bar pattern: title is Display-sized at rest
+             and shrinks/pins to a compact bar as the user scrolls. -->
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurfaceContainerLow"
-            app:titleTextAppearance="?attr/textAppearanceTitleLarge" />
+            android:layout_height="152dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            app:titleCollapseMode="scale"
+            app:contentScrim="?attr/colorSurfaceContainerLow"
+            app:expandedTitleMarginStart="24dp"
+            app:expandedTitleMarginBottom="20dp"
+            app:expandedTitleTextAppearance="@style/TextAppearance.App.DisplaySmall"
+            app:collapsedTitleTextAppearance="@style/TextAppearance.App.TitleLarge"
+            app:title="Settings">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorSurfaceContainerLow"
+                app:layout_collapseMode="pin" />
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -45,7 +61,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/card_margin_horizontal"
-                android:layout_marginBottom="@dimen/group_item_spacing"
+                android:layout_marginBottom="@dimen/group_section_spacing"
                 app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:cardCornerRadius="28dp"
                 app:strokeWidth="0dp">
@@ -107,7 +123,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/card_margin_horizontal"
-                android:layout_marginBottom="@dimen/group_item_spacing"
+                android:layout_marginBottom="@dimen/group_section_spacing"
                 app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:cardCornerRadius="28dp"
                 app:strokeWidth="0dp">
@@ -174,7 +190,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/card_margin_horizontal"
-                android:layout_marginBottom="@dimen/group_item_spacing"
+                android:layout_marginBottom="@dimen/group_section_spacing"
                 app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:cardCornerRadius="28dp"
                 app:strokeWidth="0dp">
@@ -250,7 +266,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/card_margin_horizontal"
-                android:layout_marginBottom="@dimen/group_item_spacing"
+                android:layout_marginBottom="@dimen/group_section_spacing"
                 app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:cardCornerRadius="28dp"
                 app:strokeWidth="0dp">
@@ -306,7 +322,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/card_margin_horizontal"
-                android:layout_marginBottom="@dimen/group_item_spacing"
+                android:layout_marginBottom="@dimen/group_section_spacing"
                 app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:cardCornerRadius="28dp"
                 app:strokeWidth="0dp">
@@ -429,7 +445,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="@dimen/card_margin_horizontal"
-                android:layout_marginBottom="@dimen/group_item_spacing"
+                android:layout_marginBottom="@dimen/group_section_spacing"
                 app:cardBackgroundColor="?attr/colorSurfaceContainer"
                 app:cardCornerRadius="28dp"
                 app:strokeWidth="0dp">

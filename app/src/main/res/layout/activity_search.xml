@@ -72,7 +72,7 @@
                     <!-- Autopay Filter — M3E Expressive Chip -->
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_autopay_filter"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.App.Chip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Autopay"
@@ -80,7 +80,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_not_autopay_filter"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.App.Chip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Not Autopay"
@@ -88,7 +88,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_active_filter"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.App.Chip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Active"
@@ -96,7 +96,7 @@
 
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chip_inactive_filter"
-                        style="@style/Widget.Material3.Chip.Filter"
+                        style="@style/Widget.App.Chip"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Inactive"
@@ -184,7 +184,7 @@
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:alpha="0.6"
-                android:src="@drawable/ic_add"
+                android:src="@drawable/ic_search"
                 app:tint="?attr/colorOnSurfaceVariant" />
 
             <TextView
