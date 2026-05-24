@@ -118,12 +118,11 @@ class AddSubscriptionBottomSheet(
 
         setupSelection(recurrenceAutoComplete, "Select Recurrence", recurrenceOptions, addHaptic) { selected ->
              PreferenceHelper.performHaptics(view, HapticFeedbackConstants.SEGMENT_TICK)
+             tilFrequency.visibility = View.VISIBLE
              if (selected == "Custom") {
-                 tilFrequency.visibility = View.GONE
-                 frequencyEditText.setText("")
+                 frequencyEditText.setText("1")
                  frequencyEditText.isEnabled = false
              } else {
-                 tilFrequency.visibility = View.VISIBLE
                  frequencyEditText.isEnabled = true
                  if (frequencyEditText.text.isNullOrEmpty()) {
                      frequencyEditText.setText("1")
@@ -165,8 +164,8 @@ class AddSubscriptionBottomSheet(
             val rec = subscription.recurrence
             if (rec == "Custom") {
                 recurrenceAutoComplete.setText("Custom", false)
-                tilFrequency.visibility = View.GONE
-                frequencyEditText.setText("")
+                tilFrequency.visibility = View.VISIBLE
+                frequencyEditText.setText("1")
                 frequencyEditText.isEnabled = false
             } else if (rec.startsWith("Every ")) {
                 val parts = rec.split(" ")

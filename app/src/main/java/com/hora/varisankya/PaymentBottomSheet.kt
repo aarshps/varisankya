@@ -29,6 +29,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import com.hora.varisankya.util.AnimationHelper
+import com.hora.varisankya.util.PaymentRepository
 
 class PaymentBottomSheet(
     private val subscription: Subscription,
@@ -305,8 +306,10 @@ class PaymentBottomSheet(
             .collection("payments").document(paymentId)
             .delete()
             .addOnSuccessListener {
+                // Mirror delete to the flat collection (idempotent if absent).
+                PaymentRepository.mirrorDeleteOnFlat(firestore, userId, paymentId)
                 if (isAdded) {
-                    loadHistory() 
+                    loadHistory()
                 }
             }
     }
@@ -336,6 +339,10 @@ class PaymentBottomSheet(
             .collection("payments").document(paymentId)
             .update("date", newDate)
             .addOnSuccessListener {
+                // Mirror update to the flat collection (best-effort).
+                PaymentRepository.mirrorUpdateOnFlat(
+                    firestore, userId, paymentId, mapOf("date" to newDate)
+                )
                 if (isAdded) {
                     loadHistory()
                 }
@@ -389,6 +396,15 @@ class PaymentBottomSheet(
         }
 
         batch.commit().addOnSuccessListener {
+            // Mirror to the flat per-user collection so the All-Payments page
+            // can read in one round-trip. Best-effort: a failure here does not
+            // invalidate the authoritative legacy write above.
+            PaymentRepository.mirrorPaymentToFlat(firestore, userId, paymentRef.id, payment)
+            // Clear any outstanding "payment due" notification for this subscription
+            // so the notification drawer matches in-app state.
+            context?.let { ctx ->
+                SubscriptionNotificationWorker.cancelFor(ctx.applicationContext, subId)
+            }
             if (isAdded) {
                 onPaymentRecorded()
                 dismiss()

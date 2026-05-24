@@ -123,9 +123,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:hint="Every"
-                            android:visibility="gone"
-                            tools:visibility="visible">
+                            android:hint="Every">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/edit_text_frequency"

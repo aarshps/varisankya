@@ -98,7 +98,8 @@ class SubscriptionNotificationWorker(
         }
         
         // Use a unique but stable ID for the Notification and PendingIntent based on subscription ID
-        val notifId = subscription.id?.hashCode() ?: return
+        val subId = subscription.id ?: return
+        val notifId = notificationIdFor(subId)
         
         val pendingIntent: PendingIntent = PendingIntent.getActivity(
             context, 
@@ -168,5 +169,14 @@ class SubscriptionNotificationWorker(
     companion object {
         const val CHANNEL_ID = "subscription_reminders_v2" // Versioned channel for clean state
         const val GROUP_KEY_SUBSCRIPTIONS = "com.hora.varisankya.SUBSCRIPTIONS"
+
+        // Stable mapping from a Firestore subscription ID to the OS notification ID
+        // we post for it. Must match wherever a notification is created or cancelled.
+        fun notificationIdFor(subscriptionId: String): Int = subscriptionId.hashCode()
+
+        fun cancelFor(context: Context, subscriptionId: String) {
+            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            nm.cancel(notificationIdFor(subscriptionId))
+        }
     }
 }

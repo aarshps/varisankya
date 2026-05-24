@@ -9,6 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.hora.varisankya.PaymentRecord
 import com.hora.varisankya.Subscription
 import com.hora.varisankya.util.DateHelper
+import com.hora.varisankya.util.PaymentRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -75,7 +76,9 @@ class NotificationActionReceiver : BroadcastReceiver() {
             }
             
             batch.commit().addOnSuccessListener {
-                // 5. Cancel Notification
+                // 5. Mirror to the flat per-user collection (best-effort).
+                PaymentRepository.mirrorPaymentToFlat(firestore, userId, paymentRef.id, payment)
+                // 6. Cancel Notification
                 val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 notificationManager.cancel(notifId)
             }

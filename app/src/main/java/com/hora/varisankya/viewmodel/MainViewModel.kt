@@ -14,6 +14,8 @@ import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import com.hora.varisankya.Subscription
 import com.hora.varisankya.PaymentRecord
+import com.hora.varisankya.SubscriptionNotificationWorker
+import com.hora.varisankya.util.PaymentRepository
 import java.util.Calendar
 import java.util.Date
 import java.util.TimeZone
@@ -177,7 +179,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         batch.commit()
-            .addOnSuccessListener { onSuccess() }
+            .addOnSuccessListener {
+                // Mirror to flat per-user collection (best-effort; see PaymentRepository).
+                PaymentRepository.mirrorPaymentToFlat(firestore, userId, paymentRef.id, payment)
+                // Clear any outstanding "payment due" notification for this subscription
+                // so the notification drawer matches in-app state.
+                SubscriptionNotificationWorker.cancelFor(
+                    getApplication<Application>().applicationContext,
+                    subId
+                )
+                onSuccess()
+            }
             .addOnFailureListener { onError(it) }
     }
     

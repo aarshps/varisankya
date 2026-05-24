@@ -1,6 +1,21 @@
 #!/bin/bash
-echo "Please enter your Bitwarden Master Password to unlock the vault."
-export BW_SESSION=$(bw unlock --raw)
+
+# Load .env.local if present (gitignored convenience for headless/CI runs).
+# Expected keys: BW_PASSWORD (Bitwarden master password).
+if [ -f .env.local ]; then
+    set -a
+    # shellcheck disable=SC1091
+    . .env.local
+    set +a
+fi
+
+if [ -n "$BW_PASSWORD" ]; then
+    echo "Unlocking Bitwarden non-interactively using BW_PASSWORD from .env.local..."
+    export BW_SESSION=$(bw unlock --passwordenv BW_PASSWORD --raw)
+else
+    echo "Please enter your Bitwarden Master Password to unlock the vault."
+    export BW_SESSION=$(bw unlock --raw)
+fi
 
 if [ -z "$BW_SESSION" ]; then
     echo "Error: Failed to unlock Bitwarden. Incorrect password or session could not be established."

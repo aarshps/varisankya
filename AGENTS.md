@@ -1,6 +1,23 @@
 # AI Agents Context
 
-This repository utilizes AI agents (such as Gemini CLI, Cline, etc.) for development, maintenance, and orchestration.
+This repository utilizes AI agents (such as Claude Code, Gemini CLI, Cline, etc.) for development, maintenance, and orchestration.
+
+## Branch Strategy (READ FIRST)
+
+This repo has exactly **one canonical branch**: **`main`**. Everything you do should land on `main` unless the user explicitly tells you otherwise.
+
+- ✅ **`main`** — the only active development branch. The Varisankya subscription-manager app. All releases (tags `v3.5`, `v3.7`, `v3.8-*`, ongoing) are cut from here.
+- ❌ **`master`** — legacy/deprecated. Contains a minimal "Hello World + Google Sign-In" starter that was the seed of this project. **Do not branch from it, do not push to it, do not document it.** It is kept for archival purposes only and will be removed.
+- ✅ **Wiki** (`varisankya-android.wiki` repo) — human-facing docs live on the wiki's `master` branch (GitHub wikis only have one branch). The wiki documents `main`-branch behavior.
+
+Companion repos:
+
+| Repo | Active branch | What lives there |
+| --- | --- | --- |
+| `varisankya-android` | `main` | App source code (this file is here) |
+| `varisankya-android.wiki` | `master` | Human-facing documentation |
+
+If you ever find yourself on `master` of this repo: switch back to `main` (`git checkout main`).
 
 ## Core Agent Mandates
 

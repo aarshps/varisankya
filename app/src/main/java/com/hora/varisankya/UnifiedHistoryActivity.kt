@@ -16,6 +16,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import com.hora.varisankya.util.AnimationHelper
+import com.hora.varisankya.util.PaymentRepository
 import com.google.android.material.transition.platform.MaterialSharedAxis
 import android.view.Window
 import androidx.lifecycle.lifecycleScope
@@ -114,27 +115,53 @@ class UnifiedHistoryActivity : BaseActivity() {
 
     private fun loadAllPayments() {
         val userId = auth.currentUser?.uid ?: return
-        
+
         // Start "Expensive" feel
         val contentContainer = findViewById<View>(R.id.content_container)
-        
+
         // Hide EVERYTHING except loading
         loadingContainer.isVisible = true
         contentContainer.isVisible = false
-        
+
         loadingStatus.text = "Syncing History..."
-        
-        // OPTIMIZATION: Use Collection Group Query to fetch ALL "payments" sub-collections 
-        // that match the userId in a SINGLE network request.
+
+        // FAST PATH: flat per-user payments collection populated by dual-writes.
+        // No composite index needed; single-collection query, single round-trip.
+        PaymentRepository.flatPaymentsCollection(firestore, userId)
+            .get()
+            .addOnSuccessListener { flatSnap ->
+                val flatPayments = flatSnap.toObjects(PaymentRecord::class.java)
+                if (flatPayments.isNotEmpty()) {
+                    processPayments(flatPayments)
+                } else {
+                    // First read after upgrade (or genuinely empty): try the
+                    // legacy collection-group route, then backfill the flat
+                    // collection so subsequent loads take the fast path.
+                    loadAllPaymentsFromLegacy(userId, backfillIfFound = true)
+                }
+            }
+            .addOnFailureListener {
+                // Permissions or transient error on the flat path — fall back.
+                loadAllPaymentsFromLegacy(userId, backfillIfFound = false)
+            }
+    }
+
+    private fun loadAllPaymentsFromLegacy(userId: String, backfillIfFound: Boolean) {
+        // OPTIMIZATION: Use Collection Group Query to fetch ALL "payments" sub-collections
+        // that match the userId in a SINGLE network request. Requires a composite index
+        // on the collection group "payments" with field "userId".
         firestore.collectionGroup("payments")
             .whereEqualTo("userId", userId)
             .get()
             .addOnSuccessListener { snapshots ->
                 val allFetchedPayments = snapshots.toObjects(PaymentRecord::class.java)
+                if (backfillIfFound && allFetchedPayments.isNotEmpty()) {
+                    PaymentRepository.backfillFlatCollection(firestore, userId, allFetchedPayments)
+                }
                 processPayments(allFetchedPayments)
             }
-            .addOnFailureListener { e ->
-                // Fallback to legacy method silently if index is missing
+            .addOnFailureListener {
+                // Fallback to N+1 method silently if index is missing
                 loadAllPaymentsLegacy(userId)
             }
     }
@@ -172,6 +199,13 @@ class UnifiedHistoryActivity : BaseActivity() {
                 com.google.android.gms.tasks.Tasks.whenAllSuccess<List<PaymentRecord>>(paymentTasks)
                     .addOnSuccessListener { paymentLists ->
                         val allFetchedPayments = paymentLists.flatten()
+                        if (allFetchedPayments.isNotEmpty()) {
+                            // Lazy migration: copy into the flat collection so
+                            // the next load takes the fast path. Best-effort.
+                            PaymentRepository.backfillFlatCollection(
+                                firestore, userId, allFetchedPayments
+                            )
+                        }
                         processPayments(allFetchedPayments)
                     }
                     .addOnFailureListener { e ->
@@ -510,6 +544,8 @@ class UnifiedHistoryActivity : BaseActivity() {
                     .collection("subscriptions").document(payment.subscriptionId)
                     .collection("payments").document(payment.id)
                 batch.delete(ref)
+                // Mirror delete in the flat collection (best-effort, idempotent).
+                PaymentRepository.mirrorDeleteOnFlat(firestore, payment.userId, payment.id)
                 count++
             }
         }
