@@ -6,107 +6,93 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="@dimen/card_margin_horizontal"
-    android:layout_marginVertical="8dp"
+    android:layout_marginVertical="@dimen/group_item_spacing"
     app:cardBackgroundColor="?attr/colorSurfaceContainer"
     app:cardCornerRadius="@dimen/card_corner_radius_large"
     app:strokeWidth="0dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:paddingHorizontal="20dp"
-        android:paddingVertical="20dp">
+        android:paddingVertical="18dp">
 
-        <TextView
-            android:id="@+id/subscription_name"
-            android:layout_width="0dp"
+        <!-- Top row: name (flex) + amount (typographic, right-aligned) -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="12dp"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            android:textSize="18sp"
-            android:textColor="?attr/colorOnSurface"
-            app:layout_constraintBottom_toTopOf="@+id/subscription_details"
-            app:layout_constraintEnd_toStartOf="@+id/amount_pill"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed"
-            tools:text="Netflix" />
+            android:baselineAligned="true"
+            android:gravity="bottom"
+            android:orientation="horizontal">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/amount_pill"
-            style="?attr/materialCardViewFilledStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
-            app:cardCornerRadius="100dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginEnd="12dp"
-            app:layout_constraintEnd_toStartOf="@+id/unified_status_pill"
-            app:layout_constraintTop_toTopOf="parent">
+            <TextView
+                android:id="@+id/subscription_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="12dp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:includeFontPadding="false"
+                android:textAppearance="?attr/textAppearanceTitleLarge"
+                android:textColor="?attr/colorOnSurface"
+                tools:text="Netflix" />
 
             <TextView
                 android:id="@+id/subscription_amount"
-                style="@style/TextAppearance.Material3.LabelLarge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingStart="14dp"
-                android:paddingTop="10dp"
-                android:paddingEnd="14dp"
-                android:paddingBottom="10dp"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                tools:text="$ 12.99" />
+                android:includeFontPadding="false"
+                android:textAppearance="?attr/textAppearanceTitleLarge"
+                android:textColor="?attr/colorOnSurface"
+                android:textStyle="bold"
+                tools:text="₹ 649" />
+        </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
-
-
-        <TextView
-            android:id="@+id/subscription_details"
-            android:layout_width="0dp"
+        <!-- Bottom row: meta (flex) + single status pill -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
-            style="@style/TextAppearance.Material3.BodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant"
-            android:alpha="0.8"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/amount_pill"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/subscription_name"
-            tools:text="Due Dec 25 • Monthly" />
-
-        <!-- Status Text Pill (Fixed Width for Uniformity) -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/unified_status_pill"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
-            app:cardCornerRadius="100dp"
-            app:cardElevation="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:strokeWidth="0.8dp"
-            app:strokeColor="?attr/colorTertiary">
+            android:layout_marginTop="6dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/subscription_days_left"
-                android:layout_width="match_parent"
+                android:id="@+id/subscription_details"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:paddingHorizontal="4dp"
-                android:paddingVertical="12dp"
-                android:textAppearance="?attr/textAppearanceLabelLarge"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface"
-                tools:text="5 Days" />
+                android:layout_weight="1"
+                android:layout_marginEnd="12dp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                tools:text="Monthly · Autopay" />
 
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/unified_status_pill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="?attr/colorPrimary"
+                app:cardCornerRadius="100dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/subscription_days_left"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minWidth="64dp"
+                    android:gravity="center"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:includeFontPadding="false"
+                    android:textAppearance="?attr/textAppearanceLabelLarge"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:textStyle="bold"
+                    tools:text="5 days" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -41,7 +41,6 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.launch
@@ -80,7 +79,7 @@ class MainActivity : BaseActivity() {
     private lateinit var loginContainer: LinearLayout
     private lateinit var appBar: AppBarLayout
     private lateinit var subscriptionsRecyclerView: RecyclerView
-    private lateinit var fabAddSubscription: FloatingActionButton
+    private lateinit var fabAddSubscription: ExtendedFloatingActionButton
     private lateinit var emptyStateContainer: View
     private lateinit var mainNestedScrollView: androidx.core.widget.NestedScrollView
     private lateinit var loadingSkeleton: View
@@ -94,8 +93,6 @@ class MainActivity : BaseActivity() {
     private lateinit var heroSection: View
     private lateinit var heroLabel: TextView
     private lateinit var totalExpenseText: TextView
-    private lateinit var expenseSubtitle: TextView
-    private lateinit var heroSubtitlePill: com.google.android.material.card.MaterialCardView
 
 
 
@@ -191,8 +188,6 @@ class MainActivity : BaseActivity() {
         heroSection = findViewById(R.id.hero_section)
         heroLabel = findViewById(R.id.hero_label)
         totalExpenseText = findViewById(R.id.total_expense_text)
-        expenseSubtitle = findViewById(R.id.expense_subtitle)
-        heroSubtitlePill = findViewById(R.id.subtitle_pill)
         
         loadingSkeleton = findViewById(R.id.loading_skeleton)
         mainContentWrapper = findViewById(R.id.main_content_wrapper)
@@ -312,10 +307,10 @@ class MainActivity : BaseActivity() {
         appBar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
             swipeRefreshLayout.isEnabled = verticalOffset == 0
             
-            // Show FAB when scrolled back to top
-            if (verticalOffset == 0) {
-                 if (fabAddSubscription.visibility != View.VISIBLE && auth.currentUser != null) fabAddSubscription.show()
-            } 
+            // Extend FAB when scrolled back to top
+            if (verticalOffset == 0 && auth.currentUser != null && !fabAddSubscription.isExtended) {
+                fabAddSubscription.extend()
+            }
         }
 
         // NestedScrollView Scroll Listener for FAB hiding AND M3E Haptics
@@ -338,11 +333,11 @@ class MainActivity : BaseActivity() {
                 }
             }
 
-            // 2. FAB Hiding Logic
-            if (dy > 12 && fabAddSubscription.visibility == View.VISIBLE) {
-                 fabAddSubscription.hide()
-            } else if (dy < -12 && fabAddSubscription.visibility != View.VISIBLE) {
-                 fabAddSubscription.show()
+            // 2. Extended FAB: shrink while scrolling down, extend back up. Pixel-native pattern.
+            if (dy > 12 && fabAddSubscription.isExtended) {
+                fabAddSubscription.shrink()
+            } else if (dy < -12 && !fabAddSubscription.isExtended) {
+                fabAddSubscription.extend()
             }
         })
 
@@ -446,82 +441,43 @@ class MainActivity : BaseActivity() {
     private fun updateHeroSection(state: MainViewModel.HeroState) {
         val today = Calendar.getInstance()
         val currentMonthName = java.text.SimpleDateFormat("MMM", java.util.Locale.getDefault()).format(today.time)
-        
 
-        
         // Reset defaults
         heroLabel.text = "Remaining in $currentMonthName"
         heroLabel.setTextColor(ThemeHelper.getOnSurfaceVariantColor(this))
         totalExpenseText.setTextColor(ThemeHelper.getOnSurfaceColor(this))
-        heroSubtitlePill.setCardBackgroundColor(ThemeHelper.getSurfaceContainerHighestColor(this))
-        heroSubtitlePill.strokeColor = ThemeHelper.getOutlineVariantColor(this)
 
         val activeSubs = state.activeSubscriptions
-        
-        // --- Global Currency ---
+
         val primaryCurrency = PreferenceHelper.getCurrency(this)
         val primaryTotal = state.totalAmount
         val symbol = CurrencyHelper.getSymbol(primaryCurrency)
-        
-        val nextPayment = state.nextPayment
-        
-        if (nextPayment != null) {
-            val format = java.text.SimpleDateFormat("MMM dd", java.util.Locale.getDefault())
-            expenseSubtitle.text = "Next: ${nextPayment.name} on ${format.format(nextPayment.dueDate!!)}"
-            expenseSubtitle.setTextColor(ThemeHelper.getSecondaryColor(this))
-            
-            // Pass symbol with space for AnimationHelper logic
-            AnimationHelper.animateTextCountUp(totalExpenseText, primaryTotal, "$symbol ")
-        } else {
-             // Check Overdue
-             val overdueSubs = state.overdueSubscriptions
-             
-             if (overdueSubs.isNotEmpty()) {
-                 // Priority Alert State
-                 heroLabel.text = "Overdue Actions"
-                 heroLabel.setTextColor(ThemeHelper.getErrorColor(this))
-                 
-                 val overdueAmount = overdueSubs.sumOf { it.cost } // Simplification
-                 
-                 totalExpenseText.text = "${overdueSubs.size} Items"
-                 expenseSubtitle.text = "Payments are past due"
-                 
-                 // Urgent Styling
-                 totalExpenseText.setTextColor(ThemeHelper.getErrorColor(this))
-                 expenseSubtitle.setTextColor(ThemeHelper.getErrorColor(this))
-                 heroSubtitlePill.setCardBackgroundColor(android.graphics.Color.TRANSPARENT)
-                 heroSubtitlePill.strokeColor = ThemeHelper.getErrorColor(this)
-             } else if (activeSubs.isNotEmpty()) {
-                 // All Clear - FREEDOM STATE
-                 if (primaryTotal == 0.0) {
-                     heroLabel.text = "Financial Zen"
-                     totalExpenseText.text = "All Clear"
-                     expenseSubtitle.text = "No payments left for $currentMonthName. Enjoy!"
-                     
-                     // Friendly Green/Teal
-                     val zenColor = ThemeHelper.getPrimaryColor(this) 
-                     totalExpenseText.setTextColor(zenColor)
-                     expenseSubtitle.setTextColor(zenColor)
-                     heroSubtitlePill.setCardBackgroundColor(ThemeHelper.getReferenceColor(this, com.google.android.material.R.attr.colorSecondaryContainer))
-                 } else {
-                       // Has liability but no 'next payment'
-                       AnimationHelper.animateTextCountUp(totalExpenseText, primaryTotal, "$symbol ")
-                       expenseSubtitle.text = "Total remaining for $currentMonthName"
-                 }
 
-             } else {
-                 // True Empty State
-                 val defaultSym = CurrencyHelper.getSymbol(primaryCurrency)
-                 heroLabel.text = "Monthly Expenses"
-                 totalExpenseText.text = CurrencyHelper.formatCurrency(this, 0.0, primaryCurrency)
-                 expenseSubtitle.text = "No active subscriptions"
-                 expenseSubtitle.setTextColor(ThemeHelper.getSecondaryColor(this))
-                 
-                 // Friendly "Start"
-                 heroLabel.text = "Get Started"
-                 totalExpenseText.text = "Welcome"
-                 totalExpenseText.textSize = 32f // Slightly smaller than numbers logic usually
-             }
+        val overdueSubs = state.overdueSubscriptions
+
+        when {
+            overdueSubs.isNotEmpty() -> {
+                // Priority Alert State
+                heroLabel.text = "Overdue"
+                heroLabel.setTextColor(ThemeHelper.getErrorColor(this))
+                totalExpenseText.text = "${overdueSubs.size} ${if (overdueSubs.size == 1) "Item" else "Items"}"
+                totalExpenseText.setTextColor(ThemeHelper.getErrorColor(this))
+            }
+            state.nextPayment != null || (activeSubs.isNotEmpty() && primaryTotal > 0.0) -> {
+                // Has upcoming spend
+                AnimationHelper.animateTextCountUp(totalExpenseText, primaryTotal, "$symbol ")
+            }
+            activeSubs.isNotEmpty() -> {
+                // All Clear — FREEDOM STATE
+                heroLabel.text = "Financial Zen"
+                totalExpenseText.text = "All Clear"
+                totalExpenseText.setTextColor(ThemeHelper.getPrimaryColor(this))
+            }
+            else -> {
+                // True Empty State
+                heroLabel.text = "Get Started"
+                totalExpenseText.text = "Welcome"
+            }
         }
     }
 

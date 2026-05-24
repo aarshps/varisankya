@@ -107,16 +107,6 @@
                             app:autoSizeMaxTextSize="45sp"
                             tools:text="₹ 45,280" />
 
-                        <TextView
-                            android:id="@+id/history_subtitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="Financial Insight"
-                            android:textAppearance="?attr/textAppearanceBodyMedium"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:alpha="0.9" />
-
                     </LinearLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -18,6 +18,7 @@ import java.util.Locale
 import com.hora.varisankya.util.AnimationHelper
 import com.hora.varisankya.util.Analytics
 import com.hora.varisankya.util.PaymentRepository
+import com.hora.varisankya.util.StatsHelper
 import com.google.android.material.transition.platform.MaterialSharedAxis
 import android.view.Window
 import androidx.lifecycle.lifecycleScope
@@ -322,9 +323,12 @@ class UnifiedHistoryActivity : BaseActivity() {
         }
 
             // --- EXPRESSIVE HERO UPDATE ---
-            val totalAmount = allPayments.sumOf { it.amount }
-            val activeMonthsCount = grouped.keys.size.coerceAtLeast(1)
-            val averageMonthlyAmount = totalAmount / activeMonthsCount
+            // Use an outlier-resistant mean (Tukey's fences, 1.5×IQR) so a single
+            // anomalous month (annual upfront, one-off large purchase) doesn't
+            // distort the displayed average. For ≤3 months of data the helper
+            // returns the plain mean since IQR is meaningless at that scale.
+            val monthlyTotals = grouped.values.map { it.sumOf { p -> p.amount } }
+            val averageMonthlyAmount = StatsHelper.outlierRobustMean(monthlyTotals)
 
             withContext(Dispatchers.Main) {
                 // Hide Back Button

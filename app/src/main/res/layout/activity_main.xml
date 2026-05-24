@@ -170,39 +170,16 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="8dp"
                                 android:includeFontPadding="false"
-                                android:textAppearance="?attr/textAppearanceDisplayMedium"
+                                android:textAppearance="?attr/textAppearanceDisplayLarge"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textStyle="bold"
-                                android:letterSpacing="-0.01"
+                                android:letterSpacing="-0.02"
                                 android:maxLines="1"
                                 android:ellipsize="end"
                                 app:autoSizeTextType="uniform"
-                                app:autoSizeMinTextSize="24sp"
-                                app:autoSizeMaxTextSize="45sp"
+                                app:autoSizeMinTextSize="28sp"
+                                app:autoSizeMaxTextSize="56sp"
                                 tools:text="₹ 12,450" />
-
-                            <com.google.android.material.card.MaterialCardView
-                                android:id="@+id/subtitle_pill"
-                                style="?attr/materialCardViewFilledStyle"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="16dp"
-                                app:cardBackgroundColor="?attr/colorSurfaceContainerHighest"
-                                app:cardCornerRadius="100dp"
-                                app:strokeColor="?attr/colorOutlineVariant"
-                                app:strokeWidth="1dp">
-
-                                <TextView
-                                    android:id="@+id/expense_subtitle"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:paddingHorizontal="16dp"
-                                    android:paddingVertical="8dp"
-                                    android:textAppearance="?attr/textAppearanceLabelLarge"
-                                    android:textColor="?attr/colorOnSurfaceVariant"
-                                    android:textStyle="bold"
-                                    tools:text="Next: Netflix, Tomorrow" />
-                            </com.google.android.material.card.MaterialCardView>
                         </LinearLayout>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -348,18 +325,18 @@
 
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab_add_subscription"
+        style="@style/Widget.Material3.ExtendedFloatingActionButton.Primary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="Add Subscription"
-        app:srcCompat="@drawable/ic_add"
+        android:text="Add"
         app:backgroundTint="?attr/colorPrimary"
-        app:tint="?attr/colorOnPrimary"
-        app:borderWidth="0dp"
-        style="@style/Widget.Material3.FloatingActionButton.Primary" />
+        app:icon="@drawable/ic_add"
+        app:iconTint="?attr/colorOnPrimary" />
 
 
 
