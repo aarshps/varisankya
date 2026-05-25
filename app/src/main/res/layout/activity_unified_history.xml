@@ -154,7 +154,7 @@
                             <com.hora.varisankya.PaymentHistoryChart
                                 android:id="@+id/unified_chart"
                                 android:layout_width="wrap_content"
-                                android:layout_height="250dp" />
+                                android:layout_height="200dp" />
                                 
                         </HorizontalScrollView>
                         
@@ -176,11 +176,16 @@
         
             </LinearLayout>
         
-            <!-- Bottom: List Section -->
+            <!-- Bottom: List Section.
+                 layout_weight=1 + 0dp height makes the list consume ALL the
+                 vertical space remaining after the hero + chart, so a
+                 reasonable amount of history is visible without the list
+                 being squashed into the bottom third. -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/history_recycler_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:clipToPadding="false"
                 android:paddingTop="8dp"
                 android:paddingBottom="16dp"

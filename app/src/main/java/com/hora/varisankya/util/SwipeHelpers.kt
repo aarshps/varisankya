@@ -53,10 +53,31 @@ abstract class SwipeActionCallback(private val context: Context) : ItemTouchHelp
     private val hapticStateMap = mutableMapOf<Long, HapticState>()
     private data class HapticState(
         var hasTriggeredStart: Boolean = false,
+        var hasTriggeredRelease: Boolean = false,
         var hasTriggeredDeep: Boolean = false
     )
 
-    private val DEEP_SWIPE_THRESHOLD = 0.5f 
+    private val DEEP_SWIPE_THRESHOLD = 0.5f
+
+    // "Sticky → release" damping (mirrors Android notification swipe feel).
+    // While the finger is inside the sticky zone, the item only follows at
+    // STICK_FOLLOW_RATIO; past the zone it follows 1:1, carrying the offset
+    // it accumulated inside the zone. Net effect: small touches "stick", a
+    // firmer drag "tears" past the resistance.
+    private val STICK_ZONE = 0.15f
+    private val STICK_FOLLOW_RATIO = 0.45f
+
+    private fun applyStickyDamping(dX: Float, viewWidth: Float): Float {
+        if (viewWidth <= 0f) return dX
+        val sign = if (dX < 0f) -1f else 1f
+        val rawProgress = abs(dX) / viewWidth
+        val dampedProgress = if (rawProgress <= STICK_ZONE) {
+            rawProgress * STICK_FOLLOW_RATIO
+        } else {
+            STICK_ZONE * STICK_FOLLOW_RATIO + (rawProgress - STICK_ZONE)
+        }
+        return sign * dampedProgress * viewWidth
+    }
 
     override fun getMovementFlags(
         recyclerView: RecyclerView,
@@ -86,6 +107,7 @@ abstract class SwipeActionCallback(private val context: Context) : ItemTouchHelp
     ) {
         val itemView = viewHolder.itemView
         val itemHeight = itemView.bottom - itemView.top
+        val viewWidth = itemView.width.toFloat()
         val isCanceled = dX == 0f && !isCurrentlyActive
 
         if (isCanceled) {
@@ -93,34 +115,42 @@ abstract class SwipeActionCallback(private val context: Context) : ItemTouchHelp
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             return
         }
-        
+
         val id = viewHolder.itemId
         val state = hapticStateMap.getOrPut(id) { HapticState() }
-        val progress = abs(dX) / itemView.width.toFloat()
-        
+        val rawProgress = abs(dX) / viewWidth
+
         if (dX == 0f) {
             state.hasTriggeredStart = false
+            state.hasTriggeredRelease = false
             state.hasTriggeredDeep = false
         }
 
-        val radius = if (itemView is MaterialCardView) itemView.radius else 28f 
+        // Damp the visual translation so the item "sticks" through the first
+        // STICK_ZONE of finger movement, then releases. Use damped value for
+        // both the item translation and the painted background reveal.
+        val dampedDx = applyStickyDamping(dX, viewWidth)
+        val radius = if (itemView is MaterialCardView) itemView.radius else 28f
 
-        if (dX > 0) {
-            // SWIPE RIGHT -> MARK AS PAID (Positive Action)
-            val triggerThreshold = 0.15f
-            if (progress > triggerThreshold && !state.hasTriggeredStart) {
+        if (dampedDx > 0) {
+            // SWIPE RIGHT → MARK AS PAID (positive action)
+            val nudgeThreshold = 0.05f
+            if (rawProgress > nudgeThreshold && !state.hasTriggeredStart) {
                 PreferenceHelper.performHaptics(itemView, HapticFeedbackConstants.SEGMENT_TICK)
                 state.hasTriggeredStart = true
             }
-            
-            // Background: Paid Color (Primary or Custom)
-            val finalColor = paidColor
-            backgroundPaint.color = finalColor
-            
+            // Stronger haptic at the "release" moment when the sticky zone ends
+            if (rawProgress > STICK_ZONE && !state.hasTriggeredRelease) {
+                PreferenceHelper.performHaptics(itemView, HapticFeedbackConstants.GESTURE_START)
+                state.hasTriggeredRelease = true
+            }
+
+            backgroundPaint.color = paidColor
+
             val background = RectF(
                 itemView.left.toFloat(),
                 itemView.top.toFloat(),
-                itemView.left.toFloat() + dX,
+                itemView.left.toFloat() + dampedDx,
                 itemView.bottom.toFloat()
             )
             c.drawRoundRect(background, radius, radius, backgroundPaint)
@@ -131,16 +161,13 @@ abstract class SwipeActionCallback(private val context: Context) : ItemTouchHelp
             val iconLeft = itemView.left + iconMargin
             val iconRight = itemView.left + iconMargin + intrinsicWidth
 
-            // Use Check Icon for Paid
             checkIcon?.setBounds(iconLeft, iconTop, iconRight, iconBottom)
-            
-            // Use OnPrimary for contrast
             checkIcon?.setTint(ThemeHelper.getOnPrimaryColor(context))
             checkIcon?.draw(c)
         }
-        
-        // No logic for Left Swipe (dX < 0) as it is blocked by makeMovementFlags
-        super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+
+        // No logic for Left Swipe (dX < 0) — blocked by makeMovementFlags above.
+        super.onChildDraw(c, recyclerView, viewHolder, dampedDx, dY, actionState, isCurrentlyActive)
     }
 
     private fun clearCanvas(c: Canvas?, left: Float, top: Float, right: Float, bottom: Float) {

@@ -325,22 +325,22 @@
 
     </LinearLayout>
 
-    <!-- Extended FAB: .Primary variant gives the vibrant wallpaper-derived
-         accent under Dynamic Colors (now enabled in VarisankyaApplication).
-         textColor / iconTint set explicitly to colorOnPrimary so the
-         textAppearance cascade can't override them. -->
+    <!-- Background / icon / text colours are applied PROGRAMMATICALLY in
+         MainActivity.initializeApp via MaterialColors.getColor — the M3
+         ExtendedFAB style's text-appearance cascade silently overrides
+         android:textColor in this lib version, so XML overrides are
+         unreliable (we saw this in v3.8-beta.7 → beta.9). Setting in code
+         after inflation is the only path that survives. -->
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab_add_subscription"
-        style="@style/Widget.Material3.ExtendedFloatingActionButton.Primary"
+        style="@style/Widget.Material3.ExtendedFloatingActionButton.Tertiary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="Add Subscription"
         android:text="Add"
-        android:textColor="?attr/colorOnPrimary"
-        app:icon="@drawable/ic_add"
-        app:iconTint="?attr/colorOnPrimary" />
+        app:icon="@drawable/ic_add" />
 
 
 

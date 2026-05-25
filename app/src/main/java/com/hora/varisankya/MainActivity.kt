@@ -179,6 +179,7 @@ class MainActivity : BaseActivity() {
         subscriptionsRecyclerView = findViewById(R.id.subscriptions_recycler_view)
 
         fabAddSubscription = findViewById(R.id.fab_add_subscription)
+        applyFabColours(fabAddSubscription)
         emptyStateContainer = findViewById(R.id.empty_state_container)
 
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout)
@@ -607,6 +608,33 @@ class MainActivity : BaseActivity() {
                 updateUI(false)
             }
         }
+    }
+
+    /**
+     * Apply the M3 colorPrimaryContainer / colorOnPrimaryContainer pair to the
+     * Extended FAB programmatically. Material 3's ExtendedFAB style swallows
+     * android:textColor set from XML in this lib version (text-appearance
+     * cascade wins), so setting from code after inflation is the only path
+     * that survives. PrimaryContainer is the M3-tuned pair for filled
+     * surfaces — has guaranteed contrast under Dynamic Colors regardless of
+     * the user's wallpaper.
+     */
+    private fun applyFabColours(
+        fab: com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+    ) {
+        val container = com.google.android.material.color.MaterialColors.getColor(
+            fab,
+            com.google.android.material.R.attr.colorPrimaryContainer,
+            android.graphics.Color.LTGRAY
+        )
+        val onContainer = com.google.android.material.color.MaterialColors.getColor(
+            fab,
+            com.google.android.material.R.attr.colorOnPrimaryContainer,
+            android.graphics.Color.BLACK
+        )
+        fab.backgroundTintList = android.content.res.ColorStateList.valueOf(container)
+        fab.setTextColor(onContainer)
+        fab.iconTint = android.content.res.ColorStateList.valueOf(onContainer)
     }
 
     private fun firebaseAuthWithGoogle(idToken: String) {

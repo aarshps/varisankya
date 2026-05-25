@@ -21,10 +21,8 @@ class PaymentAdapter(
 ) : ListAdapter<PaymentRecord, PaymentAdapter.ViewHolder>(PaymentDiffCallback()) {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val dayNumberText: TextView = view.findViewById(R.id.text_day_number)
         val dateText: TextView = view.findViewById(R.id.text_payment_date)
         val subNameText: TextView = view.findViewById(R.id.text_subscription_name)
-        val amountPill: com.google.android.material.card.MaterialCardView = view.findViewById(R.id.amount_pill)
         val amountText: TextView = view.findViewById(R.id.text_payment_amount)
         val btnDelete: com.google.android.material.button.MaterialButton = view.findViewById(R.id.btn_delete_payment)
     }
@@ -36,35 +34,18 @@ class PaymentAdapter(
         return ViewHolder(view)
     }
 
-    // Cached resources to eliminate allocation overhead during scroll
-    private val fullFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
-    private val dayFormat = SimpleDateFormat("dd", Locale.getDefault())
-    private var isColorsResolved = false
-    private var colorPrimary = 0
-    private var colorOnPrimary = 0
+    private val fullFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val payment = getItem(position)
         val context = holder.itemView.context
-        
-        if (!isColorsResolved) {
-            colorPrimary = com.hora.varisankya.util.ThemeHelper.getPrimaryColor(context)
-            colorOnPrimary = com.hora.varisankya.util.ThemeHelper.getOnPrimaryColor(context)
-            isColorsResolved = true
-        }
-        
-        holder.dayNumberText.text = payment.date?.let { dayFormat.format(it) } ?: "?"
-        holder.dateText.text = payment.date?.let { fullFormat.format(it) } ?: "Unknown Date"
-        
+
         holder.subNameText.text = payment.subscriptionName
-        
-        // Use global currency
+        holder.dateText.text = payment.date?.let { fullFormat.format(it) } ?: "Unknown date"
+
+        // Global currency formatting — matches the home subscription list
         val globalCurrency = PreferenceHelper.getCurrency(context)
         holder.amountText.text = CurrencyHelper.formatCurrency(context, payment.amount, globalCurrency)
-
-        holder.amountPill.setCardBackgroundColor(colorPrimary)
-        holder.amountText.setTextColor(colorOnPrimary)
-
 
         if (onEditClicked != null) {
             holder.itemView.setOnClickListener {
@@ -75,9 +56,6 @@ class PaymentAdapter(
             holder.itemView.setOnClickListener(null)
             holder.itemView.isClickable = false
         }
-        
-        // Entrance
-        // Entrance animation removed to fix chart sync issues and match main page scroll feel
 
         if (onDeleteClicked != null) {
             holder.btnDelete.visibility = View.VISIBLE

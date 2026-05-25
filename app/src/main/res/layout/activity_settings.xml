@@ -87,7 +87,7 @@
                         android:orientation="vertical">
 
                         <TextView
-                            style="@style/TextAppearance.Material3.TitleMedium"
+                            style="@style/TextAppearance.App.TitleLarge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Currency"
@@ -139,7 +139,7 @@
                     android:paddingBottom="@dimen/card_padding_vertical">
 
                     <TextView
-                        style="@style/TextAppearance.Material3.TitleMedium"
+                        style="@style/TextAppearance.App.TitleLarge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Security"
@@ -206,7 +206,7 @@
                     android:paddingBottom="@dimen/card_padding_vertical">
 
                     <TextView
-                        style="@style/TextAppearance.Material3.TitleMedium"
+                        style="@style/TextAppearance.App.TitleLarge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Appearance"
@@ -282,7 +282,7 @@
                     android:paddingBottom="@dimen/card_padding_vertical">
 
                     <TextView
-                        style="@style/TextAppearance.Material3.TitleMedium"
+                        style="@style/TextAppearance.App.TitleLarge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Typography"
@@ -338,7 +338,7 @@
                     android:paddingBottom="@dimen/card_padding_vertical">
 
                     <TextView
-                        style="@style/TextAppearance.Material3.TitleMedium"
+                        style="@style/TextAppearance.App.TitleLarge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Notifications"
@@ -461,7 +461,7 @@
                     android:paddingBottom="@dimen/card_padding_vertical">
 
                     <TextView
-                        style="@style/TextAppearance.Material3.TitleMedium"
+                        style="@style/TextAppearance.App.TitleLarge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Haptics"
@@ -520,7 +520,7 @@
                     android:paddingBottom="@dimen/card_padding_vertical">
 
                     <TextView
-                        style="@style/TextAppearance.Material3.TitleMedium"
+                        style="@style/TextAppearance.App.TitleLarge"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Legal"
