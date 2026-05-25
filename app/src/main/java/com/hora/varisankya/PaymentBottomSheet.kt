@@ -240,9 +240,11 @@ class PaymentBottomSheet(
                     noHistoryContainer.visibility = View.GONE
                     historyRecycler.visibility = View.VISIBLE
                     
-                    val adapter = PaymentAdapter(subscription.currency, 
+                    val adapter = PaymentAdapter(
+                        defaultCurrency = subscription.currency,
                         onEditClicked = { record -> editPaymentDate(record) },
-                        onDeleteClicked = { record -> confirmDeletePayment(record) }
+                        onDeleteClicked = { record -> confirmDeletePayment(record) },
+                        showSubscriptionName = false,
                     )
                     historyRecycler.adapter = adapter
                     adapter.submitList(payments)
@@ -273,9 +275,11 @@ class PaymentBottomSheet(
                 } else {
                     noHistoryContainer.visibility = View.GONE
                     historyRecycler.visibility = View.VISIBLE
-                    val adapter = PaymentAdapter(subscription.currency,
+                    val adapter = PaymentAdapter(
+                        defaultCurrency = subscription.currency,
                         onEditClicked = { record -> editPaymentDate(record) },
-                        onDeleteClicked = { record -> confirmDeletePayment(record) }
+                        onDeleteClicked = { record -> confirmDeletePayment(record) },
+                        showSubscriptionName = false,
                     )
                     historyRecycler.adapter = adapter
                     adapter.submitList(payments)
