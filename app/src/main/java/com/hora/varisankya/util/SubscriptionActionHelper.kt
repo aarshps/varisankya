@@ -1,7 +1,6 @@
 package com.hora.varisankya.util
 
 import android.view.HapticFeedbackConstants
-import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -42,7 +41,10 @@ class SubscriptionActionHelper(
                         PreferenceHelper.performSuccessHaptic(contentRoot)
                     },
                     onError = {
-                        Toast.makeText(activity, "Failed to update", Toast.LENGTH_SHORT).show()
+                        com.google.android.material.snackbar.Snackbar.make(
+                            contentRoot, "Failed to update — please try again",
+                            com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                        ).show()
                     }
                 )
             }

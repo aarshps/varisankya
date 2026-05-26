@@ -396,42 +396,17 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun rescheduleNotifications(hour: Int? = null, minute: Int? = null) {
-        val targetHour = hour ?: PreferenceHelper.getNotificationHour(this)
-        val targetMinute = minute ?: PreferenceHelper.getNotificationMinute(this)
-
-        // Clear existing subscription notifications so stale ones don't linger
+        // Clear any active subscription notifications first so the user
+        // doesn't see stale ones once the schedule shifts.
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.activeNotifications.forEach { sbn ->
             if (sbn.notification.group == SubscriptionNotificationWorker.GROUP_KEY_SUBSCRIPTIONS) {
                 notificationManager.cancel(sbn.id)
             }
         }
-
-        val currentDate = Calendar.getInstance()
-        val dueDate = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, targetHour)
-            set(Calendar.MINUTE, targetMinute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-
-        if (dueDate.before(currentDate)) {
-            dueDate.add(Calendar.DAY_OF_YEAR, 1)
-        }
-
-        val initialDelay = dueDate.timeInMillis - currentDate.timeInMillis
-
-        val workRequest = PeriodicWorkRequestBuilder<SubscriptionNotificationWorker>(
-            24, TimeUnit.HOURS
-        )
-        .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
-        .build()
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "subscription_notifications",
-            ExistingPeriodicWorkPolicy.UPDATE,
-            workRequest
-        )
+        // REPLACE policy — the user explicitly changed the schedule, so any
+        // worker already enqueued for the previous time must be discarded.
+        SubscriptionNotificationWorker.scheduleNext(this, replacing = true)
     }
 
     private fun setupTestNotificationButton() {

@@ -56,6 +56,18 @@
             </intent-filter>
         </receiver>
 
+        <!-- System events that warrant rescheduling the reminder worker.
+             Both intents are protected broadcasts — only the system can send
+             them — so exported="true" is the standard pattern. -->
+        <receiver
+            android:name=".receiver.SystemEventReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

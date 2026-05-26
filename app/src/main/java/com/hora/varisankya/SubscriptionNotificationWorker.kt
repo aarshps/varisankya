@@ -12,7 +12,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
@@ -28,68 +33,70 @@ class SubscriptionNotificationWorker(
         Log.d(TAG, "Worker started")
         Analytics.init(applicationContext)
 
-        val auth = FirebaseAuth.getInstance()
-        val userId = auth.currentUser?.uid
-        if (userId == null) {
-            Log.d(TAG, "No signed-in user — skipping run")
-            Analytics.notificationWorkerRun(
-                success = true,
-                signedIn = false,
-                subscriptionsChecked = 0,
-                notificationsPosted = 0,
-            )
-            return Result.success()
-        }
+        var success = false
+        var signedIn = false
+        var checked = 0
+        var posted = 0
 
-        val firestore = FirebaseFirestore.getInstance()
         try {
-            val snapshots = firestore.collection("users")
-                .document(userId)
-                .collection("subscriptions")
-                .whereEqualTo("active", true)
-                .get()
-                .await()
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
+            if (userId == null) {
+                Log.d(TAG, "No signed-in user — skipping run")
+            } else {
+                signedIn = true
+                val firestore = FirebaseFirestore.getInstance()
+                val snapshots = firestore.collection("users")
+                    .document(userId)
+                    .collection("subscriptions")
+                    .whereEqualTo("active", true)
+                    .get()
+                    .await()
 
-            val subscriptions = snapshots.toObjects(Subscription::class.java)
-            val notificationWindow = PreferenceHelper.getNotificationDays(applicationContext)
+                val subscriptions = snapshots.toObjects(Subscription::class.java)
+                checked = subscriptions.size
+                val notificationWindow = PreferenceHelper.getNotificationDays(applicationContext)
 
-            // Both today and dueLocalDate are computed in the SAME zone (UTC) to avoid
-            // the off-by-one boundary errors that happen when the device is in IST
-            // and dueDate was stored as a UTC-midnight Firestore Timestamp.
-            val utcZone = java.time.ZoneId.of("UTC")
-            val todayLocalDate = java.time.LocalDate.now(utcZone)
+                // Both sides of the days-left calculation are computed in UTC.
+                // dueDate is stored as a UTC-midnight Firestore Timestamp (the
+                // MaterialDatePicker writes that). Using LocalDate.now() in
+                // device-local zone here would silently skip boundary days for
+                // users in non-UTC zones like IST.
+                val utcZone = java.time.ZoneId.of("UTC")
+                val todayLocalDate = java.time.LocalDate.now(utcZone)
 
-            var posted = 0
-            subscriptions.forEach { sub ->
-                sub.dueDate?.let { dueDate ->
-                    val dueLocalDate = dueDate.toInstant().atZone(utcZone).toLocalDate()
-                    val daysLeft = java.time.temporal.ChronoUnit.DAYS
-                        .between(todayLocalDate, dueLocalDate).toInt()
-
-                    if (daysLeft in 0..notificationWindow) {
-                        if (sendNotification(sub, daysLeft)) posted++
+                subscriptions.forEach { sub ->
+                    sub.dueDate?.let { dueDate ->
+                        val dueLocalDate = dueDate.toInstant().atZone(utcZone).toLocalDate()
+                        val daysLeft = java.time.temporal.ChronoUnit.DAYS
+                            .between(todayLocalDate, dueLocalDate).toInt()
+                        if (daysLeft in 0..notificationWindow) {
+                            if (sendNotification(sub, daysLeft)) posted++
+                        }
                     }
                 }
+                Log.d(TAG, "Run complete — checked=$checked, posted=$posted")
             }
-
-            Log.d(TAG, "Run complete — checked=${subscriptions.size}, posted=$posted")
-            Analytics.notificationWorkerRun(
-                success = true,
-                signedIn = true,
-                subscriptionsChecked = subscriptions.size,
-                notificationsPosted = posted,
-            )
-            return Result.success()
+            success = true
         } catch (e: Exception) {
-            Log.e(TAG, "Error fetching subscriptions", e)
-            Analytics.notificationWorkerRun(
-                success = false,
-                signedIn = true,
-                subscriptionsChecked = 0,
-                notificationsPosted = 0,
-            )
-            return Result.retry()
+            // Transient failure (network, Firestore, etc.) — log it, don't retry.
+            // Missing a single daily run is acceptable; the chained next run
+            // will try again at the same time tomorrow.
+            Log.e(TAG, "Error in worker — failing this run, will retry tomorrow", e)
         }
+
+        Analytics.notificationWorkerRun(
+            success = success,
+            signedIn = signedIn,
+            subscriptionsChecked = checked,
+            notificationsPosted = posted,
+        )
+
+        // CHAINED ONE-SHOT: schedule the next run from CURRENT local time so the
+        // app self-corrects after timezone travel / DST. Without this the worker
+        // would drift away from the user's wall-clock target hour.
+        scheduleNext(applicationContext, replacing = true)
+
+        return Result.success()
     }
 
     /** Returns true if a notification was actually posted (permission etc. allowed it). */
@@ -144,12 +151,63 @@ class SubscriptionNotificationWorker(
         const val CHANNEL_ID = "subscription_reminders_v3"
         const val GROUP_KEY_SUBSCRIPTIONS = "com.hora.varisankya.SUBSCRIPTIONS"
 
+        // Unique-work name for the chained one-shot reminder worker. All call
+        // sites that schedule the worker (cold-start, settings change, system
+        // timezone broadcast, worker self-chain) share this name so they
+        // co-operate via ExistingWorkPolicy.
+        const val WORK_NAME = "subscription_notifications"
+
         /** Stable mapping from a Firestore subscription ID to the OS notification ID. */
         fun notificationIdFor(subscriptionId: String): Int = subscriptionId.hashCode()
 
         fun cancelFor(context: Context, subscriptionId: String) {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             nm.cancel(notificationIdFor(subscriptionId))
+        }
+
+        /**
+         * Schedule the next reminder worker run for the next occurrence of the
+         * user's chosen hour:minute **in device-local time**. Called from:
+         *
+         *  - [MainActivity.setupNotifications] on cold start (replacing=false,
+         *    KEEP policy — if a worker is already enqueued for tomorrow,
+         *    cold start should not disturb it).
+         *  - [SettingsActivity.rescheduleNotifications] when the user picks a
+         *    new reminder time (replacing=true, REPLACE policy — the user
+         *    explicitly changed the schedule).
+         *  - The worker itself at the end of [doWork] (replacing=true) —
+         *    chains the next day's run from the *current* local time so the
+         *    schedule self-corrects after timezone travel or DST.
+         *  - [com.hora.varisankya.receiver.SystemEventReceiver] when the
+         *    system fires `ACTION_TIMEZONE_CHANGED` or `ACTION_TIME_SET`
+         *    (replacing=true).
+         *
+         * Computing the delay in Calendar fields (HOUR_OF_DAY / MINUTE) means
+         * we always anchor to the user's current wall-clock zone — there is
+         * no absolute UTC instant baked in.
+         */
+        fun scheduleNext(context: Context, replacing: Boolean) {
+            val hour = PreferenceHelper.getNotificationHour(context)
+            val minute = PreferenceHelper.getNotificationMinute(context)
+
+            val now = Calendar.getInstance()
+            val target = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, minute)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            if (!target.after(now)) target.add(Calendar.DAY_OF_YEAR, 1)
+            val delayMs = target.timeInMillis - now.timeInMillis
+
+            val request = OneTimeWorkRequestBuilder<SubscriptionNotificationWorker>()
+                .setInitialDelay(delayMs, TimeUnit.MILLISECONDS)
+                .build()
+            val policy = if (replacing) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP
+            WorkManager.getInstance(context).enqueueUniqueWork(WORK_NAME, policy, request)
+
+            Analytics.init(context)
+            Analytics.notificationWorkerScheduled()
         }
 
         /**

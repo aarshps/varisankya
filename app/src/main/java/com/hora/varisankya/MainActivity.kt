@@ -59,7 +59,6 @@ import com.google.android.material.transition.platform.MaterialSharedAxis
 import android.view.Window
 import com.hora.varisankya.util.SubscriptionActionHelper
 import com.hora.varisankya.viewmodel.MainViewModel
-import android.widget.Toast
 import android.widget.FrameLayout
 
 
@@ -413,7 +412,10 @@ class MainActivity : BaseActivity() {
                 launch {
                     viewModel.error.collect { errorMsg ->
                         if (errorMsg != null) {
-                            android.widget.Toast.makeText(this@MainActivity, errorMsg, android.widget.Toast.LENGTH_SHORT).show()
+                            com.google.android.material.snackbar.Snackbar.make(
+                                mainContentRoot, errorMsg,
+                                com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                            ).show()
                             checkReadyState()
                         }
                     }
@@ -512,42 +514,10 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setupNotifications() {
-        val hour = PreferenceHelper.getNotificationHour(this)
-        val minute = PreferenceHelper.getNotificationMinute(this)
-
-        val currentDate = Calendar.getInstance()
-        val dueDate = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-
-        if (dueDate.before(currentDate)) {
-            dueDate.add(Calendar.DAY_OF_YEAR, 1)
-        }
-
-        val initialDelay = dueDate.timeInMillis - currentDate.timeInMillis
-
-        val workRequest = PeriodicWorkRequestBuilder<SubscriptionNotificationWorker>(
-            24, TimeUnit.HOURS
-        )
-            .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
-            .build()
-
-        // KEEP (not UPDATE) — every cold start with UPDATE was perpetually
-        // rescheduling the worker to "next 8 AM" relative to the launch
-        // moment, which for a user who opens the app daily can mean the
-        // worker never actually fires. Use KEEP here so cold starts are
-        // a no-op once the schedule exists. The Settings change-time path
-        // explicitly uses UPDATE when the user actually changes the
-        // notification time.
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "subscription_notifications",
-            ExistingPeriodicWorkPolicy.KEEP,
-            workRequest
-        )
-        Analytics.notificationWorkerScheduled()
+        // Delegate to the worker's companion. KEEP policy — if a chained
+        // worker is already enqueued for the next reminder time, cold start
+        // should not disturb it. The Settings change-time path uses REPLACE.
+        SubscriptionNotificationWorker.scheduleNext(this, replacing = false)
     }
 
     // Removed setupRecyclerView as we do it in onCreate now
@@ -612,7 +582,10 @@ class MainActivity : BaseActivity() {
                     else -> "Sign-in error: ${e.message}"
                 }
                 if (e !is androidx.credentials.exceptions.GetCredentialCancellationException) {
-                    Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_LONG).show()
+                    com.google.android.material.snackbar.Snackbar.make(
+                        mainContentRoot, errorMessage,
+                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                    ).show()
                 }
                 updateUI(false)
             }
