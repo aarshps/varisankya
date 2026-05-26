@@ -19,23 +19,29 @@ import java.util.Date
 class NotificationActionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == ACTION_MARK_PAID) {
-            val subId = intent.getStringExtra(EXTRA_SUB_ID) ?: return
-            val notifId = intent.getIntExtra(EXTRA_NOTIF_ID, -1)
+        Analytics.init(context)
+        when (intent.action) {
+            ACTION_MARK_PAID -> {
+                val subId = intent.getStringExtra(EXTRA_SUB_ID) ?: return
+                val notifId = intent.getIntExtra(EXTRA_NOTIF_ID, -1)
 
-            Analytics.init(context)
-            Analytics.notificationMarkPaidAction()
+                Analytics.notificationMarkPaidAction()
 
-            // Go Async for network operations
-            val pendingResult = goAsync()
-            val scope = CoroutineScope(Dispatchers.IO)
-            
-            scope.launch {
-                try {
-                    markAsPaid(context, subId, notifId)
-                } finally {
-                    pendingResult.finish()
+                // Go Async for network operations
+                val pendingResult = goAsync()
+                val scope = CoroutineScope(Dispatchers.IO)
+
+                scope.launch {
+                    try {
+                        markAsPaid(context, subId, notifId)
+                    } finally {
+                        pendingResult.finish()
+                    }
                 }
+            }
+            ACTION_NOTIFICATION_DISMISSED -> {
+                // User swiped the notification away without acting on it.
+                Analytics.notificationDismiss()
             }
         }
     }
@@ -91,6 +97,7 @@ class NotificationActionReceiver : BroadcastReceiver() {
 
     companion object {
         const val ACTION_MARK_PAID = "com.hora.varisankya.ACTION_MARK_PAID"
+        const val ACTION_NOTIFICATION_DISMISSED = "com.hora.varisankya.ACTION_NOTIFICATION_DISMISSED"
         const val EXTRA_SUB_ID = "extra_sub_id"
         const val EXTRA_NOTIF_ID = "extra_notif_id"
     }

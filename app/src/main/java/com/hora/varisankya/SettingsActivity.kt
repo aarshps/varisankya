@@ -71,6 +71,7 @@ class SettingsActivity : BaseActivity() {
         setupFontToggle()
         setupNotificationTimeSetting()
         setupNotificationDaysSetting()
+        setupTestNotificationButton()
         setupHapticsToggle()
         setupPrivacyPolicy()
         setupAboutButton()
@@ -431,6 +432,19 @@ class SettingsActivity : BaseActivity() {
             ExistingPeriodicWorkPolicy.UPDATE,
             workRequest
         )
+    }
+
+    private fun setupTestNotificationButton() {
+        val button = findViewById<com.google.android.material.button.MaterialButton>(R.id.button_test_notification)
+        button.setOnClickListener {
+            PreferenceHelper.performSuccessHaptic(button)
+            SubscriptionNotificationWorker.postTestNotification(this)
+            Snackbar.make(
+                findViewById(android.R.id.content),
+                "Test notification sent — check your notification drawer",
+                Snackbar.LENGTH_LONG
+            ).show()
+        }
     }
 
     private fun setupHapticsToggle() {

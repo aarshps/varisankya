@@ -71,8 +71,55 @@ object Analytics {
     fun paymentHistoryCleanup(count: Int) =
         log("payment_history_cleanup", "count" to count)
 
-    // -- Notification actions -------------------------------------------------
+    // -- Notification lifecycle + actions -------------------------------------
+    /**
+     * Fired once each time MainActivity (re-)schedules the periodic worker.
+     * Lets us see whether the scheduling code path is even running per user.
+     */
+    fun notificationWorkerScheduled() = log("notification_worker_scheduled")
+
+    /**
+     * Fired at the end of every [SubscriptionNotificationWorker.doWork] run.
+     * The success / signed_in / counts params answer "did the worker actually
+     * run, and did it find anything?"
+     */
+    fun notificationWorkerRun(
+        success: Boolean,
+        signedIn: Boolean,
+        subscriptionsChecked: Int,
+        notificationsPosted: Int,
+    ) = log(
+        "notification_worker_run",
+        "success" to success,
+        "signed_in" to signedIn,
+        "subscriptions_checked" to subscriptionsChecked,
+        "notifications_posted" to notificationsPosted,
+    )
+
+    /**
+     * Fired each time the worker actually posts a single notification. The
+     * count of this event over a window is the *denominator* against which
+     * [notificationMarkPaidAction] / [notificationTap] / [notificationDismiss]
+     * become meaningful tap-through rates.
+     */
+    fun notificationPosted(daysLeft: Int) =
+        log("notification_posted", "days_left" to daysLeft)
+
+    /** User tapped the body of the notification, opening the app. */
+    fun notificationTap() = log("notification_tap")
+
+    /** User dismissed/swiped the notification away without acting. */
+    fun notificationDismiss() = log("notification_dismiss")
+
+    /** User tapped the Mark Paid action button inside the notification. */
     fun notificationMarkPaidAction() = log("notification_mark_paid_action")
+
+    /** User tapped "Send Test Notification" in Settings to verify the chain. */
+    fun notificationTestSent() = log("notification_test_sent")
+
+    // -- General usage --------------------------------------------------------
+    /** User performed pull-to-refresh on the home subscription list. */
+    fun homeRefreshPull() = log("home_refresh_pull")
 
     // -- Screens / navigation -------------------------------------------------
     fun screenAllPaymentsOpen() = log("screen_all_payments_open")

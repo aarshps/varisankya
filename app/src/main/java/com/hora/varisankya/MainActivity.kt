@@ -492,6 +492,7 @@ class MainActivity : BaseActivity() {
 
         swipeRefreshLayout.setOnRefreshListener {
             PreferenceHelper.performHaptics(swipeRefreshLayout, HapticFeedbackConstants.CONTEXT_CLICK)
+            Analytics.homeRefreshPull()
             viewModel.loadSubscriptions() // Use ViewModel
         }
     }
@@ -513,7 +514,7 @@ class MainActivity : BaseActivity() {
     private fun setupNotifications() {
         val hour = PreferenceHelper.getNotificationHour(this)
         val minute = PreferenceHelper.getNotificationMinute(this)
-        
+
         val currentDate = Calendar.getInstance()
         val dueDate = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, hour)
@@ -531,14 +532,22 @@ class MainActivity : BaseActivity() {
         val workRequest = PeriodicWorkRequestBuilder<SubscriptionNotificationWorker>(
             24, TimeUnit.HOURS
         )
-        .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
-        .build()
+            .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+            .build()
 
+        // KEEP (not UPDATE) — every cold start with UPDATE was perpetually
+        // rescheduling the worker to "next 8 AM" relative to the launch
+        // moment, which for a user who opens the app daily can mean the
+        // worker never actually fires. Use KEEP here so cold starts are
+        // a no-op once the schedule exists. The Settings change-time path
+        // explicitly uses UPDATE when the user actually changes the
+        // notification time.
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "subscription_notifications",
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.KEEP,
             workRequest
         )
+        Analytics.notificationWorkerScheduled()
     }
 
     // Removed setupRecyclerView as we do it in onCreate now
@@ -694,12 +703,21 @@ class MainActivity : BaseActivity() {
 
     private fun handleIntent(intent: Intent?) {
         if (intent == null) return
-        
+
+        // Notification body tap: log the open so we can compute a tap-through
+        // rate against notification_posted in the Firebase Analytics dashboard.
+        // Consume the extra (set to false on the intent) so a configuration
+        // change re-deliver doesn't double-count.
+        if (intent.getBooleanExtra(EXTRA_FROM_NOTIFICATION, false)) {
+            Analytics.notificationTap()
+            intent.removeExtra(EXTRA_FROM_NOTIFICATION)
+        }
+
         when (intent.action) {
             ACTION_ADD_SUBSCRIPTION -> {
                 // Delay slightly to allow UI to settle if coming from cold start
                 mainContentRoot.postDelayed({
-                    showAddSubscriptionSheet(null) 
+                    showAddSubscriptionSheet(null)
                 }, 300)
             }
             ACTION_VIEW_HISTORY -> {
@@ -715,6 +733,7 @@ class MainActivity : BaseActivity() {
     companion object {
         const val ACTION_ADD_SUBSCRIPTION = "com.hora.varisankya.ACTION_ADD_SUBSCRIPTION"
         const val ACTION_VIEW_HISTORY = "com.hora.varisankya.ACTION_VIEW_HISTORY"
+        const val EXTRA_FROM_NOTIFICATION = "extra_from_notification"
     }
 
 

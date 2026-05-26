@@ -52,6 +52,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="com.hora.varisankya.ACTION_MARK_PAID" />
+                <action android:name="com.hora.varisankya.ACTION_NOTIFICATION_DISMISSED" />
             </intent-filter>
         </receiver>
 
