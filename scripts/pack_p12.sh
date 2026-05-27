@@ -43,15 +43,21 @@ else
   echo "Cert was already PEM"
 fi
 
-echo "Choose a strong .p12 password (you'll save this as the P12_PASSWORD GitHub Secret):"
-read -rsp "Password: " P12_PASS
+echo "Choose a strong .p12 passphrase (you'll save this as the P12_PASSWORD GitHub Secret):"
+# Read into env var so OpenSSL can pull it via -passout env:NAME — keeps the
+# value out of the command line (where `ps` could see it) and out of any
+# `pass:`-literal pattern that secret scanners flag.
+read -rsp "Passphrase: " P12_PASS
+export P12_PASS
 echo ""
 
 openssl pkcs12 -export \
   -inkey "$KEY_FILE" \
   -in "$CER_PEM" \
   -out "$P12_FILE" \
-  -password "pass:$P12_PASS"
+  -passout env:P12_PASS
+
+unset P12_PASS
 
 # base64-encode for GitHub Secrets. -w0 avoids line wrapping (Linux);
 # falls back to plain base64 on macOS where -w0 isn't supported.
