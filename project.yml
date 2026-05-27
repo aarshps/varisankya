@@ -81,7 +81,7 @@ targets:
         SWIFT_EMIT_LOC_STRINGS: YES
         ENABLE_PREVIEWS: YES
         SUPPORTS_MACCATALYST: NO
-        GOOGLE_SIGN_IN_URL_SCHEME: "com.googleusercontent.apps.PLACEHOLDER"
+        GOOGLE_SIGN_IN_URL_SCHEME: "com.googleusercontent.apps.663138385072-03ftaplr577nmc0bl88gj59spqis58ql"
       configs:
         Debug:
           GCC_PREPROCESSOR_DEFINITIONS: "DEBUG=1 $(inherited)"
