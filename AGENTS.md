@@ -34,7 +34,7 @@ If you ever find yourself on `master` of this repo: switch back to `main` (`git 
 * **Session Closing:** Before closing a session, agents MUST follow the `Agent Session Closing Protocol` (see `.agent/skills/agent-session-closing/SKILL.md`) to update documentation, clean up, and push changes to the repository.
 * **Tool Usage:** Prefer specific tools (e.g., targeted file replacement) over rewriting entire files. Run commands non-interactively where possible.
 * **Headless Build Environment:** The project is configured for Linux CLI builds without Android Studio. `ANDROID_HOME` is set to `~/Android/Sdk`.
-* **Releases:** See `CLI_RELEASE_GUIDE.md` for building and distributing updates via GitHub or Google Play Console.
+* **Releases:** See `CLI_RELEASE_GUIDE.md` for building and distributing updates via GitHub or Google Play Console. The Play Store **"What's New"** is **not** the GitHub release body — it comes from `app/src/main/play/release-notes/en-US/default.txt` (≤ 500 chars) and is pushed automatically by `publishBundle`. Update that file on every release.
 
 ## Design Invariants — do NOT "clean up" these
 

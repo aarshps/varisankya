@@ -32,6 +32,12 @@ To automate Play Store pushes, we use the **Gradle Play Publisher (GPP)** plugin
 - **Production (Live)**: Once a pre-release is tested and approved, we promote it to Production on the Play Store and create a standard GitHub release.
   - Play Store Production: `./gradlew publishBundle -PplayTrack=production`
 
+## Play Store "What's New" (release notes)
+GPP reads the Play Store changelog from `app/src/main/play/release-notes/en-US/default.txt` and uploads it automatically as part of every `publishBundle` (any track). **This is the only source** — the GitHub release body is NOT used for Play.
+- **Update this file on every release** *before* running `publishBundle`. Keep it ≤ **500 characters** (Google Play hard limit) — run `wc -m` on it first.
+- `default.txt` applies to all tracks. Add `beta.txt` / `production.txt` siblings only if a track needs different copy.
+- The notes attach to whatever `versionCode` is uploaded in that run. They **cannot** be re-attached to an already-uploaded `versionCode` via GPP (the artifact upload would conflict) — for that, edit the release notes directly in the Play Console, or upload a new `versionCode`.
+
 ## Phase 5: GitHub Release Formatting
 When publishing pre-releases or final releases to GitHub, always ensure the release notes are detailed and strictly formatted:
 - **Title**: `vX.Y[-alpha.Z] - Concise Feature Summary [Emoji]` (e.g., `v3.8-alpha.2 - Login Crash Fix 🩹`)
