@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Varisankya Web
 
-## Getting Started
+The web version of **Varisankya** — a subscription / recurring-payment tracker
+in the Hora app family. It connects to the **same Firebase project** as the
+Android and iOS apps (`helloworld-92567418`), so a user's subscriptions and
+payment history sync in real time across every platform.
 
-First, run the development server:
+- **Stack:** Next.js (App Router) + React 19 + TypeScript + Tailwind CSS v4
+- **Backend:** Firebase Auth (Google) + Cloud Firestore (shared with native apps)
+- **PWA:** installable, offline app shell
+- **Design:** monochrome palette (mirrors Android) + glass cards / rounded font
+  (mirrors iOS)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Data model (shared with Android/iOS — do not change field names)
+
+```
+users/{uid}/subscriptions/{sid}
+  { name, dueDate, cost, currency, recurrence, category, active, autopay }
+users/{uid}/subscriptions/{sid}/payments/{pid}   ← authoritative
+users/{uid}/payments/{pid}                        ← flat mirror (fast reads)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Payments are dual-written; "mark paid" advances `dueDate` (UTC math) atomically
+with the nested payment write. See `lib/firestore.ts` and `lib/recurrence.ts`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Local development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Install deps:
 
-## Learn More
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. Create `.env.local` from the template and fill in the two missing values:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   cp .env.example .env.local
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   Get `NEXT_PUBLIC_FIREBASE_API_KEY` and `NEXT_PUBLIC_FIREBASE_APP_ID` from
+   **Firebase Console → Project settings → General → Your apps → Web app** for
+   project `helloworld-92567418`. If no Web app is registered yet, click
+   **Add app → Web** to create one (this is what produces the SDK config; the
+   existing OAuth web client is separate). The other values are pre-filled.
 
-## Deploy on Vercel
+3. In **Firebase Console → Authentication → Settings → Authorized domains**, make
+   sure `localhost` is listed (it is by default).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. Run:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm run dev      # http://localhost:3000
+   npm run test     # domain-logic parity tests (recurrence, currency, hero)
+   npm run build    # production build
+   npm run lint
+   ```
+
+These `NEXT_PUBLIC_*` values are **not secret** — they ship to the browser and
+access is enforced by Firestore security rules keyed on the auth UID.
+
+## Deploy to Vercel (team `aarshps`)
+
+1. Push this repo to GitHub, then import it into Vercel under the **aarshps**
+   team (framework preset auto-detects **Next.js**).
+2. Add the `NEXT_PUBLIC_FIREBASE_*` environment variables (Production + Preview)
+   with the same values as `.env.local`.
+3. After the first deploy, add the production domain (e.g.
+   `varisankya-web.vercel.app`) and any custom domain to **Firebase Console →
+   Authentication → Settings → Authorized domains** so Google sign-in works.
+
+## Firestore security rules
+
+Rules are keyed on `request.auth.uid`, so the web client needs no changes.
+Verify the rules cover the flat mirror path `users/{uid}/payments/{pid}` (the
+native apps write it); if absent, add a matching `match` block.
+
+## Not yet implemented (parity follow-ups)
+
+- **Web-push reminders.** Notification time / days-before preferences are saved
+  but inert until FCM web push + a scheduler (cron/Cloud Function) is added.
+- **App Lock.** The native biometric lock has no direct web equivalent; omitted
+  in v1 (a WebAuthn/passkey gate is a possible follow-up).
