@@ -1,12 +1,14 @@
 # Apple Developer + App Store Connect Runbook
 
-> **Note (2026-05-28):** This document was written at project start and contains
+> **Note (2026-06-03):** This document was written at project start and contains
 > some outdated assumptions:
 > - **Enrollment** is now via the **Apple Developer iOS app only** (web enrollment
 >   for individuals was deprecated in late 2024). Safari on Mac is not required.
 > - **CSR / .p12 generation** does NOT require a Mac — use `scripts/generate_csr.sh`
 >   + `scripts/pack_p12.sh` which use OpenSSL and work on any OS.
 > - **Xcode version** is now 26.3, not 16.
+>
+> **Current blocker:** Enrollment stuck at "ID Verification Rejected". Two support cases + forum/tweet escalations in flight (see `ESCALATION_DRAFTS.md`, wiki Apple-Enrollment-and-Release, and AGENTS.md for live status). No code/docs changes needed until it clears.
 >
 > For the current step-by-step post-enrollment checklist, see **[POST_ENROLLMENT.md](POST_ENROLLMENT.md)**.
 > This file is retained for background context and the App Store Connect / TestFlight

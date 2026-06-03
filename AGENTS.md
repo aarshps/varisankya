@@ -204,35 +204,37 @@ Run `./scripts/check_apple_secrets.sh` to audit which are set.
 
 ---
 
-## Apple Developer enrollment — current state (as of 2026-05-28)
+## Apple Developer enrollment — current state (as of 2026-06-03)
 
 | Item | Detail |
 | --- | --- |
 | Apple ID | `aarshps@gmail.com` |
-| Legal name on Apple ID | `Adarsh P S` (corrected 2026-05-28 to match Aadhaar) |
-| Enrollment status | **REJECTED** — automated identity check (Gate 1) |
-| Root cause | Last name was "Ps" (two lowercase letters, no vowel): heuristic rejected it as non-real. Fixed to "P S" (space-separated initials matching Aadhaar). |
-| Support case | **#102900128848**, agent: Yana (asia.dev@apple.com) |
-| Support case status | We replied 2026-05-28 ~10:21 IST with a screenshot of "ID Verification Rejected" status + requested specific rejection reason and a verification state reset. **Awaiting Yana's next reply.** |
+| Legal name on Apple ID | `Adarsh P S` (corrected 2026-05-28 to match Aadhaar/Passport/PAN) |
+| Enrollment status | **ID Verification Rejected** (Gate 1, first attempt ~2026-05). Name fix applied; re-attempt blocked pending support reset or time-based cache clear. |
+| Root cause (first) | Last name was "Ps" (two lowercase letters, no vowel): heuristic rejected it as non-real. Fixed to "P S". |
+| Support case 1 | **#102900128848** (opened ~2026-05-28, agent: Yana / asia.dev@apple.com). Screenshot provided 2026-05-28; no follow-up 6+ days. |
+| Support case 2 | **#102905434551** (parallel escalation, filed 2026-06-02 via contact form). Confirmation: case ID 102905434551. |
+| Public escalation | - Forum: https://developer.apple.com/forums/thread/828487 (posted 2026-06-02, 0 replies, 235+ views as of 2026-06-03)<br>- Tweet: https://x.com/aarshps/status/2061572757847187899 (@AppleSupport, 0 replies/eng as of 2026-06-03) |
 | Re-enrollment path | Apple Developer **iOS app** only (web enrollment deprecated for individuals in late 2024). No browser path available. |
-| Re-enrollment blocker | Must also have: billing address + payment method on the Apple Account (apple.com/account/manage) before re-attempting; these were missing on first attempt. |
 | ID for re-enrollment | **Passport or PAN card** — NOT Aadhaar (Apple rejects Aadhaar per UIDAI commercial-use restriction). |
+| Next checkpoints | 2026-06-04 09:00 IST (Gmail check for Yana/parallel replies); 2026-06-05 17:00 IST (if silent across 5 channels, fire full escalation per ESCALATION_DRAFTS.md + in-person Bengaluru option). |
 
-### When Yana replies, expect one of:
+### When support replies, expect one of:
 
-| Yana says | My action |
+| Reply | My action |
 | --- | --- |
 | Specific rejection reason (e.g. "address mismatch") | Fix exactly that field; guide re-enrollment |
 | "I've reset your verification, please re-enroll" | Walk through iOS app re-enrollment: Account tab → Enroll → Individual → proceed to doc upload |
-| Asks for a verification call or more documents | Prep: schedule call or identify correct document |
+| Asks for a verification call or more documents | Prep: schedule call or identify correct document (PAN/Passport ready) |
 
 ### Re-enrollment steps once unblocked:
 
-1. Verify billing address is set on account.apple.com (billing addresses, not just shipping)
-2. Verify payment method (credit card) is on the account
-3. In Apple Developer iOS app: Account → Enroll → Individual
-4. Upload Passport or PAN card when prompted (NOT Aadhaar)
-5. Pay $99
+1. Verify billing address + payment method on account.apple.com (appleid / manage)
+2. In Apple Developer iOS app: Account → Enroll → Individual
+3. Upload Passport or PAN card when prompted (NOT Aadhaar)
+4. Pay $99
+
+(Pre-work for docs: incometax.gov.in e-Filing visited 2026-06-02 to prepare PAN card export.)
 
 ---
 

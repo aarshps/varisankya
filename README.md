@@ -14,7 +14,7 @@ Wiki: <https://github.com/aarshps/varisankya-ios/wiki>
 | Source code | All screens ported, 0 warnings, 0 errors on iOS 26 SDK |
 | CI | Green at every push — [latest run](https://github.com/aarshps/varisankya-ios/actions) |
 | Firebase | iOS app registered in `helloworld-92567418`, Auth providers Google + Apple enabled, Firestore rules already permit iOS layout |
-| App Store | Pending Apple Developer Program enrollment (see [POST_ENROLLMENT.md](POST_ENROLLMENT.md)) |
+| App Store | Blocked on Apple Developer Program enrollment ("ID Verification Rejected"; support cases #102900128848/#102905434551 + forum/tweet escalations active as of 2026-06-03; see [Apple-Enrollment-and-Release wiki](https://github.com/aarshps/varisankya-ios/wiki/Apple-Enrollment-and-Release), `ESCALATION_DRAFTS.md`, `AGENTS.md`) |
 
 ## What this repo contains
 

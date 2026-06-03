@@ -11,15 +11,17 @@ Every step has a paste-ready command or an exact URL. Total active time:
 
 ## Quick orientation: what you have vs. what's missing
 
-| Already done (today) | Pending |
+| Already done (as of 2026-06-03) | Pending |
 | --- | --- |
-| ✅ Firebase iOS app registered, `GoogleService-Info.plist` placed | Apple Developer enrollment |
-| ✅ Apple ID name set to "Adarsh P S" matching Aadhaar | App ID + capabilities |
+| ✅ Firebase iOS app registered, `GoogleService-Info.plist` placed | Apple Developer enrollment (ID Verification Rejected; cases + public escalation filed, awaiting reset) |
+| ✅ Apple ID name set to "Adarsh P S" matching Aadhaar/Passport/PAN | App ID + capabilities |
 | ✅ Firebase Auth: Google + Apple providers enabled | Distribution certificate |
 | ✅ Firestore rules already cover iOS layout | Provisioning profile |
 | ✅ `GOOGLE_SERVICE_INFO_BASE64` GitHub Secret set | 7 more GitHub Secrets |
 | ✅ iOS source compiles 0 warnings 0 errors on iOS 26 SDK | App Store Connect listing |
 | ✅ CI green at https://github.com/aarshps/varisankya-ios/actions | TestFlight upload |
+
+**Enrollment blockers note:** Support cases #102900128848 + #102905434551 open + silent; forum https://developer.apple.com/forums/thread/828487 and tweet posted. See `ESCALATION_DRAFTS.md` and wiki for timeline. Re-attempt only after support reset or time window.
 
 ---
 

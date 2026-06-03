@@ -4,6 +4,12 @@ Pre-drafted public-escalation text. Use only if cases #102900128848 (Yana) and
 #102905434551 (parallel) both remain silent past **Fri 2026-06-05 17:00 IST**.
 The Friday calendar reminder will fire to prompt the trigger.
 
+**Status as of 2026-06-03 (pre-trigger):** 
+- Parallel case confirmed live.
+- Forum post live: https://developer.apple.com/forums/thread/828487 (0 replies).
+- Tweet live: https://x.com/aarshps/status/2061572757847187899 (0 replies).
+- 0 replies from support or public as of Jun 3 evening.
+
 This file is an operational artifact — delete after enrolment clears.
 
 ---
@@ -122,8 +128,10 @@ aarshps@gmail.com
 | Apple Account name | Adarsh P S |
 | Region | Bengaluru, India |
 | Enrolment type | Individual |
-| First case | #102900128848 — opened 2026-05-28, agent Yana (asia.dev@apple.com) |
-| Parallel case | #102905434551 — filed 2026-06-02 via developer.apple.com/contact (email channel) |
+| First case | #102900128848 — opened 2026-05-28, agent Yana (asia.dev@apple.com). Screenshot provided; silent 6+ days. |
+| Parallel case | #102905434551 — filed 2026-06-02 via developer.apple.com/contact; confirmation "case ID 102905434551". |
+| Public posts (Jun 1-2) | Forum: https://developer.apple.com/forums/thread/828487 (0 replies); Tweet: https://x.com/aarshps/status/2061572757847187899 (0 replies) |
 | Symptom | Apple Developer iOS app, Account tab → "Apple Developer Program: ID Verification Rejected" — no detail, no retry |
 | Acceptable ID | Passport or PAN (Aadhaar not accepted) |
-| Build status | All CI green, head 1235d03; only enrolment blocks TestFlight |
+| Build status | All CI green, head 4304194 (as of 2026-06-02); only enrolment blocks TestFlight |
+| Reminders | 2026-06-04 09:00 IST Gmail check; 2026-06-05 17:00 IST full escalation if silent |
