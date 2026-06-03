@@ -1,22 +1,28 @@
-name: Deploy to Vercel
+name: Deploy Web to Vercel
 
-# Auto-deploy on every push to main (Production) and every PR (Preview).
-# Uses the Vercel CLI with a token rather than the Vercel↔GitHub native
-# integration. We deploy from source and let Vercel build remotely so the
-# project's environment variables (NEXT_PUBLIC_FIREBASE_*) are injected at
-# build time — these are inlined into the client bundle, so they MUST be
-# present during the build.
+# Auto-deploy the web/ app on every push to main (Production) and every PR
+# (Preview). Uses the Vercel CLI with a token rather than the Vercel<->GitHub
+# native integration. We deploy from the web/ subdirectory and let Vercel build
+# remotely so the project's environment variables (NEXT_PUBLIC_FIREBASE_*) are
+# injected at build time — these are inlined into the client bundle, so they
+# MUST be present during the build.
 #
-# Required repo config:
+# Required repo config (set on aarshps/varisankya):
 #   - secret   VERCEL_TOKEN       (Vercel account/team token)
 #   - variable VERCEL_ORG_ID      (team id, team_…)
-#   - variable VERCEL_PROJECT_ID  (project id, prj_…)
+#   - variable VERCEL_PROJECT_ID  (project id, prj_… — the existing web project)
 
 on:
   push:
     branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/web-deploy.yml"
   pull_request:
     branches: [main]
+    paths:
+      - "web/**"
+      - ".github/workflows/web-deploy.yml"
 
 # One in-flight deploy per ref; cancel superseded runs.
 concurrency:
@@ -31,6 +37,9 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
     steps:
       - uses: actions/checkout@v4
 

@@ -29,6 +29,10 @@ jobs:
     timeout-minutes: 60
     environment: appstore
 
+    defaults:
+      run:
+        working-directory: ios
+
     env:
       SCHEME: Varisankya
       PROJECT: Varisankya.xcodeproj
@@ -199,8 +203,8 @@ jobs:
         with:
           name: Varisankya-IPA
           path: |
-            build/ipa/*.ipa
-            build/Varisankya.xcarchive/**/*.dSYM
+            ios/build/ipa/*.ipa
+            ios/build/Varisankya.xcarchive/**/*.dSYM
           if-no-files-found: warn
 
       - name: Cleanup keychain

@@ -3,8 +3,14 @@ name: iOS Build (unsigned)
 on:
   push:
     branches: [main]
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios-build.yml"
   pull_request:
     branches: [main]
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios-build.yml"
   workflow_dispatch:
 
 concurrency:
@@ -16,6 +22,9 @@ jobs:
     name: Build & validate
     runs-on: macos-latest
     timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: ios
 
     steps:
       - uses: actions/checkout@v4
