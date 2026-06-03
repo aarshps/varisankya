@@ -1,0 +1,50 @@
+{
+  "_comment": "Language-neutral parity vectors for Varisankya's core domain logic. Every platform MUST satisfy these: web/lib (recurrence.ts, currency.ts), android app/.../util (DateHelper.kt, CurrencyHelper.kt), ios Varisankya/Models (Recurrence.swift, Currency.swift). Dates are UTC calendar dates (YYYY-MM-DD); date math runs in UTC. See SPEC.md. The web suite consumes this file in web/lib/__tests__/golden.test.ts; add equivalent loaders on Android/iOS to lock parity.",
+  "version": 1,
+  "recurrence": {
+    "encode": [
+      { "unit": "Monthly", "frequency": 1, "expected": "Monthly" },
+      { "unit": "Monthly", "frequency": 3, "expected": "Every 3 Months" },
+      { "unit": "Yearly", "frequency": 2, "expected": "Every 2 Years" },
+      { "unit": "Weekly", "frequency": 2, "expected": "Every 2 Weeks" },
+      { "unit": "Daily", "frequency": 10, "expected": "Every 10 Days" },
+      { "unit": "Custom", "frequency": 5, "expected": "Custom" }
+    ],
+    "decode": [
+      { "input": "Monthly", "expected": { "unit": "Monthly", "frequency": 1 } },
+      { "input": "Yearly", "expected": { "unit": "Yearly", "frequency": 1 } },
+      { "input": "Every 3 Months", "expected": { "unit": "Monthly", "frequency": 3 } },
+      { "input": "Every 2 Years", "expected": { "unit": "Yearly", "frequency": 2 } },
+      { "input": "Custom", "expected": { "unit": "Custom", "frequency": 1 } }
+    ],
+    "nextDueDate": [
+      { "base": "2026-01-15", "recurrence": "Monthly", "expected": "2026-02-15" },
+      { "base": "2026-01-15", "recurrence": "Yearly", "expected": "2027-01-15" },
+      { "base": "2026-01-15", "recurrence": "Weekly", "expected": "2026-01-22" },
+      { "base": "2026-01-15", "recurrence": "Daily", "expected": "2026-01-16" },
+      { "base": "2026-01-15", "recurrence": "Every 3 Months", "expected": "2026-04-15" },
+      { "base": "2026-12-15", "recurrence": "Monthly", "expected": "2027-01-15" },
+      { "base": "2026-01-31", "recurrence": "Monthly", "expected": "2026-02-28" },
+      { "base": "2024-02-29", "recurrence": "Yearly", "expected": "2025-02-28" },
+      { "base": "2026-01-15", "recurrence": "Custom", "expected": null }
+    ]
+  },
+  "currency": {
+    "format": [
+      { "amount": 649, "code": "INR", "expected": "₹ 649" },
+      { "amount": 9.99, "code": "USD", "expected": "$ 9.99" },
+      { "amount": 1000000, "code": "USD", "expected": "$ 1000000" },
+      { "amount": 5, "code": "ZZZ", "expected": "$ 5" }
+    ],
+    "compact": [
+      { "amount": 0, "expected": "0" },
+      { "amount": 999, "expected": "999" },
+      { "amount": 1000, "expected": "1k" },
+      { "amount": 1500, "expected": "1.5k" },
+      { "amount": 100000, "expected": "1l" },
+      { "amount": 250000, "expected": "2.5l" },
+      { "amount": 1000000, "expected": "1m" },
+      { "amount": 3000000, "expected": "3m" }
+    ]
+  }
+}
