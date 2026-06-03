@@ -1,5 +1,0 @@
-- generic [active] [ref=e1]:
-  - main [ref=e2]:
-    - img [ref=e4]
-    - paragraph [ref=e7]: Varisankya
-  - alert [ref=e8]
