@@ -16,8 +16,14 @@ import {
   signOut as fbSignOut,
   type User,
 } from "firebase/auth";
-import { auth, firebaseReady, googleProvider } from "@/lib/firebase";
+import {
+  auth,
+  firebaseReady,
+  getAnalyticsClient,
+  googleProvider,
+} from "@/lib/firebase";
 import { deleteAllUserData } from "@/lib/firestore";
+import { analytics } from "@/lib/analytics";
 
 interface AuthContextValue {
   user: User | null;
@@ -40,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setInitialized(true);
       return;
     }
+    getAnalyticsClient(); // warm analytics (best-effort, browser-only)
     return onAuthStateChanged(auth, (u) => {
       setUser(u);
       setInitialized(true);
@@ -53,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInWithGoogle: async () => {
         try {
           await signInWithPopup(auth, googleProvider);
+          analytics.authSignIn("google");
         } catch (err) {
           // Popup blocked / closed → fall back to redirect.
           const code = (err as { code?: string }).code ?? "";
@@ -67,7 +75,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw err;
         }
       },
-      signOut: () => fbSignOut(auth),
+      signOut: async () => {
+        analytics.authSignOut();
+        await fbSignOut(auth);
+      },
       deleteAccount: async () => {
         const current = auth.currentUser;
         if (!current) throw new Error("You're not signed in.");

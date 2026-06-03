@@ -6,6 +6,7 @@ import { Plus, Search, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { prefs, haptic } from "@/lib/prefs";
+import { analytics } from "@/lib/analytics";
 import { nextDueDate } from "@/lib/recurrence";
 import {
   deleteSubscription,
@@ -38,21 +39,26 @@ export function App() {
   const openAdd = () => {
     setEditing(null);
     setShowAdd(true);
+    analytics.subscriptionAddOpen();
   };
   const openEdit = (s: Subscription) => {
     setEditing(s);
     setShowAdd(true);
+    analytics.subscriptionEditOpen();
   };
 
   const handleSave = async (sub: Subscription) => {
     if (!uid) return;
+    const isNew = !sub.id;
     await upsertSubscription(sub, uid);
+    analytics.subscriptionSave(isNew, sub.recurrence);
   };
 
   const handleMarkPaid = async (sub: Subscription) => {
     if (!uid) return;
     const next = nextDueDate(sub.dueDate ?? new Date(), sub.recurrence);
     await recordPayment(sub, new Date(), next, uid);
+    analytics.paymentMarkPaidSwipe();
   };
 
   return (
@@ -60,7 +66,10 @@ export function App() {
       {/* Header */}
       <header className="sticky top-0 z-20 -mx-4 mb-2 flex items-center gap-2 px-4 py-3 backdrop-blur-md">
         <button
-          onClick={() => setShowSettings(true)}
+          onClick={() => {
+            setShowSettings(true);
+            analytics.screenSettingsOpen();
+          }}
           aria-label="Settings"
           className="overflow-hidden rounded-full border border-outline"
         >
@@ -80,7 +89,10 @@ export function App() {
         </button>
         <h1 className="flex-1 text-2xl font-extrabold">Varisankya</h1>
         <button
-          onClick={() => setShowSearch(true)}
+          onClick={() => {
+            setShowSearch(true);
+            analytics.screenSearchOpen();
+          }}
           aria-label="Search"
           className="rounded-full bg-surface-2 p-2.5 transition hover:bg-black/5 dark:hover:bg-white/10"
         >
@@ -92,7 +104,10 @@ export function App() {
         <Hero
           hero={hero}
           currency={currency}
-          onOpenHistory={() => setShowHistory(true)}
+          onOpenHistory={() => {
+            setShowHistory(true);
+            analytics.screenAllPaymentsOpen();
+          }}
         />
 
         {loading && subscriptions.length === 0 ? (
@@ -106,7 +121,11 @@ export function App() {
             handlers={{
               onTap: openEdit,
               onMarkPaid: handleMarkPaid,
-              onToggleActive: (s) => uid && setActive(s, !s.active, uid),
+              onToggleActive: (s) => {
+                if (!uid) return;
+                setActive(s, !s.active, uid);
+                analytics.subscriptionStatusChange(!s.active);
+              },
               onDelete: (s) => setPendingDelete(s),
             }}
           />
@@ -165,7 +184,10 @@ export function App() {
         message={`"${pendingDelete?.name ?? ""}" and its payment history stay, but the subscription will be removed. This cannot be undone.`}
         confirmLabel="Delete"
         onConfirm={async () => {
-          if (uid && pendingDelete) await deleteSubscription(pendingDelete, uid);
+          if (uid && pendingDelete) {
+            await deleteSubscription(pendingDelete, uid);
+            analytics.subscriptionDelete();
+          }
           setPendingDelete(null);
         }}
         onClose={() => setPendingDelete(null)}

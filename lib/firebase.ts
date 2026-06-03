@@ -3,6 +3,11 @@
 import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
+import {
+  getAnalytics,
+  isSupported as analyticsIsSupported,
+  type Analytics,
+} from "firebase/analytics";
 
 /**
  * Connects to the SAME Firebase project as the Android/iOS clients
@@ -53,3 +58,24 @@ export const db = new Proxy({} as Firestore, {
 });
 
 export const googleProvider = new GoogleAuthProvider();
+
+// Analytics: browser-only and best-effort. Resolved once asynchronously
+// (isSupported gates out SSR and unsupported environments). Callers get the
+// instance synchronously via getAnalyticsClient() once it's ready.
+let analyticsInstance: Analytics | null = null;
+let analyticsTried = false;
+
+function maybeInitAnalytics(): void {
+  if (analyticsTried || typeof window === "undefined" || !firebaseReady) return;
+  analyticsTried = true;
+  analyticsIsSupported()
+    .then((ok) => {
+      if (ok) analyticsInstance = getAnalytics(services().app);
+    })
+    .catch(() => {});
+}
+
+export function getAnalyticsClient(): Analytics | null {
+  maybeInitAnalytics();
+  return analyticsInstance;
+}

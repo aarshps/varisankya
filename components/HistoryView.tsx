@@ -23,6 +23,7 @@ import {
 } from "@/lib/firestore";
 import { compactFormat, formatCurrency } from "@/lib/currency";
 import { prefs } from "@/lib/prefs";
+import { analytics } from "@/lib/analytics";
 import type { PaymentRecord } from "@/lib/types";
 
 function monthKey(d: Date): string {
@@ -201,6 +202,7 @@ export function HistoryView({
                   aria-label="Delete"
                   onClick={async () => {
                     await deletePayment(p, uid);
+                    analytics.paymentDelete();
                     void load();
                   }}
                   className="rounded-full p-2 text-red-500 transition hover:bg-red-500/10"
@@ -219,6 +221,7 @@ export function HistoryView({
           onClose={() => setEditing(null)}
           onSave={async (newDate) => {
             await updatePaymentDate(editing, newDate, uid);
+            analytics.paymentEditDate();
             setEditing(null);
             void load();
           }}

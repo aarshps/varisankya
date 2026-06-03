@@ -17,6 +17,7 @@ import { AboutDialog } from "./AboutDialog";
 import { CURRENCIES } from "@/lib/currency";
 import { PRIVACY_URL } from "@/lib/constants";
 import { prefs, haptic, type Appearance } from "@/lib/prefs";
+import { analytics } from "@/lib/analytics";
 
 export function SettingsView({
   currency,
@@ -94,6 +95,7 @@ export function SettingsView({
               onChange={(e) => {
                 onCurrencyChange(e.target.value);
                 prefs.setCurrency(e.target.value);
+                analytics.settingCurrencyChange(e.target.value);
               }}
               className="w-40"
             >
@@ -113,7 +115,10 @@ export function SettingsView({
             {(["system", "light", "dark"] as Appearance[]).map((m) => (
               <button
                 key={m}
-                onClick={() => setAppearance(m)}
+                onClick={() => {
+                  setAppearance(m);
+                  analytics.settingThemeChange(m);
+                }}
                 className={`flex-1 rounded-full px-3 py-2 text-sm font-semibold capitalize transition ${
                   appearance === m
                     ? "bg-primary text-on-primary"
@@ -129,7 +134,13 @@ export function SettingsView({
             label="Rounded font"
             sub="Use the brand rounded font everywhere"
           >
-            <Switch checked={useRoundedFont} onChange={setUseRoundedFont} />
+            <Switch
+              checked={useRoundedFont}
+              onChange={(v) => {
+                setUseRoundedFont(v);
+                analytics.settingFontChange(v ? "rounded" : "system");
+              }}
+            />
           </Row>
         </Card>
 
@@ -145,6 +156,7 @@ export function SettingsView({
                 setNotifHour(h);
                 setNotifMinute(m);
                 prefs.setNotificationTime(h, m);
+                analytics.settingNotificationTimeChange();
               }}
               className="rounded-xl border border-outline bg-surface-2 px-3 py-2"
             />
@@ -166,6 +178,7 @@ export function SettingsView({
                 const v = Number(e.target.value);
                 setNotifDays(v);
                 prefs.setNotificationDays(v);
+                analytics.settingNotificationDaysChange(v);
               }}
               className="mt-2 w-full accent-[var(--primary)]"
             />
@@ -183,6 +196,7 @@ export function SettingsView({
               onChange={(v) => {
                 setHaptics(v);
                 prefs.setHaptics(v);
+                analytics.settingHapticsToggle(v);
                 if (v) haptic();
               }}
             />
@@ -204,7 +218,10 @@ export function SettingsView({
           </a>
           <Divider />
           <button
-            onClick={() => setShowAbout(true)}
+            onClick={() => {
+              setShowAbout(true);
+              analytics.screenAboutOpen();
+            }}
             className="flex w-full items-center gap-3 py-3 font-medium"
           >
             <Info size={18} />
