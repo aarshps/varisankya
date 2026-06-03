@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="?attr/colorSurfaceContainerLow"
+    tools:context=".UnifiedHistoryActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:elevation="0dp"
+        android:fitsSystemWindows="true"
+        android:background="?attr/colorSurfaceContainerLow">
+
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorSurfaceContainerLow"
+            app:contentInsetStart="24dp"
+            app:contentInsetEnd="24dp"
+            app:navigationIcon="@drawable/ic_back">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Payment History"
+                android:textAppearance="?attr/textAppearanceTitleLarge"
+                android:textColor="?attr/colorOnSurface"
+                android:layout_gravity="center_vertical|start"
+                android:includeFontPadding="false" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+            
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/content_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <!-- Expressive Hero: Payment History "Insight" Island -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/hero_history_card"
+                style="?attr/materialCardViewFilledStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+                app:cardCornerRadius="28dp"
+                app:strokeWidth="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:id="@+id/history_hero_text_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:id="@+id/text_total_spent_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TOTAL SPENT"
+                            android:textAppearance="?attr/textAppearanceLabelLarge"
+                            android:textColor="?attr/colorPrimary"
+                            android:letterSpacing="0.1"
+                            android:alpha="0.8"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/text_total_spent_amount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:includeFontPadding="false"
+                            android:textAppearance="?attr/textAppearanceDisplayMedium"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textStyle="bold"
+                            android:letterSpacing="-0.01"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="24sp"
+                            app:autoSizeMaxTextSize="45sp"
+                            tools:text="₹ 45,280" />
+
+                    </LinearLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+        
+            <!-- Top: Chart Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="16dp"
+                android:clipChildren="false"
+                android:clipToPadding="false">
+        
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="?attr/materialCardViewFilledStyle"
+                    app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                    app:cardCornerRadius="28dp"
+                    app:strokeWidth="0dp">
+
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:paddingVertical="16dp">
+                        
+                        <HorizontalScrollView
+                            android:id="@+id/chart_scroll_container"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fillViewport="true"
+                            android:scrollbars="none"
+                            android:overScrollMode="never"
+                            android:scrollbarThumbHorizontal="@null"
+                            android:clipChildren="false"
+                            android:clipToPadding="false">
+                
+                            <com.hora.varisankya.PaymentHistoryChart
+                                android:id="@+id/unified_chart"
+                                android:layout_width="wrap_content"
+                                android:layout_height="200dp" />
+                                
+                        </HorizontalScrollView>
+                        
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/btn_chart_back"
+                            style="@style/Widget.Material3.FloatingActionButton.Small.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start|center_vertical"
+                            android:layout_marginStart="16dp"
+                            app:srcCompat="@drawable/ic_back"
+                            app:tint="?attr/colorOnSecondaryContainer"
+                            android:contentDescription="Go Back"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+                            
+                    </FrameLayout>
+                </com.google.android.material.card.MaterialCardView>
+        
+            </LinearLayout>
+        
+            <!-- Bottom: List Section.
+                 layout_weight=1 + 0dp height makes the list consume ALL the
+                 vertical space remaining after the hero + chart, so a
+                 reasonable amount of history is visible without the list
+                 being squashed into the bottom third. -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/history_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingTop="8dp"
+                android:paddingBottom="16dp"
+                tools:listitem="@layout/item_payment_timeline" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/no_history_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:alpha="0.4"
+                android:src="@drawable/ic_history"
+                app:tint="?attr/colorOnSurfaceVariant" />
+
+            <TextView
+                android:id="@+id/text_no_history"
+                style="@style/TextAppearance.Material3.BodyLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="No payments recorded"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/loading_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone">
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/loading_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                app:indicatorColor="?attr/colorPrimary"
+                android:layout_marginBottom="16dp" />
+
+            <TextView
+                android:id="@+id/loading_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Fetching..."
+                style="@style/TextAppearance.Material3.BodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
+    </FrameLayout>
+
+</LinearLayout>

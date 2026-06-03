@@ -1,0 +1,32 @@
+rules_version = '2';
+
+// Firestore security rules for project helloworld-92567418 (Varisankya).
+// See PAYMENT_MIGRATION_PLAN.md for the rationale behind the collection
+// layouts referenced below.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // A signed-in user has full read/write access to everything under their
+    // own /users/{userId} subtree. This single rule covers:
+    //   /users/{userId}                                          (root user doc, if any)
+    //   /users/{userId}/subscriptions/{subscriptionId}
+    //   /users/{userId}/subscriptions/{subId}/payments/{payId}   (legacy nested)
+    //   /users/{userId}/payments/{paymentId}                     (new flat layout — Phase 1)
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null
+                        && request.auth.uid == userId;
+    }
+
+    // Collection-group fallback used by the All-Payments page when the flat
+    // collection hasn't been populated yet:
+    //   firestore.collectionGroup("payments").whereEqualTo("userId", uid).get()
+    //
+    // The {document=**} wildcard above does NOT cover collection-group reads,
+    // so we authorise them explicitly here. Read-only at the group level — all
+    // writes flow through the per-user document path above.
+    match /{path=**}/payments/{paymentId} {
+      allow read: if request.auth != null
+                && resource.data.userId == request.auth.uid;
+    }
+  }
+}
