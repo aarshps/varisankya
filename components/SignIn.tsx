@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "./ui/controls";
 
 export function SignIn() {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, authError } = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,11 +15,16 @@ export function SignIn() {
     setError(null);
     try {
       await signInWithGoogle();
+      // On the redirect path the page navigates away here; on the popup path a
+      // resolved promise means onAuthStateChanged will swap this screen out.
     } catch (e) {
       setError((e as Error).message ?? "Sign-in failed — try again.");
       setBusy(false);
     }
   };
+
+  // Errors from a redirect round-trip arrive via context, not the click handler.
+  const shownError = error ?? authError;
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center px-6">
@@ -38,7 +43,7 @@ export function SignIn() {
           <GoogleMark />
           {busy ? "Signing in…" : "Continue with Google"}
         </Button>
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {shownError && <p className="text-sm text-red-500">{shownError}</p>}
       </div>
     </main>
   );
