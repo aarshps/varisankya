@@ -41,11 +41,11 @@ struct AboutSheet: View {
                     GlassFormCard {
                         VStack(alignment: .leading, spacing: 8) {
                             Link("Source on GitHub",
-                                 destination: URL(string: "https://github.com/aarshps/varisankya-ios")!)
+                                 destination: URL(string: "https://github.com/aarshps/varisankya")!)
                             Link("Android sibling app",
-                                 destination: URL(string: "https://github.com/aarshps/varisankya-android")!)
+                                 destination: URL(string: "https://github.com/aarshps/varisankya")!)
                             Link("Privacy Policy",
-                                 destination: URL(string: "https://github.com/aarshps/varisankya-android/blob/main/PRIVACY.md")!)
+                                 destination: URL(string: "https://github.com/aarshps/varisankya/blob/main/android/PRIVACY.md")!)
                         }
                         .font(.system(.body, design: .rounded, weight: .medium))
                     }

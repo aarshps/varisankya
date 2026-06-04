@@ -153,7 +153,7 @@ These exist only on macOS. Do this once; the certificate is valid for one year.
    - SKU: `varisankya-ios` (internal, doesn't show anywhere).
    - User Access: Full Access.
 3. Once created, fill out **App Information**:
-   - Privacy Policy URL: <https://github.com/aarshps/varisankya-android/blob/main/PRIVACY.md>
+   - Privacy Policy URL: <https://github.com/aarshps/varisankya/blob/main/android/PRIVACY.md>
    - Category Primary: **Finance**; Secondary: **Productivity**.
    - Content Rights: confirm you own all content.
    - Age Rating: complete the questionnaire (likely 4+).
@@ -166,7 +166,7 @@ These exist only on macOS. Do this once; the certificate is valid for one year.
    - Promotional text (170 chars): see [METADATA.md](METADATA.md).
    - Description (4,000 chars): see [METADATA.md](METADATA.md).
    - Keywords (100 chars): `subscription,bill,reminder,expense,tracker,recurring,finance,money,liquid glass`
-   - Support URL: <https://github.com/aarshps/varisankya-ios/issues>
+   - Support URL: <https://github.com/aarshps/varisankya/issues>
    - Marketing URL: optional, leave blank.
    - Sign-in info for Apple reviewers: create a *test* Google account or a
      dedicated Apple ID. Fill the **Sign-in required** section with credentials

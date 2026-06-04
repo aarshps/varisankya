@@ -44,7 +44,7 @@ class AboutBottomSheet : BottomSheetDialogFragment() {
 
         githubLink.setOnClickListener {
             PreferenceHelper.performClickHaptic(it)
-            val url = "https://github.com/aarshps/varisankya-android"
+            val url = "https://github.com/aarshps/varisankya"
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
             startActivity(intent)
         }

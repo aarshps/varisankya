@@ -447,7 +447,7 @@ class SettingsActivity : BaseActivity() {
         val privacyPolicyLayout = findViewById<View>(R.id.privacy_policy_layout)
         privacyPolicyLayout.setOnClickListener {
             PreferenceHelper.performClickHaptic(it)
-            val policyUrl = "https://github.com/aarshps/varisankya-android/blob/master/PRIVACY.md"
+            val policyUrl = "https://github.com/aarshps/varisankya/blob/main/android/PRIVACY.md"
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(policyUrl))
             startActivity(browserIntent)
         }

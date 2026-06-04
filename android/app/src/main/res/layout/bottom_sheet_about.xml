@@ -76,7 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="github.com/aarshps/varisankya-android"
+                android:text="github.com/aarshps/varisankya"
                 android:textAppearance="?attr/textAppearanceBodyLarge"
                 android:textColor="?attr/colorTertiary"
                 android:clickable="true"

@@ -4,7 +4,7 @@ Authoritative context file for AI agents working on this project. Keep this
 file up to date when conventions change. Do **not** add per-session activity
 logs here — git history and commit messages are the authoritative record.
 
-This is the iOS sibling of [varisankya-android](https://github.com/aarshps/varisankya-android).
+This is the iOS sibling of [varisankya-android](https://github.com/aarshps/varisankya).
 Same Firestore data layer (documents are interchangeable), different UI runtime.
 
 ---

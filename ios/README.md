@@ -1,20 +1,20 @@
 # Varisankya for iOS
 
-iOS sibling of the [Varisankya Android](https://github.com/aarshps/varisankya-android) subscription
+iOS sibling of the [Varisankya Android](https://github.com/aarshps/varisankya) subscription
 manager. SwiftUI, iOS 26+ Liquid Glass, Firebase Auth + Firestore, Sign in with Apple +
 Google Sign-In. Same Firebase project, same Firestore documents — sign in on either platform and
 see the same subscriptions.
 
-Wiki: <https://github.com/aarshps/varisankya-ios/wiki>
+Wiki: <https://github.com/aarshps/varisankya/wiki>
 
 ## Status
 
 | Surface | State |
 | --- | --- |
 | Source code | All screens ported, 0 warnings, 0 errors on iOS 26 SDK |
-| CI | Green at every push — [latest run](https://github.com/aarshps/varisankya-ios/actions) |
+| CI | Green at every push — [latest run](https://github.com/aarshps/varisankya/actions) |
 | Firebase | iOS app registered in `helloworld-92567418`, Auth providers Google + Apple enabled, Firestore rules already permit iOS layout |
-| App Store | Blocked on Apple Developer Program enrollment ("ID Verification Rejected"; support cases #102900128848/#102905434551 + forum/tweet escalations active as of 2026-06-03; see [Apple-Enrollment-and-Release wiki](https://github.com/aarshps/varisankya-ios/wiki/Apple-Enrollment-and-Release), `ESCALATION_DRAFTS.md`, `AGENTS.md`) |
+| App Store | Blocked on Apple Developer Program enrollment ("ID Verification Rejected"; support cases #102900128848/#102905434551 + forum/tweet escalations active as of 2026-06-03; see [Apple-Enrollment-and-Release wiki](https://github.com/aarshps/varisankya/wiki/iOS-Apple-Enrollment-and-Release), `ESCALATION_DRAFTS.md`, `AGENTS.md`) |
 
 ## What this repo contains
 

@@ -63,10 +63,10 @@ FEATURES
 
 SUPPORT
 We're on GitHub — open issues, see the source, or fork it:
-https://github.com/aarshps/varisankya-ios
+https://github.com/aarshps/varisankya
 
 Privacy policy:
-https://github.com/aarshps/varisankya-android/blob/main/PRIVACY.md
+https://github.com/aarshps/varisankya/blob/main/android/PRIVACY.md
 ```
 
 ## Keywords (100 chars, comma-separated, no spaces after commas)
@@ -98,11 +98,11 @@ new one; long-swipe a row to mark paid; tap the hero card to see the chart.
 ## Privacy URL
 
 ```
-https://github.com/aarshps/varisankya-android/blob/main/PRIVACY.md
+https://github.com/aarshps/varisankya/blob/main/android/PRIVACY.md
 ```
 
 ## Support URL
 
 ```
-https://github.com/aarshps/varisankya-ios/issues
+https://github.com/aarshps/varisankya/issues
 ```

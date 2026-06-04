@@ -1,4 +1,4 @@
-/** Ports varisankya-ios/Varisankya/Models/Currency.swift — keep in sync. */
+/** Ports ios/Varisankya/Models/Currency.swift — keep in sync. */
 
 export interface CurrencyItem {
   code: string;

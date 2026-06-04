@@ -134,7 +134,7 @@ struct SettingsView: View {
                 GlassFormCard {
                     VStack(spacing: 14) {
                         SectionLabel("Legal & info")
-                        Link(destination: URL(string: "https://github.com/aarshps/varisankya-android/blob/main/PRIVACY.md")!) {
+                        Link(destination: URL(string: "https://github.com/aarshps/varisankya/blob/main/android/PRIVACY.md")!) {
                             HStack {
                                 Image(systemName: "lock.shield")
                                 Text("Privacy Policy")

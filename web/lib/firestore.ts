@@ -22,7 +22,7 @@ import type { PaymentRecord, Subscription } from "./types";
 import { sortSubscriptions } from "./subscription";
 
 /**
- * Ports varisankya-ios/Varisankya/Services/FirestoreService.swift.
+ * Ports ios/Varisankya/Services/FirestoreService.swift.
  *
  *   users/{uid}/subscriptions/{sid}
  *   users/{uid}/subscriptions/{sid}/payments/{pid}   (authoritative)

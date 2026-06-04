@@ -1,6 +1,6 @@
 /**
  * localStorage-backed preferences, mirroring the keys in
- * varisankya-ios/Varisankya/Services/Preferences.swift. SSR-safe: every getter
+ * ios/Varisankya/Services/Preferences.swift. SSR-safe: every getter
  * guards against `window` being undefined.
  */
 

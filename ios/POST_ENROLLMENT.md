@@ -19,7 +19,7 @@ Every step has a paste-ready command or an exact URL. Total active time:
 | ✅ Firestore rules already cover iOS layout | Provisioning profile |
 | ✅ `GOOGLE_SERVICE_INFO_BASE64` GitHub Secret set | 7 more GitHub Secrets |
 | ✅ iOS source compiles 0 warnings 0 errors on iOS 26 SDK | App Store Connect listing |
-| ✅ CI green at https://github.com/aarshps/varisankya-ios/actions | TestFlight upload |
+| ✅ CI green at https://github.com/aarshps/varisankya/actions | TestFlight upload |
 
 **Enrollment blockers note:** Support cases #102900128848 + #102905434551 open + silent; forum https://developer.apple.com/forums/thread/828487 and tweet posted. See `ESCALATION_DRAFTS.md` and wiki for timeline. Re-attempt only after support reset or time window.
 

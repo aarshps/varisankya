@@ -1,5 +1,5 @@
 /**
- * Ports varisankya-ios/Varisankya/Models/Recurrence.swift — keep in sync.
+ * Ports ios/Varisankya/Models/Recurrence.swift — keep in sync.
  *
  * Recurrence is stored as a human string ("Monthly", "Yearly", "Weekly",
  * "Daily", "Every N Months", "Custom") so the same document reads on every
