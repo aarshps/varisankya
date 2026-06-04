@@ -21,7 +21,14 @@ import {
 // Security is enforced by Firestore rules, not by hiding this config.
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  // Serve the Firebase auth handler from THIS origin (see next.config rewrites)
+  // so signInWithRedirect/popup state isn't lost to third-party-storage
+  // partitioning on mobile/Safari. Falls back to the project default on the
+  // server (prerender) where there is no window.
+  authDomain:
+    typeof window !== "undefined"
+      ? window.location.hostname
+      : process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,

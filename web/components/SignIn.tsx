@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { IndianRupee } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "./ui/controls";
 
@@ -29,9 +28,14 @@ export function SignIn() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center px-6">
       <div className="glass flex w-full max-w-sm flex-col items-center gap-6 rounded-3xl px-8 py-12 text-center">
-        <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-primary text-on-primary">
-          <IndianRupee size={48} />
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/icons/icon-512.png"
+          alt="Varisankya"
+          width={96}
+          height={96}
+          className="h-24 w-24 rounded-3xl"
+        />
         <div>
           <h1 className="text-3xl font-extrabold">Varisankya</h1>
           <p className="mt-2 text-sm text-on-surface-variant">
