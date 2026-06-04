@@ -1,8 +1,9 @@
 "use client";
 
 import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import {
+  getFirestore,
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager,
@@ -28,48 +29,32 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-/** True only when the SDK config is present (avoids throwing at build time). */
+/** True only when the SDK config is present. */
 export const firebaseReady = Boolean(firebaseConfig.apiKey);
 
-interface Services {
-  app: FirebaseApp;
-  auth: Auth;
-  db: Firestore;
-}
+export const app: FirebaseApp = getApps().length
+  ? getApp()
+  : initializeApp(firebaseConfig);
 
-let cache: Services | null = null;
-
-function services(): Services {
-  if (!cache) {
-    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-    // Offline-first parity with the native apps: an IndexedDB-backed persistent
-    // cache (browser only) so the home screen renders instantly and writes queue
-    // while offline. On the server (SSR/prerender) fall back to defaults.
-    // initializeFirestore must run exactly once per app.
-    const db = initializeFirestore(app, {
-      localCache:
-        typeof window !== "undefined"
-          ? persistentLocalCache({ tabManager: persistentMultipleTabManager() })
-          : undefined,
-    });
-    cache = { app, auth: getAuth(app), db };
-  }
-  return cache;
-}
-
-// Lazy proxies: initialization is deferred until a property is actually read
-// (always client-side), so module evaluation during SSR/prerender never calls
-// getAuth/initializeFirestore with a missing key.
-export const auth = new Proxy({} as Auth, {
-  get: (_t, prop) => Reflect.get(services().auth, prop),
-});
-
-export const db = new Proxy({} as Firestore, {
-  get: (_t, prop) => Reflect.get(services().db, prop),
-});
+export const auth = getAuth(app);
 
 // Web version uses Google sign-in only (same accounts as the native apps).
 export const googleProvider = new GoogleAuthProvider();
+
+// IMPORTANT: db must be a REAL Firestore instance — firebase modular APIs like
+// collection()/doc() do an `instanceof Firestore` check, so a Proxy wrapper
+// breaks them ("Expected first argument to collection() to be a ...
+// FirebaseFirestore"). In the browser we enable an IndexedDB persistent cache
+// (offline-first parity with the native apps); on the server (SSR/prerender)
+// we use a plain instance — it is never queried server-side.
+export const db: Firestore =
+  typeof window !== "undefined"
+    ? initializeFirestore(app, {
+        localCache: persistentLocalCache({
+          tabManager: persistentMultipleTabManager(),
+        }),
+      })
+    : getFirestore(app);
 
 // Analytics: browser-only and best-effort. Resolved once asynchronously
 // (isSupported gates out SSR and unsupported environments). Callers get the
@@ -82,7 +67,7 @@ function maybeInitAnalytics(): void {
   analyticsTried = true;
   analyticsIsSupported()
     .then((ok) => {
-      if (ok) analyticsInstance = getAnalytics(services().app);
+      if (ok) analyticsInstance = getAnalytics(app);
     })
     .catch(() => {});
 }
