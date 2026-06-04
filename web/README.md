@@ -67,6 +67,13 @@ access is enforced by Firestore security rules keyed on the auth UID.
 3. After the first deploy, add the production domain (e.g.
    `varisankya-web.vercel.app`) and any custom domain to **Firebase Console →
    Authentication → Settings → Authorized domains** so Google sign-in works.
+4. Add the same domain to the **Google Cloud Web OAuth client**:
+   `https://<domain>/__/auth/handler` under *Authorized redirect URIs* and
+   `https://<domain>` under *Authorized JavaScript origins*. Sign-in serves the
+   Firebase auth handler **same-origin** (reverse-proxied in `next.config.ts`;
+   `authDomain = window.location.hostname` in `lib/firebase.ts`) so
+   `signInWithRedirect` survives mobile third-party-storage partitioning —
+   without these OAuth-client entries it fails with `redirect_uri_mismatch`.
 
 ## Firestore security rules
 
