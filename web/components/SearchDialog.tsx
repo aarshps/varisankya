@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Modal } from "./ui/Modal";
 import { TextInput } from "./ui/controls";
+import { CATEGORIES } from "@/lib/constants";
 import { formatCurrency } from "@/lib/currency";
 import { statusText } from "@/lib/subscription";
 import type { Subscription } from "@/lib/types";
@@ -22,16 +23,28 @@ export function SearchDialog({
   onSelect: (s: Subscription) => void;
 }) {
   const [q, setQ] = useState("");
+  const [cat, setCat] = useState("All");
+
+  // Only show category chips that actually occur (avoids a wall of empty filters),
+  // in the canonical category order — mirrors Android's search filter chips.
+  const categories = useMemo(() => {
+    const present = new Set(
+      subscriptions.map((s) => s.category).filter(Boolean),
+    );
+    return ["All", ...CATEGORIES.filter((c) => present.has(c))];
+  }, [subscriptions]);
 
   const results = useMemo(() => {
     const term = q.trim().toLowerCase();
-    if (!term) return subscriptions;
-    return subscriptions.filter(
-      (s) =>
+    return subscriptions.filter((s) => {
+      const matchesText =
+        !term ||
         s.name.toLowerCase().includes(term) ||
-        s.category.toLowerCase().includes(term),
-    );
-  }, [q, subscriptions]);
+        s.category.toLowerCase().includes(term);
+      const matchesCat = cat === "All" || s.category === cat;
+      return matchesText && matchesCat;
+    });
+  }, [q, cat, subscriptions]);
 
   return (
     <Modal open={open} onClose={onClose} title="Search">
@@ -50,6 +63,20 @@ export function SearchDialog({
           />
         </div>
 
+        {categories.length > 1 && (
+          <div className="no-scrollbar -mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1">
+            {categories.map((c) => (
+              <button
+                key={c}
+                onClick={() => setCat(c)}
+                className={`chip shrink-0 ${cat === c ? "chip-selected" : ""}`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
+
         <ul className="mt-3 flex flex-col gap-2">
           {results.length === 0 && (
             <li className="py-8 text-center text-sm text-on-surface-variant">
@@ -63,7 +90,7 @@ export function SearchDialog({
                   onSelect(s);
                   onClose();
                 }}
-                className="flex w-full items-center justify-between rounded-2xl bg-surface-2 px-4 py-3 text-left transition hover:bg-black/5 dark:hover:bg-white/10"
+                className="flex w-full items-center justify-between rounded-2xl bg-surface-2 px-4 py-3 text-left transition hover:bg-on-surface/10"
               >
                 <div className="min-w-0">
                   <p className="truncate font-bold">{s.name}</p>
