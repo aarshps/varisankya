@@ -1,6 +1,5 @@
 "use client";
 
-import { IndianRupee } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { SignIn } from "@/components/SignIn";
 import { App } from "@/components/App";
@@ -19,9 +18,14 @@ export default function Home() {
 function Splash() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-4">
-      <div className="flex h-24 w-24 animate-pulse items-center justify-center rounded-3xl bg-primary text-on-primary">
-        <IndianRupee size={48} />
-      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/icons/icon-512.png"
+        alt="Varisankya"
+        width={96}
+        height={96}
+        className="h-24 w-24 animate-pulse rounded-3xl"
+      />
       <p className="text-2xl font-extrabold">Varisankya</p>
     </main>
   );
