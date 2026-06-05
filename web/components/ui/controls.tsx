@@ -1,6 +1,7 @@
 "use client";
 
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { ChevronDown } from "lucide-react";
 
 export function Button({
   variant = "primary",
@@ -94,14 +95,28 @@ export function TextInput(
   return <input {...props} className={`${inputClass} ${props.className ?? ""}`} />;
 }
 
-export function Select(
-  props: React.SelectHTMLAttributes<HTMLSelectElement> & {
-    children: ReactNode;
-  },
-) {
+export function Select({
+  className = "",
+  children,
+  ...props
+}: React.SelectHTMLAttributes<HTMLSelectElement> & { children: ReactNode }) {
+  // The native dropdown arrow sits flush to the edge and looks cramped (worse
+  // with rounded corners and in dark mode). Hide it and render our own chevron,
+  // properly inset and theme-coloured. The wrapper carries layout classes
+  // (w-40 / flex-1); the select fills it.
   return (
-    <select {...props} className={`${inputClass} ${props.className ?? ""}`}>
-      {props.children}
-    </select>
+    <div className={`relative ${className}`}>
+      <select
+        {...props}
+        className={`${inputClass} cursor-pointer appearance-none pr-10`}
+      >
+        {children}
+      </select>
+      <ChevronDown
+        size={18}
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-on-surface-variant"
+      />
+    </div>
   );
 }
