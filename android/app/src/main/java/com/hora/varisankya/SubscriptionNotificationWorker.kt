@@ -227,7 +227,7 @@ class SubscriptionNotificationWorker(
             createNotificationChannel(context)
             val notifId = "varisankya-test-notification".hashCode()
             val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Varisankya — test notification")
                 .setContentText("If you can see this, notifications are working.")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -299,7 +299,7 @@ class SubscriptionNotificationWorker(
             )
 
             return NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
