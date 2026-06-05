@@ -90,6 +90,29 @@ export function HistoryView({
     [payments],
   );
 
+  // Average monthly spend, robust to outlier months via Tukey's IQR fence —
+  // mirrors the Android/iOS history hero stat.
+  const avgMonthly = useMemo(() => {
+    const vals = chartData
+      .map((d) => d.total)
+      .filter((v) => v > 0)
+      .sort((a, b) => a - b);
+    if (vals.length === 0) return 0;
+    if (vals.length < 4) return vals.reduce((s, v) => s + v, 0) / vals.length;
+    const q = (p: number) => {
+      const i = (vals.length - 1) * p;
+      const lo = Math.floor(i);
+      const hi = Math.ceil(i);
+      return vals[lo] + (vals[hi] - vals[lo]) * (i - lo);
+    };
+    const q1 = q(0.25);
+    const q3 = q(0.75);
+    const iqr = q3 - q1;
+    const kept = vals.filter((v) => v >= q1 - 1.5 * iqr && v <= q3 + 1.5 * iqr);
+    const arr = kept.length ? kept : vals;
+    return arr.reduce((s, v) => s + v, 0) / arr.length;
+  }, [chartData]);
+
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-bg">
       <header className="sticky top-0 z-10 flex items-center gap-3 bg-bg px-4 py-3">
@@ -120,16 +143,30 @@ export function HistoryView({
       </header>
 
       <div className="no-scrollbar mx-auto w-full max-w-2xl flex-1 overflow-y-auto px-4 py-4">
-        <div className="card mb-4 p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
-            All-time total
-          </p>
-          <p className="mt-1 text-3xl font-extrabold tabular-nums">
-            {formatCurrency(total, currency)}
-          </p>
-          <p className="text-xs text-on-surface-variant">
-            {payments.length} payments
-          </p>
+        <div className="card mb-4 grid grid-cols-2 gap-4 p-5">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              All-time total
+            </p>
+            <p className="mt-1 text-3xl font-extrabold tabular-nums">
+              {formatCurrency(total, currency)}
+            </p>
+            <p className="text-xs text-on-surface-variant">
+              {payments.length} payments
+            </p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+              Avg / month
+            </p>
+            <p className="mt-1 text-3xl font-extrabold tabular-nums">
+              {formatCurrency(avgMonthly, currency)}
+            </p>
+            <p className="text-xs text-on-surface-variant">
+              across {chartData.length}{" "}
+              {chartData.length === 1 ? "month" : "months"}
+            </p>
+          </div>
         </div>
 
         {loading ? (
