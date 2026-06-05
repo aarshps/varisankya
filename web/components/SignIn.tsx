@@ -27,7 +27,7 @@ export function SignIn() {
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center px-6">
-      <div className="glass flex w-full max-w-sm flex-col items-center gap-6 rounded-3xl px-8 py-12 text-center">
+      <div className="flex w-full max-w-sm flex-col items-center gap-6 rounded-3xl border border-outline bg-surface px-8 py-12 text-center shadow-sm">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/icons/icon-512.png"
@@ -47,7 +47,7 @@ export function SignIn() {
           <GoogleMark />
           {busy ? "Signing in…" : "Continue with Google"}
         </Button>
-        {shownError && <p className="text-sm text-red-500">{shownError}</p>}
+        {shownError && <p className="text-sm text-error">{shownError}</p>}
       </div>
     </main>
   );

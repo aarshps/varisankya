@@ -64,7 +64,7 @@ export function App() {
   return (
     <div className="mx-auto min-h-dvh w-full max-w-2xl px-4 pb-28">
       {/* Header */}
-      <header className="sticky top-0 z-20 -mx-4 mb-2 flex items-center gap-2 px-4 py-3 backdrop-blur-md">
+      <header className="sticky top-0 z-20 -mx-4 mb-2 flex items-center gap-2 bg-bg px-4 py-3">
         <button
           onClick={() => {
             setShowSettings(true);
@@ -138,7 +138,7 @@ export function App() {
           haptic();
           openAdd();
         }}
-        className="fixed right-5 bottom-6 z-30 flex items-center gap-2 rounded-full bg-primary px-5 py-3.5 font-semibold text-on-primary shadow-lg transition hover:opacity-90"
+        className="fixed right-5 bottom-6 z-30 flex items-center gap-2 rounded-2xl bg-primary-container px-5 py-4 font-semibold text-on-primary-container shadow-lg transition hover:opacity-90 active:scale-95"
       >
         <Plus size={20} />
         Add

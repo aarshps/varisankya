@@ -92,7 +92,7 @@ export function HistoryView({
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-bg">
-      <header className="glass sticky top-0 z-10 flex items-center gap-3 px-4 py-3">
+      <header className="sticky top-0 z-10 flex items-center gap-3 bg-bg px-4 py-3">
         <button
           onClick={onClose}
           aria-label="Back"
@@ -205,7 +205,7 @@ export function HistoryView({
                     analytics.paymentDelete();
                     void load();
                   }}
-                  className="rounded-full p-2 text-red-500 transition hover:bg-red-500/10"
+                  className="rounded-full p-2 text-error transition hover:bg-error/10"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -271,7 +271,7 @@ function EditDateOverlay({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="glass relative z-10 w-full max-w-sm rounded-3xl p-5">
+      <div className="relative z-10 w-full max-w-sm rounded-3xl border border-outline bg-surface-3 p-5 shadow-xl">
         <h3 className="text-lg font-bold">Edit payment date</h3>
         <input
           type="date"

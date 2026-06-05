@@ -8,18 +8,20 @@ export function Button({
   children,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: "primary" | "ghost" | "danger" | "outline";
+  variant?: "primary" | "tonal" | "ghost" | "danger" | "outline";
 }) {
+  // Material 3 button styles (filled / tonal / outlined / text / destructive),
+  // pill-shaped to match Android's ShapeAppearance.App.Button.
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition disabled:opacity-50 disabled:pointer-events-none";
+    "inline-flex items-center justify-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold tracking-[0.01em] transition disabled:opacity-50 disabled:pointer-events-none";
   const styles: Record<string, string> = {
-    primary: "bg-primary text-on-primary hover:opacity-90",
+    primary: "bg-primary text-on-primary hover:opacity-90 active:opacity-100",
+    tonal:
+      "bg-secondary-container text-on-secondary-container hover:opacity-90",
     outline:
-      "border border-outline text-on-surface hover:bg-black/5 dark:hover:bg-white/10",
-    ghost:
-      "text-on-surface hover:bg-black/5 dark:hover:bg-white/10",
-    danger:
-      "border border-outline text-red-500 hover:bg-red-500/10",
+      "border border-outline-strong text-primary hover:bg-primary/10",
+    ghost: "text-primary hover:bg-primary/10",
+    danger: "border border-error text-error hover:bg-error/10",
   };
   return (
     <button className={`${base} ${styles[variant]} ${className}`} {...props}>
@@ -37,6 +39,9 @@ export function Switch({
   onChange: (v: boolean) => void;
   disabled?: boolean;
 }) {
+  // Material 3 switch. The off-state track uses a filled container + visible
+  // outline so it reads clearly in dark mode (the previous bg-outline track was
+  // nearly invisible on a dark surface); the thumb grows when on.
   return (
     <button
       type="button"
@@ -44,13 +49,17 @@ export function Switch({
       aria-checked={checked}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative h-7 w-12 shrink-0 rounded-full transition disabled:opacity-40 ${
-        checked ? "bg-primary" : "bg-outline"
+      className={`relative h-7 w-12 shrink-0 rounded-full border-2 transition-colors disabled:opacity-40 ${
+        checked
+          ? "border-primary bg-primary"
+          : "border-outline-strong bg-surface-3"
       }`}
     >
       <span
-        className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${
-          checked ? "translate-x-5" : ""
+        className={`absolute top-1/2 -translate-y-1/2 rounded-full transition-all ${
+          checked
+            ? "right-1 h-5 w-5 bg-on-primary"
+            : "left-1 h-4 w-4 bg-outline-strong"
         }`}
       />
     </button>
@@ -66,7 +75,7 @@ export function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+      <span className="mb-1.5 block text-xs font-semibold text-on-surface-variant">
         {label}
       </span>
       {children}
@@ -74,8 +83,10 @@ export function Field({
   );
 }
 
+// M3 outlined input: visible outline, primary focus ring, theme-aware native
+// controls (color-scheme is set globally so the date picker indicator adapts).
 const inputClass =
-  "w-full rounded-xl border border-outline bg-surface-2 px-4 py-3 text-base text-on-surface outline-none transition focus:border-on-surface";
+  "w-full rounded-lg border border-outline-strong bg-surface-2 px-4 py-3 text-base text-on-surface outline-none transition focus:border-primary focus:ring-1 focus:ring-primary";
 
 export function TextInput(
   props: React.InputHTMLAttributes<HTMLInputElement>,

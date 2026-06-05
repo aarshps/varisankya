@@ -49,7 +49,7 @@ export function SettingsView({
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-bg">
-      <header className="glass sticky top-0 z-10 flex items-center gap-3 px-4 py-3">
+      <header className="sticky top-0 z-10 flex items-center gap-3 bg-bg px-4 py-3">
         <button
           onClick={onClose}
           aria-label="Back"
@@ -250,7 +250,7 @@ export function SettingsView({
             permanently.
           </p>
           {deleteError && (
-            <p className="text-center text-sm text-red-500">{deleteError}</p>
+            <p className="text-center text-sm text-error">{deleteError}</p>
           )}
         </div>
       </div>
