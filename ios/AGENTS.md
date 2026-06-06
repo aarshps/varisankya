@@ -204,20 +204,20 @@ Run `./scripts/check_apple_secrets.sh` to audit which are set.
 
 ---
 
-## Apple Developer enrollment — current state (as of 2026-06-03)
+## Apple Developer enrollment — current state (as of 2026-06-06)
 
 | Item | Detail |
 | --- | --- |
 | Apple ID | `aarshps@gmail.com` |
 | Legal name on Apple ID | `Adarsh P S` (corrected 2026-05-28 to match Aadhaar/Passport/PAN) |
-| Enrollment status | **ID Verification Rejected** (Gate 1, first attempt ~2026-05). Name fix applied; re-attempt blocked pending support reset or time-based cache clear. |
-| Root cause (first) | Last name was "Ps" (two lowercase letters, no vowel): heuristic rejected it as non-real. Fixed to "P S". |
-| Support case 1 | **#102900128848** (opened ~2026-05-28, agent: Yana / asia.dev@apple.com). Screenshot provided 2026-05-28; no follow-up 6+ days. |
-| Support case 2 | **#102905434551** (parallel escalation, filed 2026-06-02 via contact form). Confirmation: case ID 102905434551. |
-| Public escalation | - Forum: https://developer.apple.com/forums/thread/828487 (posted 2026-06-02, 0 replies, 235+ views as of 2026-06-03)<br>- Tweet: https://x.com/aarshps/status/2061572757847187899 (@AppleSupport, 0 replies/eng as of 2026-06-03) |
-| Re-enrollment path | Apple Developer **iOS app** only (web enrollment deprecated for individuals in late 2024). No browser path available. |
+| Enrollment status | 🟡 **Awaiting Apple** — 5 government ID files uploaded 2026-06-06 via gigafiles.apple.com. Confirmation sent to asia.dev@apple.com same day. No further action until Apple replies. |
+| Root cause (initial) | ID-verification rejected (name "Ps" flagged as non-real). Fixed to "P S". Identity approved by Yana 2026-06-02. A separate account-level hold then blocked before payment — cleared via uploaded ID docs 2026-06-06. |
+| Support case (primary) | **#102900128848** (agents: Yana, Samira, Lita / asia.dev@apple.com). Secure file upload link (gigafiles) expires **2026-06-12**. |
+| Support case (parallel) | **#102905434551** (filed 2026-06-02 via contact form). |
+| Public escalation | Forum: https://developer.apple.com/forums/thread/828487 · Tweet: https://x.com/aarshps/status/2061572757847187899 |
+| Re-enrollment path | Apple Developer **iOS app** only (web enrollment deprecated for individuals in late 2024). |
 | ID for re-enrollment | **Passport or PAN card** — NOT Aadhaar (Apple rejects Aadhaar per UIDAI commercial-use restriction). |
-| Next checkpoints | 2026-06-04 09:00 IST (Gmail check for Yana/parallel replies); 2026-06-05 17:00 IST (if silent across 5 channels, fire full escalation per ESCALATION_DRAFTS.md + in-person Bengaluru option). |
+| Next checkpoint | Wait for Apple to clear the account-level hold and reply to asia.dev@apple.com. |
 
 ### When support replies, expect one of:
 
@@ -235,6 +235,25 @@ Run `./scripts/check_apple_secrets.sh` to audit which are set.
 4. Pay $99
 
 (Pre-work for docs: incometax.gov.in e-Filing visited 2026-06-02 to prepare PAN card export.)
+
+---
+
+## App Store reviewer test account
+
+Apple reviewers must sign in during review. Use this dedicated Google account — **not** the developer Apple ID.
+
+| Field | Value |
+| --- | --- |
+| Sign-in method | Google (tap "Sign in with Google" on the launch screen) |
+| Email | `varisankya148@gmail.com` |
+| Password | Bitwarden: *"varisankya148@gmail.com - App Store reviewer test account"* |
+| Created | 2026-06-06. Recovery: `aarshps@gmail.com`. Starts blank (no subscriptions). |
+
+Retrieve for App Store Connect submission:
+
+```bash
+bw get password "varisankya148@gmail.com - App Store reviewer test account"
+```
 
 ---
 

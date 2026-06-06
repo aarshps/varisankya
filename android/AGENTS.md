@@ -21,9 +21,10 @@ If you ever find yourself on `master` of this repo: switch back to `main` (`git 
 
 ## Core Agent Mandates
 
-1. **Security First:** Agents must NEVER log, print, stage, or commit secrets, API keys, keystores, or sensitive credentials. All deployment secrets and API keys for this project are securely managed via Bitwarden. 
-   - **Important:** The project now builds on a headless Ubuntu Linux machine.
-   - Run `./retrieve_secrets.sh` to extract the keystore and Firebase config securely from Bitwarden CLI into the local workspace (`app/google-services.json`, `varisankya-upload-key`, and `local.properties`).
+1. **Security First:** Agents must NEVER log, print, stage, or commit secrets, API keys, keystores, or sensitive credentials. All deployment secrets and API keys for this project are securely managed via Bitwarden.
+   - **Build machine is Windows 11** (not Linux). SDK at `C:\Users\Aarsh\AppData\Local\Android\Sdk`. Java 17 OpenJDK. Gradle 9.1 via `gradlew.bat`.
+   - Secrets live in **`android/.env.local`** (gitignored): `BW_PASSWORD='...'`. The master password unlocks Bitwarden non-interactively: `BW_SESSION=$(bw unlock "$BW_PASSWORD" --raw)`.
+   - `local.properties` (gitignored) holds `sdk.dir`, `RELEASE_STORE_FILE`, `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD`. The keystore is at `android/varisankya-upload-key` (gitignored).
 2. **Context Efficiency:** Agents should minimize unnecessary context usage by targeting file reads and searches efficiently.
 3. **Engineering Standards:** Adhere strictly to existing workspace conventions, architectural patterns, and styling. Never bypass type systems or suppress warnings without explicit user instruction.
    - **Firestore Models:** Ensure all data classes used with Firebase Firestore (e.g., `Subscription`, `PaymentRecord`) are explicitly preserved in `app/proguard-rules.pro` to prevent R8 serialization errors in release builds.
@@ -33,8 +34,8 @@ If you ever find yourself on `master` of this repo: switch back to `main` (`git 
 * **Execution:** Operate in a Plan -> Act -> Validate cycle.
 * **Session Closing:** Before closing a session, agents MUST follow the `Agent Session Closing Protocol` (see `.agent/skills/agent-session-closing/SKILL.md`) to update documentation, clean up, and push changes to the repository.
 * **Tool Usage:** Prefer specific tools (e.g., targeted file replacement) over rewriting entire files. Run commands non-interactively where possible.
-* **Headless Build Environment:** The project is configured for Linux CLI builds without Android Studio. `ANDROID_HOME` is set to `~/Android/Sdk`.
-* **Releases:** See `CLI_RELEASE_GUIDE.md` for building and distributing updates via GitHub or Google Play Console. The Play Store **"What's New"** is **not** the GitHub release body — it comes from `app/src/main/play/release-notes/en-IN/default.txt` (en-IN is the app's only Play listing language; ≤ 500 chars, ASCII-only) and is pushed automatically by `publishBundle`. Update that file on every release.
+* **Windows Build Environment:** The project is built from Windows 11 without Android Studio. SDK at `C:\Users\Aarsh\AppData\Local\Android\Sdk`. Use `.\gradlew.bat` (or Bash tool with `./gradlew`) from the `android/` directory.
+* **Releases:** See `CLI_RELEASE_GUIDE.md` and the `play-store-release` skill. Current live version: **v3.9-beta.1** (versionCode 58) on the **beta** track. Release bundle via: `cd android && ./gradlew publishReleaseBundle` (Gradle Play Publisher auto-signs + uploads + commits the edit). The Play Store **"What's New"** comes from `app/src/main/play/release-notes/en-IN/default.txt` (≤ 500 chars, ASCII-only). Update that file on every release.
 
 ## Design Invariants — do NOT "clean up" these
 
@@ -57,3 +58,47 @@ Decisions accumulated over the v3.8-beta line. Each looks like dead code or unne
 8. **Test files are placeholders.** `app/src/test/.../ExampleUnitTest.kt` and `app/src/androidTest/.../ExampleInstrumentedTest.kt` are template files left over from project init. Don't expand the test scaffolding without first asking the user — they may want a coherent test plan rather than ad-hoc additions.
 
 9. **No `android.widget.Toast` anywhere in the app.** All transient feedback (errors, confirmations, "done" pings) uses `com.google.android.material.snackbar.Snackbar`. The system Toast looks out of place against the M3 + Dynamic Colors UI and breaks the brand. If you need to surface an error, find the activity's content root (`mainContentRoot` in `MainActivity`, or `findViewById(android.R.id.content)`) and call `Snackbar.make(...)`. Search the codebase for `Toast.makeText` before committing — there should be zero hits.
+
+---
+
+## Current release state (as of 2026-06-06)
+
+| Item | Value |
+| --- | --- |
+| versionName | 3.9-beta.1 |
+| versionCode | 58 |
+| Play track | beta (Open Testing) |
+| CI | `.github/workflows/android-build.yml` — lint + debug APK on every `android/` push/PR |
+| Version catalog | `gradle/libs.versions.toml` — all 19 deps catalogued; `build.gradle.kts` uses `libs.xxx` throughout |
+| Firebase SHA-1s | 3 active certs: Play app signing (`D0:FB:3D:47…`), upload keystore (`4E:2E:B5:C5…`), Windows debug (`DC:55:9C:26…`) |
+
+Known compiler warnings (non-fatal, tracked):
+- `AboutBottomSheet.kt:34` — `versionCode` deprecated in API 28. Acceptable until min SDK raises.
+- `AddSubscriptionBottomSheet.kt:265` — unnecessary `!!` on non-null `Subscription` / `String`.
+- `MainActivity.kt:166` — unnecessary safe call on non-null `MainViewModel.HeroState`.
+
+---
+
+## Windows build quick-reference
+
+```powershell
+# Unlock secrets
+$BW_SESSION = (bw unlock (Get-Content android\.env.local | Select-String 'BW_PASSWORD' | ForEach-Object { $_ -replace "BW_PASSWORD='(.*)'", '$1' }) --raw)
+
+# Build + publish to Play beta
+cd android
+./gradlew publishReleaseBundle   # signs, bundles, uploads, commits Play edit
+
+# Build only (no publish)
+./gradlew bundleRelease
+```
+
+`local.properties` must exist at `android/local.properties` with:
+```
+sdk.dir=C\:\\Users\\Aarsh\\AppData\\Local\\Android\\Sdk
+RELEASE_STORE_FILE=../varisankya-upload-key
+RELEASE_STORE_PASSWORD=...
+RELEASE_KEY_ALIAS=key0
+RELEASE_KEY_PASSWORD=...
+```
+Path `../varisankya-upload-key` is relative to `android/app/`, resolving to `android/varisankya-upload-key`.
