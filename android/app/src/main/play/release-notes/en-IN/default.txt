@@ -1,11 +1,6 @@
-Varisankya 3.8 - our biggest polish release yet.
+Varisankya 3.9 - polish and fixes.
 
-- Material You: the app now themes to your wallpaper
-- Redesigned home and lists with a native Pixel feel
-- Smarter "Average Monthly" that ignores one-off outliers
-- Reminders now respect your timezone, even when you travel
-- Mark a subscription paid right from the notification
-- Faster payment history
-- Smoother swipes, transitions and in-app messages
+- Fixed: notification icon now shows the Varisankya 'Va' glyph instead of the Android default
+- Minor internal improvements
 
 Thanks for using Varisankya!

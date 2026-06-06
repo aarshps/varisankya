@@ -100,7 +100,7 @@ class MainActivity : BaseActivity() {
     private lateinit var mainContentRoot: View
     private var isAuthSuccessful = false
 
-    private val WEB_CLIENT_ID = "663138385072-bke7f5oflsl2cg0e5maks0ef3n6o113u.apps.googleusercontent.com"
+    private val WEB_CLIENT_ID get() = getString(R.string.default_web_client_id)
 
     private var lastFirstVisibleItem = -1
     private var isDataLoaded = false
