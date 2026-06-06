@@ -22,6 +22,7 @@ import { SearchDialog } from "./SearchDialog";
 import { SettingsView } from "./SettingsView";
 import { HistoryView } from "./HistoryView";
 import { ConfirmDialog } from "./ui/ConfirmDialog";
+import { PaymentsSheet } from "./PaymentsSheet";
 
 export function App() {
   const { user } = useAuth();
@@ -35,6 +36,7 @@ export function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Subscription | null>(null);
+  const [managing, setManaging] = useState<Subscription | null>(null);
 
   const openAdd = () => {
     setEditing(null);
@@ -121,6 +123,7 @@ export function App() {
             handlers={{
               onTap: openEdit,
               onMarkPaid: handleMarkPaid,
+              onManagePayments: (s) => setManaging(s),
               onToggleActive: (s) => {
                 if (!uid) return;
                 setActive(s, !s.active, uid);
@@ -192,6 +195,16 @@ export function App() {
         }}
         onClose={() => setPendingDelete(null)}
       />
+
+      {uid && (
+        <PaymentsSheet
+          open={managing !== null}
+          subscription={managing}
+          uid={uid}
+          currency={currency}
+          onClose={() => setManaging(null)}
+        />
+      )}
     </div>
   );
 }

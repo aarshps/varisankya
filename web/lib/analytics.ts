@@ -37,6 +37,9 @@ export const analytics = {
   paymentMarkPaidSwipe: () => track("payment_mark_paid_swipe"),
   paymentEditDate: () => track("payment_edit_date"),
   paymentDelete: () => track("payment_delete"),
+  paymentManageOpen: () => track("payment_manage_open"),
+  paymentPayCurrent: () => track("payment_pay_current"),
+  paymentAddOnly: () => track("payment_add_only"),
 
   // Navigation
   homeRefreshPull: () => track("home_refresh_pull"),
