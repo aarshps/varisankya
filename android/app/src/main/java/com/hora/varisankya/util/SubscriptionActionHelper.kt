@@ -1,6 +1,5 @@
 package com.hora.varisankya.util
 
-import android.view.HapticFeedbackConstants
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -50,34 +49,5 @@ class SubscriptionActionHelper(
             }
         )
         sheet.show(activity.supportFragmentManager, "ConfirmPaid")
-    }
-
-    private fun confirmMarkInactive(subscription: Subscription, contentRoot: android.view.View) {
-        val sheet = ConfirmationBottomSheet(
-            title = "Pause Subscription",
-            message = "Are you sure you want to mark ${subscription.name} as inactive? You can reactivate it later.",
-            positiveButtonText = "Pause",
-            onConfirm = {
-                viewModel.updateSubscriptionStatus(subscription, false) {
-                     PreferenceHelper.performSuccessHaptic(contentRoot)
-                }
-            }
-        )
-        sheet.show(activity.supportFragmentManager, "ConfirmInactive")
-    }
-
-    private fun confirmDeleteSubscription(subscription: Subscription, contentRoot: android.view.View) {
-        val sheet = ConfirmationBottomSheet(
-            title = "Delete Subscription",
-            message = "Are you sure you want to delete ${subscription.name}? This action cannot be undone and will remove all payment history.",
-            positiveButtonText = "Delete",
-            isDestructive = true,
-            onConfirm = {
-                viewModel.deleteSubscription(subscription) {
-                    PreferenceHelper.performSuccessHaptic(contentRoot)
-                }
-            }
-        )
-        sheet.show(activity.supportFragmentManager, "ConfirmDelete")
     }
 }
