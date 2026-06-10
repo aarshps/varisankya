@@ -87,7 +87,7 @@ export function Field({
 // M3 outlined input: visible outline, primary focus ring, theme-aware native
 // controls (color-scheme is set globally so the date picker indicator adapts).
 const inputClass =
-  "w-full rounded-lg border border-outline-strong bg-surface-2 px-4 py-3 text-base text-on-surface outline-none transition focus:border-primary focus:ring-1 focus:ring-primary";
+  "w-full min-w-0 rounded-lg border border-outline-strong bg-surface-2 px-4 py-3 text-base text-on-surface outline-none transition focus:border-primary focus:ring-1 focus:ring-primary";
 
 export function TextInput(
   props: React.InputHTMLAttributes<HTMLInputElement>,
