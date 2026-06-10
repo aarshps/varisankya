@@ -1,6 +1,8 @@
-Varisankya 3.9 - polish and fixes.
+Varisankya 3.9 - cleaner notifications.
 
-- Fixed: notification icon now shows the Varisankya 'Va' glyph instead of the Android default
+- Payment reminders now arrive as a single notification - at most one from Varisankya at any time
+- Multiple upcoming payments are listed together inside one summary
+- Removed the Mark Paid notification button for a simpler, more reliable flow
 - Minor internal improvements
 
 Thanks for using Varisankya!
