@@ -26,7 +26,12 @@ All three apps talk to the **same Firebase project**: `helloworld-92567418`.
 
 1. **Security is the top priority.** Never commit secrets, keys, or tokens. Before any force-push or history-rewrite, grep the full git history for: private key patterns (`BEGIN.*PRIVATE KEY`), Firebase API keys (`AIza`), OAuth secrets (`GOCSPX-`), service-account JSON (`play_console_key`). See [[security-utmost-priority]].
 
-2. **Secret management = Bitwarden CLI (`bw`).** Master password in `android/.env.local` (key `BW_PASSWORD`). Unlock non-interactively: `BW_SESSION=$(bw unlock "$BW_PASSWORD" --raw)`. On Windows, `bw` is at `C:\Users\Aarsh\AppData\Roaming\npm\bw.cmd` — use the full path from Python subprocess. See `android/.agent/skills/bitwarden-secrets/SKILL.md`.
+2. **Secret management = Bitwarden CLI (`bw`).** The unlock pattern is settled — see `DISASTER_RECOVERY.md §ADR-001` (do not re-litigate). Quick reference:
+   - Credentials file: `.env` at repo root (`BW_CLIENTID`, `BW_CLIENTSECRET`, `BW_PASSWORD`). Template: `.env.example`. Must be `chmod 600`.
+   - **Preferred unlock helper:** `source scripts/bw_unlock.sh` — handles login + unlock idempotently.
+   - Legacy Android-only path: `android/.env.local` (key `BW_PASSWORD`); still used by `android/retrieve_secrets.sh`.
+   - On Windows, `bw` is at `C:\Users\Aarsh\AppData\Roaming\npm\bw.cmd` — use the full path from Python subprocess.
+   - See `android/.agent/skills/bitwarden-secrets/SKILL.md` for the skill definition.
 
 3. **Firestore data model must stay identical across platforms.** `shared/domain/SPEC.md` is the canonical definition. Field names, types, recurrence strings, and payment dual-write layout must match between Android, iOS, and web. If you change a field name on one platform, update all three and the spec.
 
@@ -107,6 +112,20 @@ Known gotchas encountered in this project:
 | `android-build.yml` | push/PR to `android/**` | Ubuntu; lint + debug APK |
 | `ios-build.yml` | push to `main` | macOS; unsigned device build |
 | `ios-release.yml` | manual / `v*` tag | macOS; signed IPA → TestFlight |
+
+---
+
+## Disaster Recovery
+
+Full DR runbooks, secret inventory, vault coverage audit, and 2FA recovery
+locations are documented in **`DISASTER_RECOVERY.md`** at the repo root.
+That document also contains the ADR explaining the `.env` / master-password
+design (§ADR-001) — treat it as settled.
+
+Key helpers:
+- `scripts/bw_unlock.sh` — sources `.env`, logs in via API key, unlocks vault, exports `BW_SESSION`. Source it before any `bw get` call.
+- `android/retrieve_secrets.sh` — pulls Android secrets from the `Varisankya` BW item (calls `bw_unlock.sh` internally via the `.env.local` fallback).
+- `ios/scripts/check_apple_secrets.sh` — audits the 9 GitHub Secrets required for the iOS release workflow.
 
 ---
 
