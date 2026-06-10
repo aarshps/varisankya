@@ -97,22 +97,17 @@ object Analytics {
     )
 
     /**
-     * Fired each time the worker actually posts a single notification. The
+     * Fired when the worker posts the consolidated reminder notification (the
+     * app shows at most one notification at a time). `days_left` is the most
+     * urgent item folded in; `due_count` is how many items it covers. The
      * count of this event over a window is the *denominator* against which
-     * [notificationMarkPaidAction] / [notificationTap] / [notificationDismiss]
-     * become meaningful tap-through rates.
+     * [notificationTap] becomes a meaningful tap-through rate.
      */
-    fun notificationPosted(daysLeft: Int) =
-        log("notification_posted", "days_left" to daysLeft)
+    fun notificationPosted(daysLeft: Int, dueCount: Int) =
+        log("notification_posted", "days_left" to daysLeft, "due_count" to dueCount)
 
     /** User tapped the body of the notification, opening the app. */
     fun notificationTap() = log("notification_tap")
-
-    /** User dismissed/swiped the notification away without acting. */
-    fun notificationDismiss() = log("notification_dismiss")
-
-    /** User tapped the Mark Paid action button inside the notification. */
-    fun notificationMarkPaidAction() = log("notification_mark_paid_action")
 
     /** User tapped "Send Test Notification" in Settings to verify the chain. */
     fun notificationTestSent() = log("notification_test_sent")

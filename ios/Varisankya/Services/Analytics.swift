@@ -36,22 +36,7 @@ enum AppAnalytics {
 
     // MARK: Notifications
     static func notificationWorkerScheduled() { log("notification_worker_scheduled") }
-    static func notificationWorkerRun(
-        success: Bool, signedIn: Bool, subscriptionsChecked: Int, notificationsPosted: Int
-    ) {
-        log("notification_worker_run", [
-            "success": success,
-            "signed_in": signedIn,
-            "subscriptions_checked": subscriptionsChecked,
-            "notifications_posted": notificationsPosted
-        ])
-    }
-    static func notificationPosted(daysLeft: Int) {
-        log("notification_posted", ["days_left": daysLeft])
-    }
     static func notificationTap() { log("notification_tap") }
-    static func notificationDismiss() { log("notification_dismiss") }
-    static func notificationMarkPaidAction() { log("notification_mark_paid_action") }
     static func notificationTestSent() { log("notification_test_sent") }
 
     // MARK: Navigation

@@ -182,11 +182,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .addOnSuccessListener {
                 // Mirror to flat per-user collection (best-effort; see PaymentRepository).
                 PaymentRepository.mirrorPaymentToFlat(firestore, userId, paymentRef.id, payment)
-                // Clear any outstanding "payment due" notification for this subscription
-                // so the notification drawer matches in-app state.
-                SubscriptionNotificationWorker.cancelFor(
-                    getApplication<Application>().applicationContext,
-                    subId
+                // Clear the consolidated "payment due" notification so the
+                // drawer matches in-app state; the next daily worker run
+                // re-posts it if anything is still due.
+                SubscriptionNotificationWorker.cancelSummary(
+                    getApplication<Application>().applicationContext
                 )
                 onSuccess()
             }

@@ -30,7 +30,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
     ) -> Bool {
         FirebaseApp.configure()
         UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
-        NotificationScheduler.configureCategories()
         return true
     }
 

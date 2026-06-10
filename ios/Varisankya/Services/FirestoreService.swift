@@ -161,8 +161,10 @@ final class FirestoreService {
             }
         }
 
-        // Cancel pending notification for this subscription so the tray matches in-app state
-        NotificationScheduler.cancel(forSubscriptionId: subId)
+        // Clear the consolidated reminder so the tray matches in-app state.
+        // The subscriptions snapshot listener fires after this write and
+        // re-schedules the next reminder with fresh data.
+        NotificationScheduler.clearAll()
     }
 
     // MARK: Payment reads

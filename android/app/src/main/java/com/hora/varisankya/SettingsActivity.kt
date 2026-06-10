@@ -1,6 +1,5 @@
 ﻿package com.hora.varisankya
 
-import android.app.NotificationManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -396,14 +395,9 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun rescheduleNotifications(hour: Int? = null, minute: Int? = null) {
-        // Clear any active subscription notifications first so the user
-        // doesn't see stale ones once the schedule shifts.
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.activeNotifications.forEach { sbn ->
-            if (sbn.notification.group == SubscriptionNotificationWorker.GROUP_KEY_SUBSCRIPTIONS) {
-                notificationManager.cancel(sbn.id)
-            }
-        }
+        // Clear the consolidated reminder notification first so the user
+        // doesn't see a stale one once the schedule shifts.
+        SubscriptionNotificationWorker.cancelSummary(this)
         // REPLACE policy — the user explicitly changed the schedule, so any
         // worker already enqueued for the previous time must be discarded.
         SubscriptionNotificationWorker.scheduleNext(this, replacing = true)

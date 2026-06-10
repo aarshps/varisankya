@@ -21,13 +21,14 @@ import java.util.concurrent.TimeUnit
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
-import com.hora.varisankya.receiver.NotificationActionReceiver
 import com.hora.varisankya.util.Analytics
 
 class SubscriptionNotificationWorker(
     appContext: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
+
+    private data class DueItem(val subscription: Subscription, val daysLeft: Int)
 
     override suspend fun doWork(): Result {
         Log.d(TAG, "Worker started")
@@ -36,7 +37,7 @@ class SubscriptionNotificationWorker(
         var success = false
         var signedIn = false
         var checked = 0
-        var posted = 0
+        var posted = false
 
         try {
             val userId = FirebaseAuth.getInstance().currentUser?.uid
@@ -64,17 +65,17 @@ class SubscriptionNotificationWorker(
                 val utcZone = java.time.ZoneId.of("UTC")
                 val todayLocalDate = java.time.LocalDate.now(utcZone)
 
-                subscriptions.forEach { sub ->
+                val dueItems = subscriptions.mapNotNull { sub ->
                     sub.dueDate?.let { dueDate ->
                         val dueLocalDate = dueDate.toInstant().atZone(utcZone).toLocalDate()
                         val daysLeft = java.time.temporal.ChronoUnit.DAYS
                             .between(todayLocalDate, dueLocalDate).toInt()
-                        if (daysLeft in 0..notificationWindow) {
-                            if (sendNotification(sub, daysLeft)) posted++
-                        }
+                        if (daysLeft in 0..notificationWindow) DueItem(sub, daysLeft) else null
                     }
-                }
-                Log.d(TAG, "Run complete — checked=$checked, posted=$posted")
+                }.sortedBy { it.daysLeft }
+
+                posted = postSummaryNotification(dueItems)
+                Log.d(TAG, "Run complete — checked=$checked, due=${dueItems.size}, posted=$posted")
             }
             success = true
         } catch (e: Exception) {
@@ -88,7 +89,7 @@ class SubscriptionNotificationWorker(
             success = success,
             signedIn = signedIn,
             subscriptionsChecked = checked,
-            notificationsPosted = posted,
+            notificationsPosted = if (posted) 1 else 0,
         )
 
         // CHAINED ONE-SHOT: schedule the next run from CURRENT local time so the
@@ -99,9 +100,24 @@ class SubscriptionNotificationWorker(
         return Result.success()
     }
 
-    /** Returns true if a notification was actually posted (permission etc. allowed it). */
-    private fun sendNotification(subscription: Subscription, daysLeft: Int): Boolean {
+    /**
+     * Posts (or clears) the app's single consolidated reminder notification.
+     *
+     * The app shows AT MOST ONE notification at any time: everything due inside
+     * the window is folded into one summary posted under [SUMMARY_NOTIFICATION_ID].
+     * Re-posting with the same ID replaces the previous day's notification, and
+     * an empty due list clears it so the drawer never shows stale reminders.
+     *
+     * Returns true if a notification was actually posted.
+     */
+    private fun postSummaryNotification(dueItems: List<DueItem>): Boolean {
         val context = applicationContext
+
+        if (dueItems.isEmpty()) {
+            cancelSummary(context)
+            return false
+        }
+
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS
@@ -112,32 +128,64 @@ class SubscriptionNotificationWorker(
 
         createNotificationChannel(context)
 
-        val subId = subscription.id ?: return false
-        val notifId = notificationIdFor(subId)
-
-        val title = when (daysLeft) {
-            0 -> "Due Today"
-            1 -> "Due Tomorrow"
-            else -> "Due in $daysLeft days"
+        val builder = if (dueItems.size == 1) {
+            val item = dueItems.first()
+            baseBuilder(context)
+                .setContentTitle(titleFor(item.daysLeft))
+                .setContentText(lineFor(item, withDayPrefix = false))
+        } else {
+            val style = NotificationCompat.InboxStyle()
+            dueItems.forEach { style.addLine(lineFor(it, withDayPrefix = true)) }
+            baseBuilder(context)
+                .setContentTitle("${dueItems.size} payments due soon")
+                .setContentText(dueItems.joinToString(", ") { it.subscription.name })
+                .setStyle(style)
         }
-        val autopayPrefix = if (subscription.autopay) "Autopay • " else ""
-        val message = "$autopayPrefix${subscription.name}: ${subscription.currency} ${subscription.cost}"
 
-        val builder = buildNotification(
-            context = context,
-            channelId = CHANNEL_ID,
-            title = title,
-            message = message,
-            notifId = notifId,
-            subscriptionId = subId,
+        NotificationManagerCompat.from(context).notify(SUMMARY_NOTIFICATION_ID, builder.build())
+        Analytics.notificationPosted(
+            daysLeft = dueItems.first().daysLeft,
+            dueCount = dueItems.size,
+        )
+        return true
+    }
+
+    private fun titleFor(daysLeft: Int): String = when (daysLeft) {
+        0 -> "Due Today"
+        1 -> "Due Tomorrow"
+        else -> "Due in $daysLeft days"
+    }
+
+    private fun lineFor(item: DueItem, withDayPrefix: Boolean): String {
+        val sub = item.subscription
+        val dayPrefix = if (withDayPrefix) {
+            when (item.daysLeft) {
+                0 -> "Today • "
+                1 -> "Tomorrow • "
+                else -> "In ${item.daysLeft} days • "
+            }
+        } else ""
+        val autopayPrefix = if (sub.autopay) "Autopay • " else ""
+        return "$dayPrefix$autopayPrefix${sub.name}: ${sub.currency} ${sub.cost}"
+    }
+
+    private fun baseBuilder(context: Context): NotificationCompat.Builder {
+        // Body tap → MainActivity. EXTRA_FROM_NOTIFICATION lets the
+        // activity log notification_tap on resume.
+        val openIntent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra(MainActivity.EXTRA_FROM_NOTIFICATION, true)
+        }
+        val openPi = PendingIntent.getActivity(
+            context, SUMMARY_NOTIFICATION_ID, openIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
 
-        with(NotificationManagerCompat.from(context)) {
-            // notify with the same ID overwrites any prior notification for this subscription
-            notify(notifId, builder.build())
-        }
-        Analytics.notificationPosted(daysLeft = daysLeft)
-        return true
+        return NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(openPi)
+            .setAutoCancel(true)
     }
 
     companion object {
@@ -149,7 +197,11 @@ class SubscriptionNotificationWorker(
         // ID — the OS treats it as immutable once a user-visible channel has
         // been created.
         const val CHANNEL_ID = "subscription_reminders_v3"
-        const val GROUP_KEY_SUBSCRIPTIONS = "com.hora.varisankya.SUBSCRIPTIONS"
+
+        // The one and only notification ID this app ever posts. Reminders and
+        // the Settings test notification all share it, which is what enforces
+        // the "at most one Varisankya notification at a time" invariant.
+        const val SUMMARY_NOTIFICATION_ID = 1
 
         // Unique-work name for the chained one-shot reminder worker. All call
         // sites that schedule the worker (cold-start, settings change, system
@@ -157,12 +209,14 @@ class SubscriptionNotificationWorker(
         // co-operate via ExistingWorkPolicy.
         const val WORK_NAME = "subscription_notifications"
 
-        /** Stable mapping from a Firestore subscription ID to the OS notification ID. */
-        fun notificationIdFor(subscriptionId: String): Int = subscriptionId.hashCode()
-
-        fun cancelFor(context: Context, subscriptionId: String) {
+        /**
+         * Clears the consolidated reminder notification. Called after the user
+         * records a payment so the drawer matches in-app state; the next daily
+         * worker run re-evaluates and re-posts if anything is still due.
+         */
+        fun cancelSummary(context: Context) {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            nm.cancel(notificationIdFor(subscriptionId))
+            nm.cancel(SUMMARY_NOTIFICATION_ID)
         }
 
         /**
@@ -214,7 +268,9 @@ class SubscriptionNotificationWorker(
          * User-triggered diagnostic from Settings → Send Test Notification.
          * Bypasses the worker entirely and posts a sample notification right
          * now so the user can verify the channel + permission + visibility on
-         * their specific device.
+         * their specific device. Posts under [SUMMARY_NOTIFICATION_ID] so the
+         * max-one-notification invariant holds even while testing; the next
+         * worker run replaces it with the real summary.
          */
         fun postTestNotification(context: Context) {
             if (ActivityCompat.checkSelfPermission(
@@ -225,14 +281,13 @@ class SubscriptionNotificationWorker(
                 return
             }
             createNotificationChannel(context)
-            val notifId = "varisankya-test-notification".hashCode()
             val builder = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Varisankya — test notification")
                 .setContentText("If you can see this, notifications are working.")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true)
-            NotificationManagerCompat.from(context).notify(notifId, builder.build())
+            NotificationManagerCompat.from(context).notify(SUMMARY_NOTIFICATION_ID, builder.build())
             Analytics.init(context)
             Analytics.notificationTestSent()
         }
@@ -257,57 +312,6 @@ class SubscriptionNotificationWorker(
                 setShowBadge(true)
             }
             nm.createNotificationChannel(channel)
-        }
-
-        private fun buildNotification(
-            context: Context,
-            channelId: String,
-            title: String,
-            message: String,
-            notifId: Int,
-            subscriptionId: String,
-        ): NotificationCompat.Builder {
-            // Body tap → MainActivity. EXTRA_FROM_NOTIFICATION lets the
-            // activity log notification_tap on resume.
-            val openIntent = Intent(context, MainActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                putExtra(MainActivity.EXTRA_FROM_NOTIFICATION, true)
-            }
-            val openPi = PendingIntent.getActivity(
-                context, notifId, openIntent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-            )
-
-            // Mark Paid action → broadcast receiver, marks paid + cancels notification.
-            val markPaidIntent = Intent(context, NotificationActionReceiver::class.java).apply {
-                action = NotificationActionReceiver.ACTION_MARK_PAID
-                putExtra(NotificationActionReceiver.EXTRA_SUB_ID, subscriptionId)
-                putExtra(NotificationActionReceiver.EXTRA_NOTIF_ID, notifId)
-            }
-            val markPaidPi = PendingIntent.getBroadcast(
-                context, notifId, markPaidIntent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-            )
-
-            // Dismiss (swipe-away or "clear all") → broadcast receiver, logs notification_dismiss.
-            val dismissIntent = Intent(context, NotificationActionReceiver::class.java).apply {
-                action = NotificationActionReceiver.ACTION_NOTIFICATION_DISMISSED
-            }
-            val dismissPi = PendingIntent.getBroadcast(
-                context, notifId, dismissIntent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-            )
-
-            return NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(openPi)
-                .setDeleteIntent(dismissPi)
-                .addAction(R.drawable.ic_check, "Mark Paid", markPaidPi)
-                .setAutoCancel(true)
-                .setGroup(GROUP_KEY_SUBSCRIPTIONS)
         }
     }
 }

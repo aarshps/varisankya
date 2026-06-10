@@ -1,9 +1,7 @@
 import Foundation
 import UserNotifications
-import FirebaseAuth
 
-/// Routes incoming notification interactions to Firestore (for the "Mark Paid"
-/// action) and to analytics for tap/dismiss tracking.
+/// Presents notifications while the app is foregrounded and logs taps.
 final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
 
     static let shared = NotificationDelegate()
@@ -21,46 +19,9 @@ final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        let info = response.notification.request.content.userInfo
-        let subId = info["subscriptionId"] as? String
-
-        switch response.actionIdentifier {
-        case NotificationScheduler.markPaidActionId:
-            AppAnalytics.notificationMarkPaidAction()
-            if let subId {
-                Task { @MainActor in
-                    await Self.markPaidFromNotification(subscriptionId: subId)
-                }
-            }
-        case UNNotificationDefaultActionIdentifier:
+        if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
             AppAnalytics.notificationTap()
-        case UNNotificationDismissActionIdentifier:
-            AppAnalytics.notificationDismiss()
-        default:
-            break
         }
-
         completionHandler()
-    }
-
-    @MainActor
-    private static func markPaidFromNotification(subscriptionId: String) async {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        do {
-            let all = try await FirestoreService.shared.fetchAllSubscriptions(uid: uid)
-            guard let sub = all.first(where: { $0.id == subscriptionId }) else { return }
-            let next = RecurrenceHelper.nextDueDate(
-                from: sub.dueDate ?? Date(),
-                recurrence: sub.recurrence
-            )
-            try await FirestoreService.shared.recordPayment(
-                for: sub,
-                on: Date(),
-                nextDueDate: next,
-                uid: uid
-            )
-        } catch {
-            // swallow — best-effort from a notification action
-        }
     }
 }

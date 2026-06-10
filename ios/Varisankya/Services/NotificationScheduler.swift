@@ -1,40 +1,30 @@
 import Foundation
 import UserNotifications
-import FirebaseAuth
 
-/// Schedules per-subscription due-date reminders using UNUserNotificationCenter.
+/// Schedules the app's single consolidated due-date reminder using
+/// UNUserNotificationCenter.
 ///
 /// **Why scheduled-local, not silent-push:** The Android app uses WorkManager
-/// to run a daily worker that queries Firestore and posts notifications. iOS
+/// to run a daily worker that queries Firestore and posts a notification. iOS
 /// background processing is much more restricted — we cannot reliably wake on
 /// a schedule to make a network call. So instead, every time the app is
-/// foregrounded (or a sub is added/edited/paid), we **re-schedule** local
-/// notifications for each active subscription at the user's chosen
-/// hour:minute, anchored to the wall-clock day before due date.
+/// foregrounded (or a sub is added/edited/paid), we **re-schedule** the next
+/// reminder locally.
 ///
-/// This produces the same UX as Android (a notification at 8:00 AM N days
-/// before each subscription's due date) without depending on remote pushes.
+/// **At most one notification at a time:** everything due inside the user's
+/// notification window is folded into ONE notification, and every request is
+/// posted under the same fixed identifier ([reminderIdentifier]). Same
+/// identifier means iOS replaces the previous notification — pending or
+/// delivered — instead of stacking a second one, which is what enforces the
+/// "max one Varisankya notification" invariant. The deliberate trade-off:
+/// only the *next* reminder is ever scheduled, so if the app is not opened
+/// after it fires, no further reminders arrive until the next launch
+/// reschedules. Accurate-and-single beats stale-and-stacked.
 enum NotificationScheduler {
 
-    static let categoryIdentifier = "com.hora.varisankya.subscriptionReminder"
-    static let markPaidActionId = "MARK_PAID_ACTION"
-
-    /// Configures the notification category with a "Mark Paid" action. Call once
-    /// at app startup before requesting permission.
-    static func configureCategories() {
-        let markPaid = UNNotificationAction(
-            identifier: markPaidActionId,
-            title: "Mark Paid",
-            options: [.foreground]
-        )
-        let category = UNNotificationCategory(
-            identifier: categoryIdentifier,
-            actions: [markPaid],
-            intentIdentifiers: [],
-            options: []
-        )
-        UNUserNotificationCenter.current().setNotificationCategories([category])
-    }
+    /// The one and only notification identifier this app ever uses. Reminders
+    /// and the Settings test notification all share it.
+    static let reminderIdentifier = "com.hora.varisankya.reminder"
 
     /// Requests permission. Returns true if granted (or previously authorised).
     @discardableResult
@@ -48,85 +38,101 @@ enum NotificationScheduler {
         }
     }
 
-    /// Clears every previously-scheduled subscription reminder. Call before
-    /// rescheduling so we don't accumulate stale ones.
-    static func clearAllScheduled() {
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-    }
-
-    /// Cancels the delivered/pending notification for one subscription. Used
-    /// after the user pays or deletes a subscription.
-    static func cancel(forSubscriptionId id: String) {
+    /// Clears every scheduled and delivered notification. Call before
+    /// rescheduling, and after payments/deletes so the tray never shows a
+    /// stale reminder.
+    static func clearAll() {
         let center = UNUserNotificationCenter.current()
-        let identifiers = [identifier(for: id, daysBefore: 0)]
-            + (0...30).map { identifier(for: id, daysBefore: $0) }
-        center.removePendingNotificationRequests(withIdentifiers: identifiers)
-        center.removeDeliveredNotifications(withIdentifiers: identifiers)
+        center.removeAllPendingNotificationRequests()
+        center.removeAllDeliveredNotifications()
     }
 
-    /// Re-schedules every active subscription's notification window. Mirrors
-    /// the Android worker's behaviour: emit at the user's chosen hour:minute
-    /// of each day from `due - notificationDays` through `due` inclusive.
+    /// Re-schedules the single consolidated reminder: finds the earliest
+    /// upcoming fire time (the user's chosen hour:minute on the first day on
+    /// which at least one active subscription is inside its notification
+    /// window) and bundles everything due-relevant on that day into one
+    /// notification.
     static func rescheduleAll(for subscriptions: [Subscription]) async {
         let prefs = Preferences.shared
         let hour = prefs.notificationHour
         let minute = prefs.notificationMinute
         let window = prefs.notificationDays
 
-        clearAllScheduled()
+        clearAll()
 
-        let center = UNUserNotificationCenter.current()
-        let now = Date()
         let cal = Calendar(identifier: .gregorian)
+        let now = Date()
+        let active = subscriptions.filter { $0.active && $0.dueDate != nil }
 
-        for sub in subscriptions where sub.active {
-            guard let due = sub.dueDate, let id = sub.id else { continue }
-            // Schedule one notification per day in [due - window, due]
+        // Earliest fire date = min over all (sub, daysBefore) candidates.
+        var earliestFire: Date?
+        for sub in active {
+            guard let due = sub.dueDate else { continue }
             for daysBefore in 0...window {
-                guard let triggerDay = cal.date(byAdding: .day, value: -daysBefore, to: due) else { continue }
-                guard let trigger = nextFireDate(forDay: triggerDay, hour: hour, minute: minute, after: now) else {
-                    continue
-                }
-
-                let content = UNMutableNotificationContent()
-                content.title = title(forDaysLeft: daysBefore)
-                let prefix = sub.autopay ? "Autopay \u{2022} " : ""
-                content.body = "\(prefix)\(sub.name): \(sub.currency) \(formatAmount(sub.cost))"
-                content.sound = .default
-                content.categoryIdentifier = categoryIdentifier
-                content.threadIdentifier = "subscriptions"
-                content.userInfo = [
-                    "subscriptionId": id,
-                    "daysLeft": daysBefore
-                ]
-
-                let comps = cal.dateComponents([.year, .month, .day, .hour, .minute], from: trigger)
-                let calTrigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
-
-                let request = UNNotificationRequest(
-                    identifier: identifier(for: id, daysBefore: daysBefore),
-                    content: content,
-                    trigger: calTrigger
-                )
-                do {
-                    try await center.add(request)
-                } catch {
-                    // skip this one — non-fatal
+                guard let triggerDay = cal.date(byAdding: .day, value: -daysBefore, to: due),
+                      let fire = fireDate(forDay: triggerDay, hour: hour, minute: minute, after: now)
+                else { continue }
+                if earliestFire == nil || fire < earliestFire! {
+                    earliestFire = fire
                 }
             }
         }
+
+        guard let fire = earliestFire else {
+            AppAnalytics.notificationWorkerScheduled()
+            return
+        }
+
+        // Everything inside its window on the fire day, most urgent first.
+        let fireDay = cal.startOfDay(for: fire)
+        let dueItems: [(sub: Subscription, daysLeft: Int)] = active.compactMap { sub in
+            guard let due = sub.dueDate else { return nil }
+            let days = cal.dateComponents([.day], from: fireDay, to: cal.startOfDay(for: due)).day ?? -1
+            return (0...window).contains(days) ? (sub, days) : nil
+        }.sorted { $0.daysLeft < $1.daysLeft }
+
+        guard !dueItems.isEmpty else {
+            AppAnalytics.notificationWorkerScheduled()
+            return
+        }
+
+        let content = UNMutableNotificationContent()
+        if dueItems.count == 1 {
+            let item = dueItems[0]
+            content.title = title(forDaysLeft: item.daysLeft)
+            content.body = line(for: item.sub, daysLeft: item.daysLeft, withDayPrefix: false)
+        } else {
+            content.title = "\(dueItems.count) payments due soon"
+            content.body = dueItems
+                .map { line(for: $0.sub, daysLeft: $0.daysLeft, withDayPrefix: true) }
+                .joined(separator: "\n")
+        }
+        content.sound = .default
+        content.threadIdentifier = "subscriptions"
+
+        let comps = cal.dateComponents([.year, .month, .day, .hour, .minute], from: fire)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+        let request = UNNotificationRequest(
+            identifier: reminderIdentifier,
+            content: content,
+            trigger: trigger
+        )
+        try? await UNUserNotificationCenter.current().add(request)
         AppAnalytics.notificationWorkerScheduled()
     }
 
-    /// User-facing diagnostic — posts a test notification right now.
+    /// User-facing diagnostic — posts a test notification right now. Uses the
+    /// same fixed identifier as the real reminder so the max-one-notification
+    /// invariant holds even while testing; the next reschedule replaces it.
     static func postTestNotification() async {
         let content = UNMutableNotificationContent()
         content.title = "Varisankya \u{2014} test notification"
         content.body = "If you can see this, notifications are working."
         content.sound = .default
+        content.threadIdentifier = "subscriptions"
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
         let request = UNNotificationRequest(
-            identifier: "varisankya-test-\(UUID().uuidString)",
+            identifier: reminderIdentifier,
             content: content,
             trigger: trigger
         )
@@ -136,10 +142,6 @@ enum NotificationScheduler {
 
     // MARK: - Helpers
 
-    private static func identifier(for subscriptionId: String, daysBefore: Int) -> String {
-        "varisankya.sub.\(subscriptionId).d\(daysBefore)"
-    }
-
     private static func title(forDaysLeft days: Int) -> String {
         switch days {
         case 0: return "Due Today"
@@ -148,7 +150,20 @@ enum NotificationScheduler {
         }
     }
 
-    private static func nextFireDate(forDay day: Date, hour: Int, minute: Int, after: Date) -> Date? {
+    private static func line(for sub: Subscription, daysLeft: Int, withDayPrefix: Bool) -> String {
+        var prefix = ""
+        if withDayPrefix {
+            switch daysLeft {
+            case 0: prefix = "Today \u{2022} "
+            case 1: prefix = "Tomorrow \u{2022} "
+            default: prefix = "In \(daysLeft) days \u{2022} "
+            }
+        }
+        if sub.autopay { prefix += "Autopay \u{2022} " }
+        return "\(prefix)\(sub.name): \(sub.currency) \(formatAmount(sub.cost))"
+    }
+
+    private static func fireDate(forDay day: Date, hour: Int, minute: Int, after: Date) -> Date? {
         let cal = Calendar(identifier: .gregorian)
         var comps = cal.dateComponents([.year, .month, .day], from: day)
         comps.hour = hour

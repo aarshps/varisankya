@@ -410,10 +410,11 @@ class PaymentBottomSheet(
             // can read in one round-trip. Best-effort: a failure here does not
             // invalidate the authoritative legacy write above.
             PaymentRepository.mirrorPaymentToFlat(firestore, userId, paymentRef.id, payment)
-            // Clear any outstanding "payment due" notification for this subscription
-            // so the notification drawer matches in-app state.
+            // Clear the consolidated "payment due" notification so the drawer
+            // matches in-app state; the next daily worker run re-posts it if
+            // anything is still due.
             context?.let { ctx ->
-                SubscriptionNotificationWorker.cancelFor(ctx.applicationContext, subId)
+                SubscriptionNotificationWorker.cancelSummary(ctx.applicationContext)
             }
             if (isAdded) {
                 onPaymentRecorded()
