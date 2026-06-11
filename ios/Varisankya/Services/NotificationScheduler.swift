@@ -1,30 +1,37 @@
 import Foundation
 import UserNotifications
 
-/// Schedules the app's single consolidated due-date reminder using
-/// UNUserNotificationCenter.
+/// Schedules consolidated due-date reminders using UNUserNotificationCenter.
 ///
 /// **Why scheduled-local, not silent-push:** The Android app uses WorkManager
 /// to run a daily worker that queries Firestore and posts a notification. iOS
 /// background processing is much more restricted — we cannot reliably wake on
 /// a schedule to make a network call. So instead, every time the app is
-/// foregrounded (or a sub is added/edited/paid), we **re-schedule** the next
-/// reminder locally.
+/// foregrounded (or a sub is added/edited/paid), we **re-schedule** reminders
+/// locally.
 ///
-/// **At most one notification at a time:** everything due inside the user's
-/// notification window is folded into ONE notification, and every request is
-/// posted under the same fixed identifier ([reminderIdentifier]). Same
-/// identifier means iOS replaces the previous notification — pending or
-/// delivered — instead of stacking a second one, which is what enforces the
-/// "max one Varisankya notification" invariant. The deliberate trade-off:
-/// only the *next* reminder is ever scheduled, so if the app is not opened
-/// after it fires, no further reminders arrive until the next launch
-/// reschedules. Accurate-and-single beats stale-and-stacked.
+/// **One consolidated notification, nothing left out:** for every day in the
+/// next [horizonDays] on which at least one subscription sits inside the
+/// user's notification window, ONE notification is scheduled whose content
+/// covers EVERY such subscription for that day — never one notification per
+/// subscription, and never just the soonest item. Identifiers are per-day
+/// (`reminder.<yyyyMMdd>`) so each day can have its own pending request; all
+/// share one `threadIdentifier`, so in the rare case the app is not opened
+/// across several due days, iOS collapses the deliveries into a single
+/// visual group rather than a pile of separate items. Every reschedule
+/// clears all pending AND delivered notifications first, so the tray is
+/// rebuilt fresh from current data each time the app runs.
 enum NotificationScheduler {
 
-    /// The one and only notification identifier this app ever uses. Reminders
-    /// and the Settings test notification all share it.
-    static let reminderIdentifier = "com.hora.varisankya.reminder"
+    /// Per-day reminder identifiers share this prefix; the suffix is the
+    /// fire day as `yyyyMMdd`.
+    static let reminderIdentifierPrefix = "com.hora.varisankya.reminder."
+
+    /// How many days ahead reminders are scheduled on each pass. One pending
+    /// request per due day keeps us far under iOS's 64-pending cap (the old
+    /// per-subscription-per-day scheme could blow past it). Any app launch
+    /// inside the horizon extends it again.
+    private static let horizonDays = 30
 
     /// Requests permission. Returns true if granted (or previously authorised).
     @discardableResult
@@ -47,11 +54,9 @@ enum NotificationScheduler {
         center.removeAllDeliveredNotifications()
     }
 
-    /// Re-schedules the single consolidated reminder: finds the earliest
-    /// upcoming fire time (the user's chosen hour:minute on the first day on
-    /// which at least one active subscription is inside its notification
-    /// window) and bundles everything due-relevant on that day into one
-    /// notification.
+    /// Re-schedules the consolidated reminders: one notification per upcoming
+    /// day (inside [horizonDays]) that has at least one subscription within
+    /// its notification window, each covering everything relevant that day.
     static func rescheduleAll(for subscriptions: [Subscription]) async {
         let prefs = Preferences.shared
         let hour = prefs.notificationHour
@@ -60,71 +65,61 @@ enum NotificationScheduler {
 
         clearAll()
 
+        let center = UNUserNotificationCenter.current()
         let cal = Calendar(identifier: .gregorian)
         let now = Date()
+        let todayStart = cal.startOfDay(for: now)
         let active = subscriptions.filter { $0.active && $0.dueDate != nil }
 
-        // Earliest fire date = min over all (sub, daysBefore) candidates.
-        var earliestFire: Date?
-        for sub in active {
-            guard let due = sub.dueDate else { continue }
-            for daysBefore in 0...window {
-                guard let triggerDay = cal.date(byAdding: .day, value: -daysBefore, to: due),
-                      let fire = fireDate(forDay: triggerDay, hour: hour, minute: minute, after: now)
-                else { continue }
-                if earliestFire == nil || fire < earliestFire! {
-                    earliestFire = fire
-                }
+        guard !active.isEmpty else {
+            AppAnalytics.notificationWorkerScheduled()
+            return
+        }
+
+        for offset in 0..<horizonDays {
+            guard let day = cal.date(byAdding: .day, value: offset, to: todayStart),
+                  let fire = fireDate(forDay: day, hour: hour, minute: minute, after: now)
+            else { continue }
+
+            // Everything inside its window on this day, most urgent first.
+            let dueItems: [(sub: Subscription, daysLeft: Int)] = active.compactMap { sub in
+                guard let due = sub.dueDate else { return nil }
+                let days = cal.dateComponents([.day], from: day, to: cal.startOfDay(for: due)).day ?? -1
+                return (0...window).contains(days) ? (sub, days) : nil
+            }.sorted { $0.daysLeft < $1.daysLeft }
+
+            guard !dueItems.isEmpty else { continue }
+
+            let content = UNMutableNotificationContent()
+            if dueItems.count == 1 {
+                let item = dueItems[0]
+                content.title = title(forDaysLeft: item.daysLeft)
+                content.body = line(for: item.sub, daysLeft: item.daysLeft, withDayPrefix: false)
+            } else {
+                content.title = "\(dueItems.count) payments due soon"
+                content.body = dueItems
+                    .map { line(for: $0.sub, daysLeft: $0.daysLeft, withDayPrefix: true) }
+                    .joined(separator: "\n")
             }
+            content.sound = .default
+            content.threadIdentifier = "subscriptions"
+
+            let comps = cal.dateComponents([.year, .month, .day, .hour, .minute], from: fire)
+            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: reminderIdentifierPrefix + dayKey(for: day),
+                content: content,
+                trigger: trigger
+            )
+            try? await center.add(request)
         }
-
-        guard let fire = earliestFire else {
-            AppAnalytics.notificationWorkerScheduled()
-            return
-        }
-
-        // Everything inside its window on the fire day, most urgent first.
-        let fireDay = cal.startOfDay(for: fire)
-        let dueItems: [(sub: Subscription, daysLeft: Int)] = active.compactMap { sub in
-            guard let due = sub.dueDate else { return nil }
-            let days = cal.dateComponents([.day], from: fireDay, to: cal.startOfDay(for: due)).day ?? -1
-            return (0...window).contains(days) ? (sub, days) : nil
-        }.sorted { $0.daysLeft < $1.daysLeft }
-
-        guard !dueItems.isEmpty else {
-            AppAnalytics.notificationWorkerScheduled()
-            return
-        }
-
-        let content = UNMutableNotificationContent()
-        if dueItems.count == 1 {
-            let item = dueItems[0]
-            content.title = title(forDaysLeft: item.daysLeft)
-            content.body = line(for: item.sub, daysLeft: item.daysLeft, withDayPrefix: false)
-        } else {
-            content.title = "\(dueItems.count) payments due soon"
-            content.body = dueItems
-                .map { line(for: $0.sub, daysLeft: $0.daysLeft, withDayPrefix: true) }
-                .joined(separator: "\n")
-        }
-        content.sound = .default
-        content.threadIdentifier = "subscriptions"
-
-        let comps = cal.dateComponents([.year, .month, .day, .hour, .minute], from: fire)
-        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
-        let request = UNNotificationRequest(
-            identifier: reminderIdentifier,
-            content: content,
-            trigger: trigger
-        )
-        try? await UNUserNotificationCenter.current().add(request)
         AppAnalytics.notificationWorkerScheduled()
     }
 
-    /// User-facing diagnostic — posts a test notification right now. Uses the
-    /// same fixed identifier as the real reminder so the max-one-notification
-    /// invariant holds even while testing; the next reschedule replaces it.
+    /// User-facing diagnostic — posts a test notification right now. Clears
+    /// delivered notifications first so testing never stacks a second item.
     static func postTestNotification() async {
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
         let content = UNMutableNotificationContent()
         content.title = "Varisankya \u{2014} test notification"
         content.body = "If you can see this, notifications are working."
@@ -132,7 +127,7 @@ enum NotificationScheduler {
         content.threadIdentifier = "subscriptions"
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
         let request = UNNotificationRequest(
-            identifier: reminderIdentifier,
+            identifier: reminderIdentifierPrefix + "test",
             content: content,
             trigger: trigger
         )
@@ -141,6 +136,11 @@ enum NotificationScheduler {
     }
 
     // MARK: - Helpers
+
+    private static func dayKey(for day: Date) -> String {
+        let comps = Calendar(identifier: .gregorian).dateComponents([.year, .month, .day], from: day)
+        return String(format: "%04d%02d%02d", comps.year ?? 0, comps.month ?? 0, comps.day ?? 0)
+    }
 
     private static func title(forDaysLeft days: Int) -> String {
         switch days {

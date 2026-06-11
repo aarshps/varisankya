@@ -161,9 +161,10 @@ final class FirestoreService {
             }
         }
 
-        // Clear the consolidated reminder so the tray matches in-app state.
-        // The subscriptions snapshot listener fires after this write and
-        // re-schedules the next reminder with fresh data.
+        // Clear pending + delivered reminders so the tray matches in-app
+        // state. The subscriptions snapshot listener fires after this write
+        // and rebuilds the per-day consolidated reminders from fresh data —
+        // the paid item drops out, everything still due stays scheduled.
         NotificationScheduler.clearAll()
     }
 

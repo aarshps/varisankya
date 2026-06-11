@@ -182,10 +182,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .addOnSuccessListener {
                 // Mirror to flat per-user collection (best-effort; see PaymentRepository).
                 PaymentRepository.mirrorPaymentToFlat(firestore, userId, paymentRef.id, payment)
-                // Clear the consolidated "payment due" notification so the
-                // drawer matches in-app state; the next daily worker run
-                // re-posts it if anything is still due.
-                SubscriptionNotificationWorker.cancelSummary(
+                // Refresh the consolidated reminder so the drawer matches
+                // in-app state — the paid item drops out while everything
+                // still due stays visible.
+                SubscriptionNotificationWorker.refreshNow(
                     getApplication<Application>().applicationContext
                 )
                 onSuccess()
@@ -199,7 +199,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         firestore.collection("users").document(userId).collection("subscriptions").document(subId)
             .update("active", isActive)
-            .addOnSuccessListener { onSuccess() }
+            .addOnSuccessListener {
+                // Keep the consolidated reminder truthful when a due item is
+                // (de)activated — update in place rather than waiting a day.
+                SubscriptionNotificationWorker.refreshNow(
+                    getApplication<Application>().applicationContext
+                )
+                onSuccess()
+            }
     }
 
     fun deleteSubscription(subscription: Subscription, onSuccess: () -> Unit) {
@@ -208,7 +215,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
          firestore.collection("users").document(userId).collection("subscriptions").document(subId)
             .delete()
-            .addOnSuccessListener { onSuccess() }
+            .addOnSuccessListener {
+                // Same as above: a deleted subscription must drop out of the
+                // visible summary immediately, keeping the rest.
+                SubscriptionNotificationWorker.refreshNow(
+                    getApplication<Application>().applicationContext
+                )
+                onSuccess()
+            }
     }
 
     private fun calculateNextDueDate(fromDate: Date, recurrence: String): Date? {

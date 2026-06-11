@@ -41,8 +41,6 @@ files:
   – `recordPayment()`, `deletePayment()`, `updatePaymentDate()`
 - `app/src/main/java/com/hora/varisankya/viewmodel/MainViewModel.kt`
   – `markAsPaid()` (used by the swipe-to-paid gesture)
-- `app/src/main/java/com/hora/varisankya/receiver/NotificationActionReceiver.kt`
-  – `markAsPaid()` (used by the "Mark Paid" notification action)
 - `app/src/main/java/com/hora/varisankya/UnifiedHistoryActivity.kt`
   – `deleteInvalidRecords()` (the data-cleanup sheet)
 

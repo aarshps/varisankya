@@ -16,6 +16,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import com.google.firebase.auth.FirebaseAuth
@@ -31,7 +32,11 @@ class SubscriptionNotificationWorker(
     private data class DueItem(val subscription: Subscription, val daysLeft: Int)
 
     override suspend fun doWork(): Result {
-        Log.d(TAG, "Worker started")
+        // Refresh runs are enqueued by in-app data changes (payment, delete,
+        // deactivate) and only update/clear the already-visible summary —
+        // silently, without touching the daily chain or its analytics.
+        val isRefresh = inputData.getBoolean(KEY_IS_REFRESH, false)
+        Log.d(TAG, "Worker started (refresh=$isRefresh)")
         Analytics.init(applicationContext)
 
         var success = false
@@ -74,7 +79,7 @@ class SubscriptionNotificationWorker(
                     }
                 }.sortedBy { it.daysLeft }
 
-                posted = postSummaryNotification(dueItems)
+                posted = postSummaryNotification(dueItems, refresh = isRefresh)
                 Log.d(TAG, "Run complete — checked=$checked, due=${dueItems.size}, posted=$posted")
             }
             success = true
@@ -85,17 +90,19 @@ class SubscriptionNotificationWorker(
             Log.e(TAG, "Error in worker — failing this run, will retry tomorrow", e)
         }
 
-        Analytics.notificationWorkerRun(
-            success = success,
-            signedIn = signedIn,
-            subscriptionsChecked = checked,
-            notificationsPosted = if (posted) 1 else 0,
-        )
+        if (!isRefresh) {
+            Analytics.notificationWorkerRun(
+                success = success,
+                signedIn = signedIn,
+                subscriptionsChecked = checked,
+                notificationsPosted = if (posted) 1 else 0,
+            )
 
-        // CHAINED ONE-SHOT: schedule the next run from CURRENT local time so the
-        // app self-corrects after timezone travel / DST. Without this the worker
-        // would drift away from the user's wall-clock target hour.
-        scheduleNext(applicationContext, replacing = true)
+            // CHAINED ONE-SHOT: schedule the next run from CURRENT local time so
+            // the app self-corrects after timezone travel / DST. Without this the
+            // worker would drift away from the user's wall-clock target hour.
+            scheduleNext(applicationContext, replacing = true)
+        }
 
         return Result.success()
     }
@@ -103,14 +110,21 @@ class SubscriptionNotificationWorker(
     /**
      * Posts (or clears) the app's single consolidated reminder notification.
      *
-     * The app shows AT MOST ONE notification at any time: everything due inside
-     * the window is folded into one summary posted under [SUMMARY_NOTIFICATION_ID].
-     * Re-posting with the same ID replaces the previous day's notification, and
-     * an empty due list clears it so the drawer never shows stale reminders.
+     * The app shows AT MOST ONE notification at any time, and that one
+     * notification covers EVERYTHING due inside the window — nothing is
+     * dropped to satisfy the one-notification rule. It is posted under
+     * [SUMMARY_NOTIFICATION_ID]; re-posting with the same ID replaces the
+     * previous version, and an empty due list clears it so the drawer never
+     * shows stale reminders.
+     *
+     * Daily runs (`refresh = false`) alert like any reminder. Refresh runs
+     * (`refresh = true`) keep the visible summary truthful after an in-app
+     * change: they update it in place silently (e.g. drop the just-paid item,
+     * keep the rest), and never resurrect a summary the user has dismissed.
      *
      * Returns true if a notification was actually posted.
      */
-    private fun postSummaryNotification(dueItems: List<DueItem>): Boolean {
+    private fun postSummaryNotification(dueItems: List<DueItem>, refresh: Boolean): Boolean {
         val context = applicationContext
 
         if (dueItems.isEmpty()) {
@@ -123,6 +137,12 @@ class SubscriptionNotificationWorker(
                 Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
+            return false
+        }
+
+        if (refresh && !isSummaryDisplayed(context)) {
+            // The user dismissed (or never had) the summary — a data change
+            // must not re-alert them. The next daily run re-posts as usual.
             return false
         }
 
@@ -142,12 +162,23 @@ class SubscriptionNotificationWorker(
                 .setStyle(style)
         }
 
+        // setOnlyAlertOnce: an in-place refresh of a displayed notification
+        // must not buzz again — only genuinely new daily reminders alert.
+        if (refresh) builder.setOnlyAlertOnce(true)
+
         NotificationManagerCompat.from(context).notify(SUMMARY_NOTIFICATION_ID, builder.build())
-        Analytics.notificationPosted(
-            daysLeft = dueItems.first().daysLeft,
-            dueCount = dueItems.size,
-        )
+        if (!refresh) {
+            Analytics.notificationPosted(
+                daysLeft = dueItems.first().daysLeft,
+                dueCount = dueItems.size,
+            )
+        }
         return true
+    }
+
+    private fun isSummaryDisplayed(context: Context): Boolean {
+        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        return nm.activeNotifications.any { it.id == SUMMARY_NOTIFICATION_ID }
     }
 
     private fun titleFor(daysLeft: Int): String = when (daysLeft) {
@@ -209,14 +240,38 @@ class SubscriptionNotificationWorker(
         // co-operate via ExistingWorkPolicy.
         const val WORK_NAME = "subscription_notifications"
 
+        // Separate unique-work name for in-app silent refreshes. MUST stay
+        // distinct from [WORK_NAME]: REPLACE-ing the daily chain would cancel
+        // the scheduled next-day reminder.
+        const val REFRESH_WORK_NAME = "subscription_notifications_refresh"
+
+        const val KEY_IS_REFRESH = "is_refresh"
+
         /**
-         * Clears the consolidated reminder notification. Called after the user
-         * records a payment so the drawer matches in-app state; the next daily
-         * worker run re-evaluates and re-posts if anything is still due.
+         * Clears the consolidated reminder notification outright. Used when
+         * the reminder schedule itself changes (Settings); for data changes
+         * (payment/delete) prefer [refreshNow], which keeps the summary alive
+         * for whatever is still due instead of hiding everything.
          */
         fun cancelSummary(context: Context) {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             nm.cancel(SUMMARY_NOTIFICATION_ID)
+        }
+
+        /**
+         * Re-evaluates the summary right now after an in-app data change
+         * (payment recorded, subscription deleted/deactivated). Runs the
+         * worker once in refresh mode: the visible summary is updated in
+         * place — minus the handled item, keeping every other due item — or
+         * cleared when nothing remains due. Silent (no re-alert), never
+         * resurrects a dismissed summary, and leaves the daily chain alone.
+         */
+        fun refreshNow(context: Context) {
+            val request = OneTimeWorkRequestBuilder<SubscriptionNotificationWorker>()
+                .setInputData(workDataOf(KEY_IS_REFRESH to true))
+                .build()
+            WorkManager.getInstance(context)
+                .enqueueUniqueWork(REFRESH_WORK_NAME, ExistingWorkPolicy.REPLACE, request)
         }
 
         /**
