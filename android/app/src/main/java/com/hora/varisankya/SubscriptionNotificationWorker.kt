@@ -62,19 +62,11 @@ class SubscriptionNotificationWorker(
                 checked = subscriptions.size
                 val notificationWindow = PreferenceHelper.getNotificationDays(applicationContext)
 
-                // Both sides of the days-left calculation are computed in UTC.
-                // dueDate is stored as a UTC-midnight Firestore Timestamp (the
-                // MaterialDatePicker writes that). Using LocalDate.now() in
-                // device-local zone here would silently skip boundary days for
-                // users in non-UTC zones like IST.
-                val utcZone = java.time.ZoneId.of("UTC")
-                val todayLocalDate = java.time.LocalDate.now(utcZone)
+                val todayUtc = java.time.LocalDate.now(java.time.ZoneId.of("UTC"))
 
                 val dueItems = subscriptions.mapNotNull { sub ->
                     sub.dueDate?.let { dueDate ->
-                        val dueLocalDate = dueDate.toInstant().atZone(utcZone).toLocalDate()
-                        val daysLeft = java.time.temporal.ChronoUnit.DAYS
-                            .between(todayLocalDate, dueLocalDate).toInt()
+                        val daysLeft = daysLeftUtc(dueDate, todayUtc)
                         if (daysLeft in 0..notificationWindow) DueItem(sub, daysLeft) else null
                     }
                 }.sortedBy { it.daysLeft }
@@ -246,6 +238,23 @@ class SubscriptionNotificationWorker(
         const val REFRESH_WORK_NAME = "subscription_notifications_refresh"
 
         const val KEY_IS_REFRESH = "is_refresh"
+
+        /**
+         * Whole days from [todayUtc] to [dueDate], both interpreted in UTC.
+         *
+         * Both sides MUST stay in UTC: dueDate is stored as a UTC-midnight
+         * Firestore Timestamp (the MaterialDatePicker writes that), and
+         * mixing in the device-local zone here silently skips boundary days
+         * for users in non-UTC zones like IST (the v3.8-beta.12 regression).
+         * 0 = due today, 1 = tomorrow, negative = overdue.
+         */
+        fun daysLeftUtc(dueDate: java.util.Date, todayUtc: java.time.LocalDate): Int {
+            val dueLocalDate = dueDate.toInstant()
+                .atZone(java.time.ZoneId.of("UTC"))
+                .toLocalDate()
+            return java.time.temporal.ChronoUnit.DAYS
+                .between(todayUtc, dueLocalDate).toInt()
+        }
 
         /**
          * Clears the consolidated reminder notification outright. Used when

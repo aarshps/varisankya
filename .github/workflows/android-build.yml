@@ -65,11 +65,22 @@ jobs:
           EOF
           fi
 
+      - name: Unit tests
+        run: ./gradlew :app:testDebugUnitTest --no-daemon
+
       - name: Lint
         run: ./gradlew lint --no-daemon
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload unit test report (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: android/app/build/reports/tests/
+          retention-days: 7
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
