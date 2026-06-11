@@ -1,8 +1,8 @@
-Varisankya 3.9 - cleaner notifications.
+Varisankya 3.9 - one notification, nothing missed.
 
-- Payment reminders now arrive as a single notification - at most one from Varisankya at any time
-- Multiple upcoming payments are listed together inside one summary
-- Removed the Mark Paid notification button for a simpler, more reliable flow
+- The single reminder always covers every upcoming payment together - nothing is dropped to keep it single
+- Paying, deleting or pausing a subscription now updates the reminder in place: the handled item leaves, the rest stay visible
+- Reminder updates after in-app changes are silent - no double buzz
 - Minor internal improvements
 
 Thanks for using Varisankya!
