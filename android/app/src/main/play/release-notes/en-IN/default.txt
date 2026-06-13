@@ -1,8 +1,6 @@
-Varisankya 3.9 - one notification, nothing missed.
+Varisankya 3.9 - new notification icon.
 
-- The single reminder always covers every upcoming payment together - nothing is dropped to keep it single
-- Paying, deleting or pausing a subscription now updates the reminder in place: the handled item leaves, the rest stay visible
-- Reminder updates after in-app changes are silent - no double buzz
+- Fresh status-bar / notification icon: a rounded badge with the Malayalam "va" drawn as a clean hollow outline, the new look shared across the Hora family of apps
 - Minor internal improvements
 
 Thanks for using Varisankya!
