@@ -18,6 +18,11 @@ final class HistoryViewModel {
     }
 
     func load(uid: String) async {
+        if AppEnv.isScreenshotMode {
+            allPayments = SampleData.payments
+            loading = false
+            return
+        }
         loading = true
         error = nil
         do {
