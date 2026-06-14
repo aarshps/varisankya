@@ -97,8 +97,20 @@ jobs:
         id: sim
         run: |
           set -euo pipefail
+          echo "Available iPhone device types:"
+          xcrun simctl list devicetypes -j | jq -r '.devicetypes[] | select(.productFamily=="iPhone") | .name' | sort -u
           RUNTIME=$(xcrun simctl list runtimes iOS -j | jq -r '[.runtimes[] | select(.isAvailable)] | last | .identifier')
-          DEVTYPE=$(xcrun simctl list devicetypes -j | jq -r '[.devicetypes[] | select(.productFamily=="iPhone") | select(.name | test("Pro Max"))] | last | .identifier')
+          # Prefer a 6.9" device (1320x2868 — Apple's current primary iPhone size).
+          # `last` over a name regex is NOT chronological, so pick explicitly.
+          DEVTYPE=""
+          for NAME in "iPhone 17 Pro Max" "iPhone 16 Pro Max" "iPhone 15 Pro Max"; do
+            ID=$(xcrun simctl list devicetypes -j | jq -r --arg n "$NAME" '.devicetypes[] | select(.name==$n) | .identifier' | head -1)
+            if [ -n "$ID" ]; then DEVTYPE="$ID"; echo "Selected device: $NAME"; break; fi
+          done
+          if [ -z "$DEVTYPE" ]; then
+            DEVTYPE=$(xcrun simctl list devicetypes -j | jq -r '[.devicetypes[] | select(.name|test("Pro Max"))] | last | .identifier')
+            echo "::warning::No 6.9\"/6.7\" Pro Max found; falling back to $DEVTYPE"
+          fi
           echo "Runtime: $RUNTIME"
           echo "Device type: $DEVTYPE"
           UDID=$(xcrun simctl create "shot-device" "$DEVTYPE" "$RUNTIME")
