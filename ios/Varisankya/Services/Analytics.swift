@@ -9,6 +9,9 @@ import FirebaseAnalytics
 enum AppAnalytics {
 
     private static func log(_ event: String, _ params: [String: Any] = [:]) {
+        // Screenshot mode runs with Firebase un-configured; skip analytics so a
+        // logEvent call can never touch an uninitialised SDK during capture.
+        if AppEnv.isScreenshotMode { return }
         Analytics.logEvent(event, parameters: params.isEmpty ? nil : params)
     }
 

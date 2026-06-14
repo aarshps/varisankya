@@ -28,7 +28,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        FirebaseApp.configure()
+        // Skip Firebase entirely in screenshot mode (CI runs with a placeholder
+        // GoogleService-Info and no real project).
+        if !AppEnv.isScreenshotMode {
+            FirebaseApp.configure()
+        }
         UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
         return true
     }

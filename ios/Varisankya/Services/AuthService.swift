@@ -21,14 +21,20 @@ final class AuthService: NSObject {
     private var currentNonce: String?
     private var appleContinuation: CheckedContinuation<Void, Error>?
 
-    var isSignedIn: Bool { user != nil }
-    var displayName: String? { user?.displayName }
-    var email: String? { user?.email }
-    var photoURL: URL? { user?.photoURL }
-    var uid: String? { user?.uid }
+    var isSignedIn: Bool { AppEnv.isScreenshotMode || user != nil }
+    var displayName: String? { AppEnv.isScreenshotMode ? "Adarsh" : user?.displayName }
+    var email: String? { AppEnv.isScreenshotMode ? "you@example.com" : user?.email }
+    var photoURL: URL? { AppEnv.isScreenshotMode ? nil : user?.photoURL }
+    var uid: String? { AppEnv.isScreenshotMode ? "screenshot-uid" : user?.uid }
 
     override init() {
         super.init()
+        // Screenshot mode is fully decoupled from Firebase: present as signed-in
+        // immediately and never attach the auth listener.
+        if AppEnv.isScreenshotMode {
+            isInitialized = true
+            return
+        }
         authListener = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             Task { @MainActor in
                 self?.user = user

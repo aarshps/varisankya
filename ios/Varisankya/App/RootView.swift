@@ -27,7 +27,8 @@ struct RootView: View {
         .animation(.smooth(duration: 0.4), value: auth.isSignedIn)
         .animation(.smooth(duration: 0.3), value: didUnlock)
         .task {
-            requiresUnlock = preferences.biometricEnabled && BiometricAuth.isAvailable
+            requiresUnlock = !AppEnv.isScreenshotMode
+                && preferences.biometricEnabled && BiometricAuth.isAvailable
         }
     }
 }

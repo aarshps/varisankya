@@ -15,6 +15,14 @@ final class MainViewModel {
     private var rescheduleTask: Task<Void, Never>?
 
     func startObserving(uid: String) {
+        // Screenshot mode: serve deterministic sample data, never touch Firestore.
+        if AppEnv.isScreenshotMode {
+            let subs = SampleData.subscriptions
+            subscriptions = subs
+            heroState = Self.calculateHero(subs)
+            isLoading = false
+            return
+        }
         listener?.remove()
         isLoading = true
         error = nil

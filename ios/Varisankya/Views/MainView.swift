@@ -75,6 +75,17 @@ struct MainView: View {
             vm.startObserving(uid: uid)
             await requestNotificationsIfNeeded()
         }
+        .task {
+            // Screenshot mode: deep-open the requested screen for CI capture.
+            guard AppEnv.isScreenshotMode else { return }
+            try? await Task.sleep(for: .milliseconds(500))
+            switch AppEnv.screenshotScreen {
+            case "add": showAddSheet = true
+            case "settings": showSettings = true
+            case "history": showHistory = true
+            default: break
+            }
+        }
         .onChange(of: auth.isSignedIn) { _, signedIn in
             if signedIn, let uid = auth.uid {
                 vm.startObserving(uid: uid)
@@ -147,6 +158,8 @@ struct MainView: View {
     }
 
     private func requestNotificationsIfNeeded() async {
+        // Never trigger the system permission dialog during screenshot capture.
+        guard !AppEnv.isScreenshotMode else { return }
         guard !prefs.notificationPermissionRequested else { return }
         let granted = await NotificationScheduler.requestAuthorization()
         prefs.notificationPermissionRequested = true

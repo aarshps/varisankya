@@ -1,0 +1,143 @@
+name: iOS Screenshots
+
+# Captures App Store screenshots by booting a simulator and launching the app
+# in screenshot mode (-screenshotMode), which bypasses sign-in/Firebase and
+# seeds sample data. Artifacts are uploaded for manual review/upload to
+# App Store Connect. Manual (workflow_dispatch); also runs on the feature
+# branch while it's being built out.
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/ios-screenshots]
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios-screenshots.yml"
+
+concurrency:
+  group: ios-screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    name: Capture
+    runs-on: macos-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: ios
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select latest Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate placeholder GoogleService-Info.plist (if missing)
+        run: |
+          PLIST="Varisankya/Resources/GoogleService-Info.plist"
+          if [ ! -f "$PLIST" ]; then
+            cat > "$PLIST" <<'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>API_KEY</key><string>placeholder</string>
+            <key>BUNDLE_ID</key><string>com.hora.varisankya</string>
+            <key>CLIENT_ID</key><string>000000000000-placeholder.apps.googleusercontent.com</string>
+            <key>REVERSED_CLIENT_ID</key><string>com.googleusercontent.apps.000000000000-placeholder</string>
+            <key>GCM_SENDER_ID</key><string>000000000000</string>
+            <key>GOOGLE_APP_ID</key><string>1:000000000000:ios:placeholder</string>
+            <key>PROJECT_ID</key><string>varisankya-placeholder</string>
+            <key>STORAGE_BUCKET</key><string>varisankya-placeholder.appspot.com</string>
+            <key>IS_ADS_ENABLED</key><false/>
+            <key>IS_ANALYTICS_ENABLED</key><false/>
+            <key>IS_APPINVITE_ENABLED</key><false/>
+            <key>IS_GCM_ENABLED</key><true/>
+            <key>IS_SIGNIN_ENABLED</key><true/>
+          </dict>
+          </plist>
+          EOF
+          fi
+
+      - name: Generate AppIcon (if missing)
+        run: |
+          ICON="Varisankya/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png"
+          if [ ! -f "$ICON" ]; then
+            swift scripts/generate_icon.swift "$ICON"
+          fi
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Resolve Swift packages
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project Varisankya.xcodeproj \
+            -scheme Varisankya
+
+      - name: Build for simulator
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project Varisankya.xcodeproj \
+            -scheme Varisankya \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            build | xcbeautify
+
+      - name: Create & boot simulator
+        id: sim
+        run: |
+          set -euo pipefail
+          RUNTIME=$(xcrun simctl list runtimes iOS -j | jq -r '[.runtimes[] | select(.isAvailable)] | last | .identifier')
+          DEVTYPE=$(xcrun simctl list devicetypes -j | jq -r '[.devicetypes[] | select(.productFamily=="iPhone") | select(.name | test("Pro Max"))] | last | .identifier')
+          echo "Runtime: $RUNTIME"
+          echo "Device type: $DEVTYPE"
+          UDID=$(xcrun simctl create "shot-device" "$DEVTYPE" "$RUNTIME")
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override \
+            --time "9:41" --batteryState charged --batteryLevel 100 \
+            --cellularBars 4 --wifiBars 3 || true
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Install app
+        run: |
+          set -euo pipefail
+          APP=$(find build/Build/Products/Debug-iphonesimulator -maxdepth 1 -name "Varisankya.app" | head -1)
+          echo "App: $APP"
+          xcrun simctl install "${{ steps.sim.outputs.udid }}" "$APP"
+
+      - name: Capture screens
+        run: |
+          set -euo pipefail
+          UDID="${{ steps.sim.outputs.udid }}"
+          BID="com.hora.varisankya"
+          mkdir -p shots
+          shoot () {  # $1 = screen name, $2 = output filename
+            xcrun simctl terminate "$UDID" "$BID" >/dev/null 2>&1 || true
+            xcrun simctl launch "$UDID" "$BID" -screenshotMode -screenshotScreen "$1"
+            sleep 7
+            xcrun simctl io "$UDID" screenshot "shots/$2"
+            echo "captured $2"
+          }
+          shoot home     01-home.png
+          shoot history  02-payments.png
+          shoot add      03-add.png
+          shoot settings 04-settings.png
+          ls -la shots
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-store-screenshots
+          path: ios/shots/*.png
+          retention-days: 14
