@@ -5,13 +5,12 @@ name: iOS Screenshots
 # seeds sample data. Artifacts are uploaded for manual review/upload to
 # App Store Connect. Manual (workflow_dispatch); also runs on the feature
 # branch while it's being built out.
+#
+# Manual only: regenerate the App Store screenshot set on demand
+# (Actions → iOS Screenshots → Run workflow). It's a ~15-min macOS job, so it
+# deliberately does NOT run on every push.
 on:
   workflow_dispatch:
-  push:
-    branches: [feat/ios-screenshots]
-    paths:
-      - "ios/**"
-      - ".github/workflows/ios-screenshots.yml"
 
 concurrency:
   group: ios-screenshots-${{ github.ref }}

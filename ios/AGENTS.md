@@ -184,6 +184,26 @@ Trigger:
 gh workflow run ios-release.yml -f track=testflight -f bump_build=true
 ```
 
+### `ios-screenshots.yml` — App Store screenshots (manual)
+
+Captures App Store screenshots in CI with **no Mac required**. Builds for the
+simulator, boots an iPhone 17/16 Pro Max (6.9", 1320×2868), launches the app in
+**screenshot mode**, and captures Home / Payments / Add / Settings via `simctl`,
+uploaded as the `app-store-screenshots` artifact.
+
+Screenshot mode is gated on the `-screenshotMode` launch arg (see
+`Varisankya/Support/AppEnv.swift`) — set only by this workflow, never in
+App Store/TestFlight builds. It makes `AuthService` present as signed-in without
+Firebase, serves `SampleData` instead of Firestore, suppresses the notification
+prompt, and deep-opens the screen named by `-screenshotScreen`. To add a screen:
+seed its data behind `AppEnv.isScreenshotMode`, add a `-screenshotScreen` case in
+`MainView`, and a `shoot` line in the workflow.
+
+Trigger:
+```bash
+gh workflow run ios-screenshots.yml      # then download the artifact from the run
+```
+
 ---
 
 ## GitHub Secrets required (9 total)
@@ -345,6 +365,9 @@ encode/decode and `nextDueDate(from:)` UTC math. Same strings used by Android.
 | `scripts/generate_icon.swift` | Renders placeholder app icon PNG for CI (replace before App Store submission) |
 | `.github/workflows/ios-build.yml` | Unsigned device build; runs on every push |
 | `.github/workflows/ios-release.yml` | Signed archive + TestFlight upload; manual / `v*` tag |
+| `.github/workflows/ios-screenshots.yml` | App Store screenshots via simulator; manual |
+| `Varisankya/Support/AppEnv.swift` | Launch-arg flags; `isScreenshotMode` gates the demo path |
+| `Varisankya/Support/SampleData.swift` | Deterministic sample subs/payments for screenshot mode |
 | `POST_ENROLLMENT.md` | 8-stage checklist: from Apple welcome email to TestFlight (~45 min) |
 | `APPLE_RUNBOOK.md` | Background reading on Apple enrollment; some sections predate current scripts — treat as supplementary |
 | `METADATA.md` | App Store listing copy (name, subtitle, description, keywords) |
