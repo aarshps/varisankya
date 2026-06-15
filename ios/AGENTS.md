@@ -232,7 +232,7 @@ Run `./scripts/check_apple_secrets.sh` to audit which are set.
 | Legal name on Apple ID | `Adarsh P S` (corrected 2026-05-28 to match Aadhaar/Passport/PAN) |
 | Enrollment status | 🟠 **Awaiting Apple** — All requested materials delivered. 2026-06-10: screen recording + 2 screenshots uploaded via gigafiles (3 files, confirmed "Completed"); device-details email sent to Yana. 2026-06-11: SEID sent in follow-up email (value deliberately not stored in this repo). Ball is in Apple's court. |
 | Root cause (initial) | ID-verification rejected (name "Ps" flagged as non-real). Fixed to "P S". Identity approved by Yana 2026-06-02. A separate account-level hold then blocked before payment — escalated via ID docs 2026-06-06. Apple now investigating. |
-| Device info confirmed | Model: iPhone 13 Pro · Model Number: MLVC3AA/A · Serial Number: W5JWK3Y3Y1 · SEID: provided to Apple 2026-06-11 (separate identifier from serial; not stored in repo) · Account: "Adarsh P S" (aarshps@gmail.com) |
+| Device info confirmed | Model: iPhone 13 Pro · Model Number: MLVC3AA/A · Serial Number: redacted (full value held only in the Apple case/email, per the no-secrets policy) · SEID: provided to Apple 2026-06-11 (also not stored in repo) · Account: "Adarsh P S" (aarshps@gmail.com) |
 | Support case (primary) | **#102900128848** (agents: Yana, Samira, Lita / asia.dev@apple.com). Secure file upload link (gigafiles) expires **2026-06-15**. Email draft ready: Apple-Email-FINAL.md |
 | Support case (parallel) | **#102905434551** (filed 2026-06-02 via contact form). Should be updated with same device details. |
 | Public escalation | Forum: https://developer.apple.com/forums/thread/828487 · Tweet: https://x.com/aarshps/status/2061572757847187899 |

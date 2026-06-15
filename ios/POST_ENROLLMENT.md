@@ -21,7 +21,7 @@ Every step has a paste-ready command or an exact URL. Total active time:
 | ✅ iOS source compiles 0 warnings 0 errors on iOS 26 SDK | App Store Connect listing |
 | ✅ CI green at https://github.com/aarshps/varisankya/actions | TestFlight upload |
 
-**Enrollment blockers note:** Support cases #102900128848 + #102905434551 open + silent; forum https://developer.apple.com/forums/thread/828487 and tweet posted. See `ESCALATION_DRAFTS.md` and wiki for timeline. Re-attempt only after support reset or time window.
+**Enrollment blockers note (updated 2026-06-16):** Cases #102900128848 + #102905434551 still open. Identity approved 06-02; account-level hold persists (re-tested 06-16, still "Unable to Continue"). **Full escalation sweep 06-16** — both cases re-filed via the official contact form (reply due ≤2 business days), Executive Relations re-pinged, forum 828487 + two X posts bumped. Apple enrolment support is **email-only** (no phone callback exists). Full package + scripts: `ESCALATION_DRAFTS.md` → ROUND 2.
 
 ---
 
