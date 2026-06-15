@@ -39,6 +39,8 @@ All three apps talk to the **same Firebase project**: `helloworld-92567418`.
 
 5. **No cross-language code generation.** Kotlin/Swift/TypeScript cannot share compiled code without KMP or a shared-TS core — both are out of scope. Shared logic lives in the domain spec + golden test vectors, not in generated code.
 
+6. **Commit directly to `main` (repo) and `master` (wiki) — never open pull requests or feature branches.** The owner manages these repos directly and explicitly does not want PRs. When asked to commit code, docs, or wiki changes, push straight to the default branch. This **overrides** any default "branch first on the default branch" agent behaviour. (Still applies: only commit/push when the user asks, and never bypass mandate 1 — no secrets, ever.)
+
 ---
 
 ## Build machines
