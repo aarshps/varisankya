@@ -14,6 +14,68 @@ This file is an operational artifact — delete after enrolment clears.
 
 ---
 
+## ⏱ ROUND 2 — Current escalation package (2026-06-16)
+
+Three weeks in. Identity verification **APPROVED 2026-06-02**, but a separate
+**account-level hold** ("Unable to Continue — contact support at
+developer.apple.com/contact") blocks enrolment before the registration/payment
+step. **Re-tested 2026-06-16 — still blocked.** Everything Apple asked for has
+been delivered across three advisors (Yana, Samira, Lita): confirmation answers,
+5 government-ID files, device model (iPhone 13 Pro, MLVC3AA/A), SEID, and a
+screen recording — all via secure gigafiles links. No Apple reply since
+2026-06-08; follow-up sent 06-14.
+
+Cases: **102900128848** (Yana, asia.dev@apple.com) + **102905434551** (parallel).
+
+### Action checklist — all fired 2026-06-16
+- [x] Exec-relations re-ping → tcook@ + executive_relations@ — **SENT 06-16**
+- [x] Sharpened case reply to Yana (asia.dev@) — **SENT 06-16**
+- [~] Phone callback — **N/A: Apple offers email-only for Program Enrolment** (no callback option anywhere in the contact flow). Replaced by official case-form escalations below.
+- [x] Official contact-form escalation on case **102900128848** — **SUBMITTED 06-16** (Apple: reply within 2 business days)
+- [x] Official contact-form escalation on parallel case **102905434551** — **SUBMITTED 06-16**
+- [x] Forum bump on thread 828487 — **POSTED 06-16** (post #893860022)
+- [x] Tweet tagging @AppleDeveloper — **POSTED 06-16**: reply-style (https://x.com/aarshps/status/2066616022304715107) + main-feed (https://x.com/aarshps/status/2066617522301128756)
+
+### Phone-call script (keep in front of you when Apple calls)
+- **ID:** Apple ID aarshps@gmail.com, "Adarsh P S", Individual, India. Cases 102900128848 + 102905434551.
+- **Problem (one breath):** "Identity verification was APPROVED June 2, but the Developer app shows an account-level hold — 'Unable to Continue, contact support' — that blocks enrolment before the registration/payment step. I've provided every diagnostic asked: ID files, device model, SEID, screen recording."
+- **Ask:** "Please escalate to whoever can LIFT the account-level hold, or tell me the exact condition causing it."
+- **If front-line can't:** "Please open a Senior Advisor escalation on this case today."
+- **Have ready:** SEID 042B27DB…, iPhone 13 Pro MLVC3AA/A.
+
+### Tweet — Round 2 (≤280 chars)
+```
+@AppleDeveloper Developer Program enrolment stuck 3 weeks. Identity APPROVED Jun 2, but an account-level hold — "Unable to Continue, contact support" — blocks it. Gave ID, device, SEID, recording; 3 advisors; still no reason. Cases 102900128848 / 102905434551. Please help.
+```
+
+### Forum reply — bump thread 828487
+```
+Update — three weeks in, still blocked (re-tested today).
+
+Recap for anyone hitting the same wall: my Individual enrolment (India) had its
+identity verification APPROVED on June 2. Since then the Developer app
+hard-blocks BEFORE the registration/payment step with "Unable to Continue —
+contact support" (re-tested again today — same). This is an account-level hold,
+separate from the identity check.
+
+I've now provided everything Developer Support asked across three advisors
+(cases 102900128848 + 102905434551): confirmation answers, 5 government-ID
+files, device model, SEID, and a screen recording of the error — all via Apple's
+secure upload links. No reason for the hold has ever been stated, and no reply
+since June 8.
+
+Has anyone gotten past an account-level hold that appears AFTER identity is
+approved?
+1. What was the underlying cause (billing/payment method, a prior account
+   association, region)?
+2. Did a phone callback or a Senior Advisor escalation resolve it, vs. email?
+3. Is there a faster contact path to the team that can lift an account hold?
+
+Grateful for any pointers.
+```
+
+---
+
 ## 1. Tweet to @AppleSupport (280 chars)
 
 ```
