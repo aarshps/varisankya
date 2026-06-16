@@ -41,6 +41,8 @@ All three apps talk to the **same Firebase project**: `helloworld-92567418`.
 
 6. **Commit directly to `main` (repo) and `master` (wiki) — never open pull requests or feature branches.** The owner manages these repos directly and explicitly does not want PRs. When asked to commit code, docs, or wiki changes, push straight to the default branch. This **overrides** any default "branch first on the default branch" agent behaviour. (Still applies: only commit/push when the user asks, and never bypass mandate 1 — no secrets, ever.)
 
+7. **Family-wide assets live in `hora-core`** (`C:\Users\Aarsh\Source\hora-core`, public, same no-PR/direct-to-main rule). Currently shared from this app: the notification-icon standard + generator (`brand/notification-icon/`, Varisankya's `android/tools/gen_notification_icon.py` is the working instance). Before adding a new cross-app convention or skill, check `hora-core/docs/conventions.md` first — and confirm at least one other Hora app actually needs it before promoting something there, since it's reviewed against multiple agent sessions working in parallel on that repo.
+
 ---
 
 ## Build machines
