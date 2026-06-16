@@ -96,6 +96,8 @@ Known gotchas encountered in this project:
 | iOS | 3.8 (build auto-bumped by CI) | Awaiting Apple enrollment (cases #102900128848 + #102905434551) |
 | Web | latest `main` | Vercel production |
 
+> **Release tracks:** Varisankya is past Play's one-time 12-testers × 14-days testing gate (production since v3.8), so betas publish straight to **Open Testing** (GPP `track` defaults to `beta`) — *not* gated to internal/closed. The `hora-app-release` skill's internal→closed flow is a skeleton for new apps still under the gate. See the wiki **Build & Release** page.
+
 ### App Store reviewer test account (iOS)
 
 | Field | Value |
