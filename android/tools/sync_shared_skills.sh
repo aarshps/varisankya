@@ -27,6 +27,7 @@ DEST="${DEST:-android/.agent/skills}"
 SKILLS=(
   agent-session-closing
   agent-skill-standards
+  hora-app-release
   hora-play-store
 )
 
