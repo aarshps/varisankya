@@ -1,30 +1,21 @@
 ---
 name: Agent Session Closing
-description: Standard operating procedure for concluding an AI agent session and ensuring workspace integrity.
+description: Pointer — the session-closing checklist is now a generalized, family-wide skill in hora-core. This stub keeps only the Varisankya-specific specifics.
 ---
 
 # Agent Session Closing Protocol
 
-Before concluding a development session, the agent MUST execute the following steps to ensure the workspace is left in a clean, documented, and resilient state for future agents or human developers.
+This checklist was generalized into the Hora-family shared repo. **Canonical version:**
+`hora-core/.github/skills/agent-session-closing/SKILL.md`
+(`C:\Users\Aarsh\Source\hora-core`, GitHub `aarshps/hora-core`) — run through that.
 
-## 1. Documentation & Guardrails Update
-- Review the tasks accomplished during the session.
-- Update `AGENTS.md`, `README.md`, and any relevant `SKILL.md` files to reflect new architectural decisions, environment changes, or newly discovered constraints.
-- If a new repeated task was identified, create a new granular skill (under 100 lines) in `.agent/skills/`.
+## Varisankya specifics on top of the shared checklist
 
-## 2. Workspace Cleanup
-- Ensure no sensitive credentials, keystores, or `.env` variables were accidentally staged or committed.
-- Verify that `retrieve_secrets.sh` (or similar environment setup scripts) are documented and ignored in `.gitignore` if they contain sensitive data.
-- Remove any temporary debugging files or local test artifacts not meant for version control.
-
-## 3. Final Validation
-- Run the core build command (e.g., `./gradlew assembleDebug` for Android) to ensure the project compiles successfully in its final state.
-- Run any available linting or formatting checks.
-
-## 4. Commit and Push
-- Stage all documented changes and finalized code.
-- Create a clear, concise commit message summarizing the session's impact.
-- Push the changes to the remote repository (e.g., `git push origin main`).
-
-## 5. Session Summary
-- Provide the user with a concise summary of what was accomplished, what documentation was updated, and any recommended next steps for the following session.
+- **Never stage secrets.** Confirm `git status` shows none of `local.properties`,
+  `android/.env.local`, `google-services.json`, `*.jks`/`*.keystore`,
+  `play_console_key.json`. The secret-retrieval script is `android/retrieve_secrets.sh`.
+- **Commit straight to `main` (repo) / `master` (wiki) — no PRs, no feature branches**
+  (see `AGENTS.md` mandate 6). Only commit/push when the user asks.
+- **Build sanity:** `:app:assembleDebug` for a quick compile; `:app:bundleRelease` +
+  `:app:minifyReleaseWithR8` green before a release.
+- **Update memory** (project file) with the live version + one line on what shipped.

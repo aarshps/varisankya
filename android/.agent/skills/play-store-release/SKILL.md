@@ -1,32 +1,23 @@
 ---
 name: Play Store Release Management
-description: Guidelines for managing Varisankya releases across Beta and Production tracks.
+description: Pointer — Play Console release guidance is now a generalized, family-wide skill in hora-core. This stub keeps only the Varisankya-specific track facts.
 ---
 
 # Play Store Release Strategy
 
-Choosing the right track in the Google Play Console ensures stability and proper audience targeting.
+Generalized into the Hora-family shared repo. **Canonical version** (richer — it also
+covers the App Signing SHA fix for tester sign-in, store-icon vs launcher-icon, track
+promotion, version-code precedence, and the launch-day exception):
+`hora-core/.github/skills/hora-play-store/SKILL.md`.
 
-## Track Definitions
+## Varisankya specifics
 
-### 1. Open Testing ("Beta") - [DEFAULT PRE-RELEASE TRACK]
--   **Review:** **Mandatory** (1-3 days).
--   **Audience:** Public (Anyone can join via Store Listing).
--   **Use Case:** Large scale load testing and beta testing. When a "pre-release" is requested, a GitHub pre-release and a Play Store Open Testing (Beta) release should be created in parallel. This is the default target when running `./gradlew publishBundle`.
--   **UX Warning:** Users must click "Join Beta" -> Wait -> "Install". **Do not use this for marketing launches** (like Product Hunt) as it adds friction.
-
-### 2. Production ("Live")
--   **Review:** **Mandatory**.
--   **Audience:** Everyone.
--   **Use Case:** Once a pre-release is tested and approved, the build is promoted to Production on the Play Store, and a corresponding final GitHub release is created.
-
-## Release Hierarchy & Versioning
--   **Production is King:** If a user is eligible for builds in multiple tracks (e.g., Open Testing and Production), they receive the one with the **Highest Version Code**.
--   **Same Version:** You cannot have Version 32 in Open Testing *and* Production simultaneously if they are the exact same build artifact.
-    -   If Version 32 is in Production, enabling it for Open Testing is redundant.
-    -   To use Open Testing, you must build **Version 33** (or higher).
-
-## Launch Day Protocol
-For major external launches (Product Hunt, Press):
-1.  **Target Production:** Ensure the stable build is fully rolled out to Production (100%).
-2.  **Avoid Beta Friction:** Do not send users to a Testing track link. Give them the direct Production link for instant "Install".
+- **Default pre-release target is open Beta / Open Testing** — `./gradlew :app:publishBundle`
+  (GPP `track` defaults to `beta`). A pre-release means a GitHub pre-release **and** a Play
+  Open Testing release in parallel.
+- **No testing gate here.** Varisankya is past Play's one-time 12-testers × 14-days gate
+  (on the **production** track since v3.8), so betas publish straight to Open Testing — *not*
+  gated to internal/closed. That gate is a one-time account/app unlock, not a per-release gate.
+  See `AGENTS.md` "Current release state" and the wiki **Android Build & Release** page.
+- **Launch day:** for an external/marketing launch, give users the direct **Production** link,
+  not a Testing-track "Join Beta" link.
