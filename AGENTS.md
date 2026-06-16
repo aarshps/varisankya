@@ -88,12 +88,12 @@ Known gotchas encountered in this project:
 
 ---
 
-## Current release state (2026-06-06)
+## Current release state (2026-06-16)
 
 | Platform | Version | Track / Status |
 | --- | --- | --- |
-| Android | v3.9-beta.1 (versionCode 58) | Play Store beta |
-| iOS | 3.8 (build auto-bumped by CI) | Pending Apple enrollment (case #102900128848) |
+| Android | v3.9-beta.5 (versionCode 62) | Play internal + closed (alpha); solid-disc / hollow-വ notification icon (Hora-family standard) |
+| iOS | 3.8 (build auto-bumped by CI) | Awaiting Apple enrollment (cases #102900128848 + #102905434551) |
 | Web | latest `main` | Vercel production |
 
 ### App Store reviewer test account (iOS)

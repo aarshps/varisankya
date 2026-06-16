@@ -1,6 +1,6 @@
-Varisankya 3.9 - new notification icon.
+Varisankya 3.9 - refined notification icon.
 
-- Fresh status-bar / notification icon: a rounded badge with the Malayalam "va" drawn as a clean hollow outline, the new look shared across the Hora family of apps
+- Notification icon update: a solid round badge with the Malayalam "va" knocked out as a clean hollow - the Hora-family notification standard, shown in your status bar and notification shade
 - Minor internal improvements
 
 Thanks for using Varisankya!
