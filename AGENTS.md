@@ -43,6 +43,8 @@ All three apps talk to the **same Firebase project**: `helloworld-92567418`.
 
 7. **Family-wide assets live in `hora-core`** (`C:\Users\Aarsh\Source\hora-core`, public, same no-PR/direct-to-main rule). Currently shared from this app: the notification-icon standard + generator (`brand/notification-icon/`, Varisankya's `android/tools/gen_notification_icon.py` is the working instance). Before adding a new cross-app convention or skill, check `hora-core/docs/conventions.md` first — and confirm at least one other Hora app actually needs it before promoting something there, since it's reviewed against multiple agent sessions working in parallel on that repo.
 
+   **Shared skills are consumed via a sync script — never hand-edit them here.** `android/tools/sync_shared_skills.sh` copies the shared skills Varisankya uses from the local hora-core checkout into `android/.agent/skills/`. Those copies are **generated** (listed in `android/.agent/skills/.hora-core-synced`): to change one, edit the canonical version in `hora-core/.github/skills/` and re-run the script — do not edit the copy in this repo. Currently synced: `agent-session-closing`, `agent-skill-standards`, `hora-play-store` (this replaced the old local `play-store-release`). **`bitwarden-secrets` stays local and is NOT synced** — it's Varisankya's app-specific secret runbook (real vault item/field names); `hora-bitwarden-secrets` in hora-core is the scrubbed public method, not a substitute. All other `.agent/skills/` entries are Varisankya-specific and untouched by the sync. This is the family's chosen consumption mechanism (hora-core `docs/conventions.md` → "Agent skills").
+
 ---
 
 ## Build machines

@@ -1,21 +1,37 @@
 ---
-name: Agent Session Closing
-description: Pointer — the session-closing checklist is now a generalized, family-wide skill in hora-core. This stub keeps only the Varisankya-specific specifics.
+name: agent-session-closing
+description: Standard operating procedure for concluding an AI agent session in a Hora-family repo, ensuring the workspace is left clean, documented, and resilient for the next agent or human developer.
 ---
 
 # Agent Session Closing Protocol
 
-This checklist was generalized into the Hora-family shared repo. **Canonical version:**
-`hora-core/.github/skills/agent-session-closing/SKILL.md`
-(`C:\Users\Aarsh\Source\hora-core`, GitHub `aarshps/hora-core`) — run through that.
+Before concluding a session, run through this checklist so the repo is left in a clean,
+documented state.
 
-## Varisankya specifics on top of the shared checklist
+## 1. Documentation & guardrails update
+- Review what was accomplished.
+- Update `AGENTS.md`/`CLAUDE.md`, `README.md`, and any relevant `SKILL.md` to reflect new
+  architectural decisions, environment changes, or newly discovered constraints.
+- If a new repeated task emerged, write a new granular skill (keep it short — see
+  `agent-skill-standards`) in the repo's own skill directory.
 
-- **Never stage secrets.** Confirm `git status` shows none of `local.properties`,
-  `android/.env.local`, `google-services.json`, `*.jks`/`*.keystore`,
-  `play_console_key.json`. The secret-retrieval script is `android/retrieve_secrets.sh`.
-- **Commit straight to `main` (repo) / `master` (wiki) — no PRs, no feature branches**
-  (see `AGENTS.md` mandate 6). Only commit/push when the user asks.
-- **Build sanity:** `:app:assembleDebug` for a quick compile; `:app:bundleRelease` +
-  `:app:minifyReleaseWithR8` green before a release.
-- **Update memory** (project file) with the live version + one line on what shipped.
+## 2. Workspace cleanup
+- Confirm no credentials, keystores, or `.env` values were staged or committed.
+- Confirm secret-retrieval scripts (e.g. `retrieve_secrets.sh`) are gitignored and documented.
+- Remove temporary debugging files or local test artifacts not meant for version control.
+
+## 3. Final validation
+- Run the project's core build command (e.g. `./gradlew assembleDebug` for Android) to confirm it
+  still compiles.
+- Run available lint/format checks.
+
+## 4. Commit and push
+- Stage only the intended files — never a blanket `git add -A` in a repo with secret-bearing
+  untracked files nearby.
+- Write a clear, concise commit message summarizing the session's impact.
+- Push per the repo's own workflow rule — some Hora repos commit straight to `main` with no PRs;
+  check the repo's `AGENTS.md`/`CLAUDE.md` before assuming.
+
+## 5. Session summary
+Give the user a concise summary: what was accomplished, what docs were updated, and any
+recommended next steps.
