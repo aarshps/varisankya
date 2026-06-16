@@ -92,7 +92,7 @@ Known gotchas encountered in this project:
 
 | Platform | Version | Track / Status |
 | --- | --- | --- |
-| Android | v3.9-beta.5 (versionCode 62) | Play internal + closed (alpha); solid-disc / hollow-വ notification icon (Hora-family standard) |
+| Android | v3.9-beta.5 (versionCode 62) | Play **Beta** (Open Testing) — also internal + closed; solid-disc / hollow-വ notification icon (Hora-family standard) |
 | iOS | 3.8 (build auto-bumped by CI) | Awaiting Apple enrollment (cases #102900128848 + #102905434551) |
 | Web | latest `main` | Vercel production |
 
