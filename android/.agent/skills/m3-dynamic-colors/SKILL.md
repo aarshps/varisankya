@@ -6,11 +6,17 @@ description: How to properly resolve Material 3 Dynamic Colors in this Android/K
 # M3 Dynamic Color Resolution
  
  > [!IMPORTANT]
- > **Hybrid Design System**:
- > - **App**: Uses strict **MONOCHROME** (Black/Gray/White) identity.
- > - **Widget**: Uses **Wallpaper Orchestration** (Dynamic Colors) to natively integrate with the user's Home Screen (API 31+).
+ > **Material You Dynamic Colors is the canonical palette source** for the app (since
+ > v3.8-beta.9): `DynamicColors.applyToActivitiesIfAvailable(...)` fills every M3 token at
+ > runtime from the wallpaper-derived palette on Android 12+, with static M3 fallbacks on
+ > older devices. The **widget** likewise uses wallpaper-based dynamic color (API 31+) via
+ > the `dynamic_*` aliases below.
+ >
+ > Historical note: the app once used a strict "brand monochrome" identity with Dynamic
+ > Colors disabled — that was **reversed in v3.8-beta.9**. The wiki Design-System page is
+ > authoritative; don't reintroduce a monochrome override.
  
- This skill explains how to resolve these two distinct systems.
+ This skill explains how to resolve those dynamic tokens across Activities, Bottom Sheets, and Widgets.
  
  ## Theme Resolution logic
  
