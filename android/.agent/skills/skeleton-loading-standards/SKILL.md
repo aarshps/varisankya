@@ -1,41 +1,33 @@
 ---
-name: Skeleton UI Standards
-description: Guidelines for styling and transitioning from shimmer-ready skeleton placeholders
+name: skeleton-loading-standards
+description: Skeleton-placeholder loading standards for Hora-family Android apps — structural parity, M3 surface tonality, and a reveal transition into real content.
 ---
 
-# Skeleton UI Standards
+# Skeleton loading standards
 
-To maintain an "Ultra Smooth" loading experience, all data-driven screens must implement a skeleton UI that mimics the final content structure.
+Data-driven screens show a skeleton that mimics the final content structure, then reveal
+real data — an "ultra smooth" load with no blank screen or spinner gap.
 
-## Core Principles
+## Principles
+1. **Structural parity.** Skeleton blocks match the real components' proportions, margins,
+   and shapes — the same layout, greyed out.
+2. **Surface tonality.** Use `colorSurfaceContainerHigh` / `colorSurfaceContainerHighest`
+   for the skeleton blocks — distinct but flat, on-brand M3.
+3. **Implicit shimmer.** Skeletons don't need an aggressive shimmer animation; the
+   perceived motion comes from the transition into real data.
 
-1. **Structural Parity**: Skeletons must match the exact proportions, margins, and shapes of the real UI components.
-2. **Surface Tonality**: Use `?attr/colorSurfaceContainerHigh` or `?attr/colorSurfaceContainerHighest` for the skeleton blocks to distinguish them while maintaining a flat M3 aesthetic.
-3. **Implicit Shimmer**: Skeletons do not need aggressive animations; the movement comes from the transition into real data.
+## Implementation
+- Build a composite skeleton layout that `include`s the per-item skeletons (e.g. a hero
+  skeleton plus a few row skeletons), shown while loading.
+- On data ready, hide the skeleton and reveal the real content with a reveal animation,
+  optionally bridged by a light haptic.
 
-## Implementation Pattern
+## Reveal parameters
+- Duration ~400–500ms.
+- Interpolator: **emphasized** (M3 standard).
+- Optional: a click / segment-tick haptic on reveal (guarded — see `m3e-haptic-standards`).
 
-### 1. The Skeleton Layout
-Create a composite layout (e.g., `layout_home_skeleton.xml`) that includes multiple item skeletons:
-```xml
-<LinearLayout ...>
-    <include layout="@layout/item_skeleton_hero" />
-    <include layout="@layout/item_skeleton_subscription" />
-</LinearLayout>
-```
-
-### 2. The Transition
-Use `AnimationHelper.animateReveal` and a subtle haptic to bridge the gap between "Loading" and "Ready":
-```kotlin
-if (loadingSkeleton.visibility == View.VISIBLE) {
-    loadingSkeleton.visibility = View.GONE
-    mainContentWrapper.visibility = View.VISIBLE
-    AnimationHelper.animateReveal(mainContentWrapper)
-    PreferenceHelper.performClickHaptic(mainContentWrapper)
-}
-```
-
-## Reveal Parameters
-- **Duration**: 400ms - 500ms
-- **Interpolator**: `EMPHASIZED` (M3 Standard)
-- **Haptic**: `performClickHaptic` or `SEGMENT_TICK`
+## Checklist
+- [ ] Skeleton mirrors the real layout's structure, margins, and shapes.
+- [ ] Blocks use a high surface-container tone, not arbitrary greys.
+- [ ] Reveal is ~400–500ms on the emphasized curve.

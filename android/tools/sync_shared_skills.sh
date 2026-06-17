@@ -29,6 +29,10 @@ SKILLS=(
   agent-skill-standards
   hora-app-release
   hora-play-store
+  m3e-animation-standards
+  m3e-haptic-standards
+  skeleton-loading-standards
+  android-platform-standards
 )
 
 src_root="$HORA_CORE/.github/skills"
