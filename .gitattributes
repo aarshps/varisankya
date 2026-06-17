@@ -1,0 +1,5 @@
+# Shell scripts must keep LF line endings so they run under bash on Windows
+# clones. With core.autocrlf=true, git would otherwise check them out as CRLF,
+# which breaks `bash` (e.g. android/tools/sync_shared_skills.sh, the secret
+# retrieval helpers). Mirrors hora-core's root .gitattributes.
+*.sh text eol=lf
