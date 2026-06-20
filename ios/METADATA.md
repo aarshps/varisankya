@@ -48,15 +48,14 @@ YOUR DATA STAYS YOURS
 • Account deletion is one tap in Settings.
 
 FEATURES
-• Add recurring subscriptions with custom amount, due date, recurrence
-  (daily / weekly / monthly / yearly / "Every 3 Months" / custom), and
-  category.
+• Add recurring subscriptions with custom amount, due date, and recurrence
+  (daily / weekly / monthly / yearly / "Every 3 Months" / custom).
 • Mark paid with a single swipe — the due date auto-advances by the
   recurrence interval.
 • Record extra or past payments without disturbing the cycle.
 • Bar chart of historical spend, drillable from year → month → day.
-• Search and filter by category, autopay, active/paused.
-• Personalised dropdown ordering — your most-used categories surface first.
+• Search and filter by autopay or active/paused status.
+• Personalised dropdown ordering — your most-used currencies surface first.
 • Smooth haptics + zero-toast UX (every action confirms with subtle feedback,
   never a noisy alert).
 • Reminder time and "days before due" both tunable in Settings.

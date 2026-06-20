@@ -189,8 +189,6 @@ function SubscriptionRow({
           <div className="min-w-0 flex-1">
             <p className="truncate font-bold">{sub.name || "Untitled"}</p>
             <div className="mt-0.5 flex items-center gap-1.5 text-xs text-on-surface-variant">
-              <span className="truncate">{sub.category}</span>
-              <span aria-hidden>·</span>
               <span
                 className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ${pillClass}`}
               >

@@ -1,6 +1,6 @@
-Varisankya 3.9 - refined notification icon.
+Varisankya 3.9 - simpler subscriptions.
 
-- Notification icon update: a solid round badge with the Malayalam "va" knocked out as a clean hollow - the Hora-family notification standard, shown in your status bar and notification shade
+- Removed the Category field. It wasn't getting used, so adding and editing subscriptions is now quicker and search is cleaner.
 - Minor internal improvements
 
 Thanks for using Varisankya!

@@ -2,11 +2,6 @@ import Foundation
 import SwiftUI
 
 enum Constants {
-    static let categories: [String] = [
-        "Entertainment", "Utilities", "Work", "Loan", "Software", "Family",
-        "Health", "Investment", "Insurance", "Productivity", "Other"
-    ]
-
     static let recurrencePresets: [String] = ["Monthly", "Yearly", "Weekly", "Daily", "Custom"]
 
     enum Anim {

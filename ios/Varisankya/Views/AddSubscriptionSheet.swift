@@ -14,11 +14,9 @@ struct AddSubscriptionSheet: View {
     @State private var dueDate: Date = Date()
     @State private var recurrenceUnit: String = "Monthly"
     @State private var frequency: String = "1"
-    @State private var category: String = "Entertainment"
     @State private var active: Bool = true
     @State private var autopay: Bool = false
 
-    @State private var showCategoryPicker = false
     @State private var showRecurrencePicker = false
     @State private var showPaymentSheet = false
     @State private var deleteRequested = false
@@ -68,9 +66,6 @@ struct AddSubscriptionSheet: View {
                                             .foregroundStyle(.secondary)
                                     }
                                 }
-                            }
-                            SelectionRow(label: "Category", value: category) {
-                                showCategoryPicker = true
                             }
                         }
                     }
@@ -144,19 +139,6 @@ struct AddSubscriptionSheet: View {
             ) {
                 Button("Delete", role: .destructive) { Task { await deleteSubscription() } }
             }
-            .sheet(isPresented: $showCategoryPicker) {
-                SelectionSheet(
-                    title: "Category",
-                    options: prefs.personalized(prefix: "category", defaultList: Constants.categories),
-                    selected: category
-                ) { picked in
-                    category = picked
-                    prefs.recordUsage(prefix: "category", value: picked)
-                }
-                .presentationDetents([.medium])
-                .presentationBackground(.thinMaterial)
-                .presentationDragIndicator(.visible)
-            }
             .sheet(isPresented: $showRecurrencePicker) {
                 SelectionSheet(
                     title: "Recurrence",
@@ -202,7 +184,6 @@ struct AddSubscriptionSheet: View {
             ? String(format: "%.0f", existing.cost)
             : String(format: "%.2f", existing.cost)
         dueDate = existing.dueDate ?? Date()
-        category = existing.category
         active = existing.active
         autopay = existing.autopay
 
@@ -218,7 +199,6 @@ struct AddSubscriptionSheet: View {
         sub.dueDate = dueDate
         sub.currency = prefs.currency
         sub.recurrence = RecurrenceHelper.encode(unit: recurrenceUnit, frequency: Int(frequency) ?? 1)
-        sub.category = category
         sub.active = active
         sub.autopay = autopay
         return sub
@@ -238,7 +218,6 @@ struct AddSubscriptionSheet: View {
         sub.dueDate = dueDate
         sub.currency = prefs.currency
         sub.recurrence = encodedRec
-        sub.category = category
         sub.active = isEditing ? active : true
         sub.autopay = autopay
 

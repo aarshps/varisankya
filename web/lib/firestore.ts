@@ -51,7 +51,6 @@ function subFromDoc(d: QueryDocumentSnapshot<DocumentData>): Subscription {
     cost: typeof x.cost === "number" ? x.cost : 0,
     currency: x.currency ?? "USD",
     recurrence: x.recurrence ?? "Monthly",
-    category: x.category ?? "Entertainment",
     active: x.active ?? true,
     autopay: x.autopay ?? false,
   };
@@ -76,7 +75,6 @@ function subToData(sub: Subscription): DocumentData {
     cost: sub.cost,
     currency: sub.currency,
     recurrence: sub.recurrence,
-    category: sub.category,
     active: sub.active,
     autopay: sub.autopay,
     dueDate: sub.dueDate ? Timestamp.fromDate(sub.dueDate) : null,

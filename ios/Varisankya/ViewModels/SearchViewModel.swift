@@ -10,7 +10,6 @@ final class SearchViewModel {
     private(set) var error: String?
 
     var query: String = ""
-    var selectedCategories: Set<String> = []
     var autopayFilter: AutopayFilter = .any
     var statusFilter: StatusFilter = .any
 
@@ -31,13 +30,9 @@ final class SearchViewModel {
     var filtered: [Subscription] {
         all.filter { sub in
             if !query.isEmpty {
-                if !sub.name.localizedCaseInsensitiveContains(query) &&
-                   !sub.category.localizedCaseInsensitiveContains(query) {
+                if !sub.name.localizedCaseInsensitiveContains(query) {
                     return false
                 }
-            }
-            if !selectedCategories.isEmpty && !selectedCategories.contains(sub.category) {
-                return false
             }
             switch autopayFilter {
             case .any: break

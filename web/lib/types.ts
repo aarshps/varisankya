@@ -12,7 +12,6 @@ export interface Subscription {
   cost: number;
   currency: string;
   recurrence: string;
-  category: string;
   active: boolean;
   autopay: boolean;
 }
@@ -38,7 +37,6 @@ export interface SubscriptionDoc {
   cost?: number;
   currency?: string;
   recurrence?: string;
-  category?: string;
   active?: boolean;
   autopay?: boolean;
 }
@@ -58,7 +56,6 @@ export const SUBSCRIPTION_DEFAULTS: Omit<Subscription, "id"> = {
   cost: 0,
   currency: "USD",
   recurrence: "Monthly",
-  category: "Entertainment",
   active: true,
   autopay: false,
 };

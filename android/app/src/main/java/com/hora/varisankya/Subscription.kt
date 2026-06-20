@@ -17,9 +17,7 @@ data class Subscription(
     val currency: String = "USD",
     
     val recurrence: String = "Monthly",
-    
-    val category: String = "Entertainment",
-    
+
     @get:PropertyName("active")
     @set:PropertyName("active")
     var active: Boolean = true,
@@ -29,5 +27,5 @@ data class Subscription(
     var autopay: Boolean = false
 ) {
     // Zero-argument constructor required for Firestore
-    constructor() : this(null, "", null, 0.0, "USD", "Monthly", "Entertainment", true, false)
+    constructor() : this(null, "", null, 0.0, "USD", "Monthly", true, false)
 }

@@ -18,15 +18,15 @@ appear in search results.
 ## Recommended sequence (10 shots, in order)
 
 1. **Hero / Main view** — caption: "Every subscription on Liquid Glass."
-2. **Subscription detail / edit sheet** — caption: "Set due date, recurrence,
-   category."
+2. **Subscription detail / edit sheet** — caption: "Set amount, due date, and
+   recurrence."
 3. **Mark Paid** — caption: "One swipe to record a payment."
 4. **Payment history chart** — caption: "Year → month → day drilldown."
 5. **Sign in with Apple + Google** — caption: "Sign in your way."
 6. **Settings** — caption: "Reminder time, currency, App Lock — all glass."
 7. **Notification preview** — caption: "Quiet local reminders, never spam."
 8. **Empty state** — caption: "Start fresh. Add your first subscription."
-9. **Search** — caption: "Find by name, category, or status."
+9. **Search** — caption: "Find by name or status."
 10. **Dark mode** — caption: "Looks the same magic in dark."
 
 ## How to capture

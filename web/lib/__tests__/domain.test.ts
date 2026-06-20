@@ -71,7 +71,6 @@ describe("hero math", () => {
     name: "x",
     currency: "INR",
     recurrence: "Monthly",
-    category: "Other",
     active: true,
     autopay: false,
   };

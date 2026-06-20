@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Reusable bottom-sheet picker for category/recurrence/currency/etc.
+/// Reusable bottom-sheet picker for recurrence/currency/etc.
 struct SelectionSheet: View {
     let title: String
     let options: [String]
@@ -52,8 +52,8 @@ struct SelectionSheet: View {
 
 #Preview {
     SelectionSheet(
-        title: "Category",
-        options: Constants.categories,
-        selected: "Entertainment"
+        title: "Recurrence",
+        options: Constants.recurrencePresets,
+        selected: "Monthly"
     ) { _ in }
 }

@@ -23,7 +23,7 @@ Varisankya is a modern, high-performance Android application designed to help us
 *   **Flexible Payments**: Record extra payments towards loans or subscriptions on custom dates without disrupting your scheduled due date cycle.
 *   **Compact Smart Data**: Amounts are intelligently formatted (e.g., "$ 1.2k") for quick scanning, with bold typography for emphasis.
 *   **Intelligent Search**: Full-screen search interface to quickly locate specific subscriptions.
-*   **Usage-Based Personalization**: The app learns from your inputs, automatically prioritizing your frequently used categories and currencies.
+*   **Usage-Based Personalization**: The app learns from your inputs, automatically prioritizing your frequently used currencies.
 
 ### 🔔 Notification & Settings
 *   **Unified Settings**: A streamlined Settings experience with "Chart" vs "List" view preferences integrated directly into the Appearance controls.

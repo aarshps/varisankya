@@ -83,7 +83,7 @@ struct SubscriptionRow: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            CategoryGlyph(category: subscription.category)
+            InitialGlyph(name: subscription.name)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(subscription.name)
@@ -137,28 +137,17 @@ private struct StatusPill: View {
     }
 }
 
-private struct CategoryGlyph: View {
-    let category: String
+private struct InitialGlyph: View {
+    let name: String
 
-    private var icon: String {
-        switch category {
-        case "Entertainment": return "play.tv"
-        case "Utilities": return "bolt"
-        case "Work": return "briefcase"
-        case "Loan": return "indianrupeesign.bank.building"
-        case "Software": return "app.dashed"
-        case "Family": return "house"
-        case "Health": return "heart"
-        case "Investment": return "chart.line.uptrend.xyaxis"
-        case "Insurance": return "shield"
-        case "Productivity": return "bolt.heart"
-        default: return "creditcard"
-        }
+    private var initial: String {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? "?" : String(trimmed.prefix(1)).uppercased()
     }
 
     var body: some View {
-        Image(systemName: icon)
-            .font(.system(size: 18, weight: .medium))
+        Text(initial)
+            .font(.system(size: 18, weight: .semibold, design: .rounded))
             .foregroundStyle(.tint)
             .frame(width: 44, height: 44)
             .background(.tint.opacity(0.14), in: .circle)

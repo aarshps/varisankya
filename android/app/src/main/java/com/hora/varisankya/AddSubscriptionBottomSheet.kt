@@ -62,7 +62,6 @@ class AddSubscriptionBottomSheet(
         val recurrenceAutoComplete = view.findViewById<AutoCompleteTextView>(R.id.auto_complete_recurrence)
         val frequencyEditText = view.findViewById<TextInputEditText>(R.id.edit_text_frequency)
         val tilFrequency = view.findViewById<TextInputLayout>(R.id.til_frequency)
-        val categoryAutoComplete = view.findViewById<AutoCompleteTextView>(R.id.auto_complete_category)
         val activeSwitch = view.findViewById<MaterialSwitch>(R.id.switch_active)
         val autopaySwitch = view.findViewById<MaterialSwitch>(R.id.switch_autopay)
         val saveButton = view.findViewById<Button>(R.id.button_save)
@@ -112,8 +111,7 @@ class AddSubscriptionBottomSheet(
         }
 
         val recurrenceOptions = PreferenceHelper.getPersonalizedList(requireContext(), "recurrence", arrayOf("Monthly", "Yearly", "Weekly", "Daily", "Custom"))
-        val categories = PreferenceHelper.getPersonalizedList(requireContext(), "category", Constants.CATEGORIES)
-        
+
         // Use global currency setting
         val globalCurrency = PreferenceHelper.getCurrency(requireContext())
 
@@ -130,7 +128,6 @@ class AddSubscriptionBottomSheet(
                  }
              }
         }
-        setupSelection(categoryAutoComplete, "Select Category", categories, addHaptic)
 
 
 
@@ -159,8 +156,6 @@ class AddSubscriptionBottomSheet(
                 dueDateEditText.setText(format.format(date))
             }
             costEditText.setText(subscription.cost.toString())
-            
-            categoryAutoComplete.setText(subscription.category, false)
 
             val rec = subscription.recurrence
             if (rec == "Custom") {
@@ -210,8 +205,6 @@ class AddSubscriptionBottomSheet(
                     cost = costEditText.text.toString().toDoubleOrNull() ?: 0.0,
                     currency = globalCurrency,
                     recurrence = getRecurrenceString(recurrenceAutoComplete.text.toString(), frequencyEditText.text.toString()),
-                    category = categoryAutoComplete.text.toString(),
-
                     active = activeSwitch.isChecked
                 )
                 val paymentSheet = PaymentBottomSheet(currentSubscription) {
@@ -233,11 +226,9 @@ class AddSubscriptionBottomSheet(
         }
         
         recurrenceAutoComplete.setOnDismissListener { recurrenceAutoComplete.clearFocus() }
-        categoryAutoComplete.setOnDismissListener { categoryAutoComplete.clearFocus() }
 
         saveButton.setOnClickListener {
             addStrongHaptic(it)
-            val category = categoryAutoComplete.text.toString()
             val finalRecurrence = getRecurrenceString(recurrenceAutoComplete.text.toString(), frequencyEditText.text.toString())
             val isActiveStatus = if (subscription != null) activeSwitch.isChecked else true
 
@@ -245,7 +236,6 @@ class AddSubscriptionBottomSheet(
 
             val userId = auth.currentUser?.uid ?: return@setOnClickListener
 
-            PreferenceHelper.recordUsage(requireContext(), "category", category)
             PreferenceHelper.recordUsage(requireContext(), "recurrence", recurrenceAutoComplete.text.toString())
 
             val dataMap = hashMapOf(
@@ -254,7 +244,6 @@ class AddSubscriptionBottomSheet(
                 "cost" to (costEditText.text.toString().toDoubleOrNull() ?: 0.0),
                 "currency" to globalCurrency,
                 "recurrence" to finalRecurrence,
-                "category" to category,
                 "active" to isActiveStatus,
                 "autopay" to autopaySwitch.isChecked
             )

@@ -32,7 +32,6 @@ users/{uid}/payments/{paymentId}                        ← flat mirror (fast Al
 | `cost` | number | `0` | |
 | `currency` | string | `"USD"` | ISO-ish code, see §4 |
 | `recurrence` | string | `"Monthly"` | encoded string, see §3 |
-| `category` | string | `"Entertainment"` | |
 | `active` | bool | `true` | inactive items excluded from totals |
 | `autopay` | bool | `false` | |
 

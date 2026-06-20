@@ -27,7 +27,7 @@ Subscription expense tracking application that helps users monitor recurring pay
 | Component | Purpose |
 |-----------|---------|
 | `AddSubscriptionBottomSheet` | Add/Edit subscription form |
-| `SelectionBottomSheet` | Generic chip-based picker (Category, Recurrence, **Currency**) |
+| `SelectionBottomSheet` | Generic chip-based picker (Recurrence, **Currency**) |
 | `PaymentHistoryBottomSheet` | Per-subscription payment history |
 
 > [!NOTE]
@@ -52,7 +52,7 @@ The `MainActivity` Hero Card implements a **"Remaining Monthly Liability"** logi
   - `PreferenceHelper.kt`: Centralized **Haptic Engine**. Directs all TICK, CONFIRM, and segment feedback.
   - `ThemeHelper.kt`: M3 Dynamic Color resolution Bridge.
   - `ChipHelper.kt`: High-contrast chip orchestration.
-  - `Constants.kt`: App-wide constants (categories, recurrences).
+  - `Constants.kt`: App-wide constants (recurrences).
 
 ## Core Standards
 

@@ -1,19 +1,5 @@
 /** Ports ios/Varisankya/Models/Constants.swift — keep in sync. */
 
-export const CATEGORIES: string[] = [
-  "Entertainment",
-  "Utilities",
-  "Work",
-  "Loan",
-  "Software",
-  "Family",
-  "Health",
-  "Investment",
-  "Insurance",
-  "Productivity",
-  "Other",
-];
-
 export const RECURRENCE_PRESETS: string[] = [
   "Monthly",
   "Yearly",

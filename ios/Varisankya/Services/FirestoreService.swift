@@ -91,7 +91,6 @@ final class FirestoreService {
             "cost": subscription.cost,
             "currency": subscription.currency,
             "recurrence": subscription.recurrence,
-            "category": subscription.category,
             "active": subscription.active,
             "autopay": subscription.autopay
         ]

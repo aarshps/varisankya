@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { Modal } from "./ui/Modal";
 import { Button, Field, Select, Switch, TextInput } from "./ui/controls";
-import { CATEGORIES, RECURRENCE_UNITS } from "@/lib/constants";
+import { RECURRENCE_UNITS } from "@/lib/constants";
 import { CURRENCIES } from "@/lib/currency";
 import { decodeRecurrence, encodeRecurrence } from "@/lib/recurrence";
 import { prefs } from "@/lib/prefs";
@@ -42,7 +42,6 @@ export function AddSubscriptionDialog({
   const [currency, setCurrency] = useState(defaultCurrency);
   const [unit, setUnit] = useState("Monthly");
   const [frequency, setFrequency] = useState(1);
-  const [category, setCategory] = useState("Entertainment");
   const [dueDate, setDueDate] = useState<string>(toDateInput(new Date()));
   const [active, setActive] = useState(true);
   const [autopay, setAutopay] = useState(false);
@@ -58,7 +57,6 @@ export function AddSubscriptionDialog({
       setCurrency(existing.currency || defaultCurrency);
       setUnit(dec.unit);
       setFrequency(dec.frequency);
-      setCategory(existing.category);
       setDueDate(toDateInput(existing.dueDate));
       setActive(existing.active);
       setAutopay(existing.autopay);
@@ -68,7 +66,6 @@ export function AddSubscriptionDialog({
       setCurrency(defaultCurrency);
       setUnit("Monthly");
       setFrequency(1);
-      setCategory("Entertainment");
       setDueDate(toDateInput(new Date()));
       setActive(true);
       setAutopay(false);
@@ -76,11 +73,6 @@ export function AddSubscriptionDialog({
   }, [open, existing, defaultCurrency]);
 
   // Recompute the usage-weighted ordering each time the dialog opens.
-  const categories = useMemo(
-    () => prefs.personalized("category", CATEGORIES),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [open],
-  );
   const currencies = useMemo(
     () =>
       prefs
@@ -103,12 +95,10 @@ export function AddSubscriptionDialog({
       cost: parseFloat(cost) || 0,
       currency,
       recurrence,
-      category,
       dueDate: fromDateInput(dueDate),
       active,
       autopay,
     };
-    prefs.recordUsage("category", category);
     prefs.recordUsage("currency", currency);
     try {
       await onSave(sub);
@@ -209,19 +199,6 @@ export function AddSubscriptionDialog({
               </div>
             )}
           </div>
-        </Field>
-
-        <Field label="Category">
-          <Select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            {categories.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </Select>
         </Field>
 
         <Field label="Due date">

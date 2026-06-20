@@ -153,7 +153,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Pricing & category Island -->
+            <!-- Pricing Island -->
             <com.google.android.material.card.MaterialCardView
                 style="?attr/materialCardViewFilledStyle"
                 android:layout_width="match_parent"
@@ -188,22 +188,6 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="numberDecimal" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/App.TextInputLayout.Rounded.ExposedDropdownMenu"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="12dp"
-                            android:layout_weight="1.5"
-                            android:hint="Category"
-                            app:endIconMode="none">
-
-                            <AutoCompleteTextView
-                                android:id="@+id/auto_complete_category"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="none" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 

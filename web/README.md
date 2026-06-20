@@ -15,7 +15,7 @@ payment history sync in real time across every platform.
 
 ```
 users/{uid}/subscriptions/{sid}
-  { name, dueDate, cost, currency, recurrence, category, active, autopay }
+  { name, dueDate, cost, currency, recurrence, active, autopay }
 users/{uid}/subscriptions/{sid}/payments/{pid}   ← authoritative
 users/{uid}/payments/{pid}                        ← flat mirror (fast reads)
 ```

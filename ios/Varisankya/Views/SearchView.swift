@@ -41,7 +41,7 @@ struct SearchView: View {
         HStack(spacing: 10) {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
-            TextField("Search by name or category", text: $vm.query)
+            TextField("Search by name", text: $vm.query)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
             if !vm.query.isEmpty {
@@ -78,19 +78,6 @@ struct SearchView: View {
                     }
                     Chip(text: "Paused", isOn: vm.statusFilter == .inactive) {
                         vm.statusFilter = vm.statusFilter == .inactive ? .any : .inactive
-                    }
-                }
-            }
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(Constants.categories, id: \.self) { cat in
-                        Chip(text: cat, isOn: vm.selectedCategories.contains(cat)) {
-                            if vm.selectedCategories.contains(cat) {
-                                vm.selectedCategories.remove(cat)
-                            } else {
-                                vm.selectedCategories.insert(cat)
-                            }
-                        }
                     }
                 }
             }

@@ -8,7 +8,6 @@ struct Subscription: Identifiable, Codable, Hashable {
     var cost: Double = 0
     var currency: String = "USD"
     var recurrence: String = "Monthly"
-    var category: String = "Entertainment"
     var active: Bool = true
     var autopay: Bool = false
 }
@@ -21,7 +20,6 @@ extension Subscription {
         cost: 649,
         currency: "INR",
         recurrence: "Monthly",
-        category: "Entertainment",
         active: true,
         autopay: true
     )

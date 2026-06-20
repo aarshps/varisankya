@@ -321,7 +321,6 @@ users/{uid}/
     .currencyCode: String         ISO-4217, e.g. "INR"
     .recurrence: String           "Monthly" | "Yearly" | "Weekly" | "Every 3 Months" | "Custom"
     .dueDate: Timestamp
-    .category: String?
     .notes: String?
 
   subscriptions/{subId}/payments/{paymentId}    (authoritative payment record)

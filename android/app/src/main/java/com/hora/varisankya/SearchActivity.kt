@@ -11,7 +11,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.hora.varisankya.util.AnimationHelper
@@ -25,7 +24,6 @@ class SearchActivity : BaseActivity() {
     private lateinit var firestore: FirebaseFirestore
     
     private lateinit var searchEditText: EditText
-    private lateinit var categoryChipGroup: ChipGroup
     private lateinit var autopayChip: Chip
     private lateinit var notAutopayChip: Chip
     private lateinit var activeChip: Chip
@@ -59,7 +57,6 @@ class SearchActivity : BaseActivity() {
         Analytics.screenSearchOpen()
 
         searchEditText = findViewById(R.id.search_edit_text)
-        categoryChipGroup = findViewById(R.id.search_category_chip_group)
         autopayChip = findViewById(R.id.chip_autopay_filter)
         notAutopayChip = findViewById(R.id.chip_not_autopay_filter)
         activeChip = findViewById(R.id.chip_active_filter)
@@ -91,7 +88,6 @@ class SearchActivity : BaseActivity() {
         // Scroll Haptics
         PreferenceHelper.attachScrollHaptics(searchRecyclerView)
         
-        setupCategories()
         setupFilters()
         
         // Initial Loading State
@@ -112,39 +108,10 @@ class SearchActivity : BaseActivity() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        categoryChipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
-            performSearch()
-        }
-        
         searchEditText.requestFocus()
     }
 
 
-
-    private fun setupCategories() {
-        categoryChipGroup.removeAllViews()
-        Constants.CATEGORIES.forEach { category ->
-            val chip = Chip(this).apply {
-                text = category
-                isCheckable = true
-                isChecked = false
-                
-                updateChipStyle(this)
-                
-                setOnClickListener {
-                    PreferenceHelper.performHaptics(it, HapticFeedbackConstants.CLOCK_TICK)
-                    updateChipStyle(this)
-                }
-                
-                // Expressive Touch
-            }
-            categoryChipGroup.addView(chip)
-        }
-    }
-
-    private fun updateChipStyle(chip: Chip) {
-        com.hora.varisankya.util.ChipHelper.styleChip(chip)
-    }
 
 
 
@@ -196,21 +163,17 @@ class SearchActivity : BaseActivity() {
 
     private fun performSearch() {
         val query = searchEditText.text.toString().lowercase().trim()
-        val selectedCategories = getSelectedCategories()
 
         val filtered = allSubscriptions.filter { sub ->
-            val matchText = sub.name.lowercase().contains(query) || 
-                            sub.category.lowercase().contains(query)
-            
-            val matchCategory = if (selectedCategories.isEmpty()) true else sub.category in selectedCategories
-            
+            val matchText = sub.name.lowercase().contains(query)
+
             val matchAutopay = if (autopayChip.isChecked) sub.autopay else true
             val matchNotAutopay = if (notAutopayChip.isChecked) !sub.autopay else true
-            
+
             val matchActive = if (activeChip.isChecked) sub.active else true
             val matchInactive = if (inactiveChip.isChecked) !sub.active else true
-            
-            matchText && matchCategory && matchAutopay && matchNotAutopay && matchActive && matchInactive
+
+            matchText && matchAutopay && matchNotAutopay && matchActive && matchInactive
         }
         
         // Sort: Active first, then query match, then due date
@@ -222,18 +185,6 @@ class SearchActivity : BaseActivity() {
         
         // Update existing adapter instead of creating a new one
         adapter.updateData(sortedFiltered)
-    }
-
-    private fun getSelectedCategories(): List<String> {
-        val checkedIds = categoryChipGroup.checkedChipIds
-        val categories = mutableListOf<String>()
-        for (id in checkedIds) {
-            val chip = categoryChipGroup.findViewById<Chip>(id)
-            if (chip != null) {
-                categories.add(chip.text.toString())
-            }
-        }
-        return categories
     }
 
     private fun setupFilters() {

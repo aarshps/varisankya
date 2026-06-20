@@ -10,7 +10,7 @@ Varisankya ("we," "us," or "our") is committed to protecting your privacy. This 
 When you sign in using Google Login, we collect your name, email address, and profile picture URL provided by Google. This information is used solely to create and manage your user account.
 
 ### b. Subscription Data
-The App allows you to track your subscriptions. We store the names, costs, currencies, categories, and due dates of the subscriptions you manually enter into the App.
+The App allows you to track your subscriptions. We store the names, costs, currencies, and due dates of the subscriptions you manually enter into the App.
 
 ### c. Usage Data
 We may also collect information about how the App is accessed and used ("Usage Data"). This Usage Data may include information such as your device's Internet Protocol address (e.g. IP address), device name, operating system version, the configuration of the app when utilizing our Service, the time and date of your use of the Service, and other statistics.
