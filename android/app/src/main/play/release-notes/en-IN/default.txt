@@ -1,6 +1,6 @@
-Varisankya 3.9 - simpler subscriptions.
+Varisankya 3.9 - under-the-hood maintenance.
 
-- Removed the Category field. It wasn't getting used, so adding and editing subscriptions is now quicker and search is cleaner.
-- Minor internal improvements
+- The app's shared UI building blocks (theming, chips, animations) now come from the common Hora library, keeping things consistent and easier to maintain.
+- No changes to how the app looks or works for you.
 
 Thanks for using Varisankya!

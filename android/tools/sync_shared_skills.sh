@@ -31,8 +31,11 @@ SKILLS=(
   hora-play-store
   m3e-animation-standards
   m3e-haptic-standards
+  m3e-swipe-standards
   skeleton-loading-standards
+  settings-page-standards
   android-platform-standards
+  shared-android-source
 )
 
 src_root="$HORA_CORE/.github/skills"

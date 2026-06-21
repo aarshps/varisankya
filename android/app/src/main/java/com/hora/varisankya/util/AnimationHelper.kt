@@ -1,6 +1,14 @@
+/*
+ * Shared Hora-family component — canonical source lives in hora-core/shared/android.
+ * It is GENERATED into each app by that app's tools/sync_shared_android.sh. Do NOT
+ * hand-edit the copy inside an app; edit it here in hora-core and re-run the sync.
+ * (A package placeholder in this file is rewritten to the app's base package on sync.)
+ *
+ * Depends on the app's `Constants` for M3 motion tokens (ANIM_DURATION_*, ANIM_STAGGER_BASE_DELAY).
+ * Every Hora app defines these — see the m3e-animation-standards skill.
+ */
 package com.hora.varisankya.util
 
-import android.view.MotionEvent
 import android.view.View
 import android.view.animation.Interpolator
 import androidx.core.view.animation.PathInterpolatorCompat
@@ -19,8 +27,6 @@ object AnimationHelper {
     // M3 Emphasized Accelerate (Outgoing objects)
     val EMPHASIZED_ACCELERATE: Interpolator = PathInterpolatorCompat.create(0.3f, 0.0f, 0.8f, 0.15f)
 
-
-
     /**
      * Staggered entrance animation for RecyclerView items.
      * Call this in onBindViewHolder.
@@ -31,10 +37,10 @@ object AnimationHelper {
         view.translationY = 50f // Reduced travel distance for elegance
         view.scaleX = 0.85f // M3E Depth Entry Scale
         view.scaleY = 0.85f
-        
+
         // Stagger based on position (capped at 300ms delay max)
         val delay = (position * Constants.ANIM_STAGGER_BASE_DELAY).coerceAtMost(400)
-        
+
         view.animate()
             .alpha(1f)
             .translationY(0f)
@@ -53,7 +59,7 @@ object AnimationHelper {
         view.alpha = 0f
         view.scaleX = 0.92f
         view.scaleY = 0.92f
-        
+
         view.animate()
             .alpha(1f)
             .scaleX(1f)
@@ -69,36 +75,36 @@ object AnimationHelper {
      * Uses LTR embedding to handle RTL currency symbols properly.
      */
     fun animateTextCountUp(
-        textView: android.widget.TextView, 
-        targetValue: Double, 
-        prefix: String = "", 
+        textView: android.widget.TextView,
+        targetValue: Double,
+        prefix: String = "",
         suffix: String = ""
     ) {
         val animator = android.animation.ValueAnimator.ofFloat(0f, targetValue.toFloat())
         animator.duration = Constants.ANIM_DURATION_EXTRA_LONG
         animator.interpolator = EMPHASIZED
-        
+
         // LTR embedding marks to handle RTL currency symbols
-        val ltrMark = "\u200E"
-        
+        val ltrMark = "‎"
+
         // Check if target has decimals to keep formatting stable during animation
         val hasDecimals = targetValue % 1.0 >= 0.01
-        
+
         animator.addUpdateListener { animation ->
             val value = animation.animatedValue as Float
-            
+
             // Stabilize formatting to prevent width jumps during animation
             val formattedNoSymbol = if (hasDecimals) {
                 String.format(java.util.Locale.US, "%.2f", value)
             } else {
                 String.format(java.util.Locale.US, "%.0f", value)
             }
-            
+
             if (prefix.isNotEmpty() && prefix.endsWith(" ")) {
                 val symbol = prefix.trim()
                 val fullText = "$ltrMark$symbol $formattedNoSymbol$suffix"
                 val spannable = android.text.SpannableStringBuilder(fullText)
-                
+
                 // Find symbol start and end in the full text
                 val symbolStart = fullText.indexOf(symbol)
                 if (symbolStart != -1) {
@@ -114,7 +120,7 @@ object AnimationHelper {
                 textView.text = "$ltrMark$prefix$formattedNoSymbol$suffix"
             }
         }
-        
+
         animator.start()
     }
 }

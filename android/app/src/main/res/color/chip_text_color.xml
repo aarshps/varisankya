@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Chip Text: SWAPPED - Selected is light, unselected is dark -->
+<!-- SHARED (hora-core/shared/android) — generated into apps by sync_shared_android.sh; edit in hora-core.
+     Chip Text: SWAPPED - Selected is light, unselected is dark -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Selected: Dynamic OnTertiary text -->
     <item android:color="?attr/colorOnTertiary" android:state_selected="true" />

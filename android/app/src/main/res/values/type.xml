@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Shared Hora-family type scale (forces Google Sans Flex on every M3 text appearance).
+  Canonical source: hora-core/shared/android. GENERATED into each app by
+  tools/sync_shared_android.sh — do not hand-edit the app copy; edit here and re-sync.
+  Requires the app to ship res/font/google_sans_flex (brand font).
+-->
 <resources>
     <!-- Custom Text Appearances that force Google Sans Flex -->
-    
+
     <!-- Display -->
     <style name="TextAppearance.App.DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
         <item name="android:fontFamily">@font/google_sans_flex</item>
