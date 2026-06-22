@@ -1,6 +1,7 @@
-Varisankya 3.9 - under-the-hood maintenance.
+Varisankya 3.9 - a fresh new look.
 
-- The app's shared UI building blocks (theming, chips, animations) now come from the common Hora library, keeping things consistent and easier to maintain.
-- No changes to how the app looks or works for you.
+- New app icon: the Malayalam wordmark "vari" in a rounded, friendly typeface - part of a consistent look across the Hora family of apps.
+- Refreshed notification icon to match.
+- Same app you know, now easier to spot on your home screen.
 
 Thanks for using Varisankya!

@@ -28,6 +28,7 @@ SKILLS=(
   agent-session-closing
   agent-skill-standards
   hora-app-release
+  hora-launcher-icon
   hora-play-store
   m3e-animation-standards
   m3e-haptic-standards
