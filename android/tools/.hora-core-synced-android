@@ -2,12 +2,15 @@
 # Edit them in hora-core/shared/android/ and re-run this script.
 # source: C:/Users/Aarsh/Source/hora-core/shared/android
 # app package: com.hora.varisankya
-# synced: 2026-06-23T06:40:12Z
-# hora-core commit: 0b4c40a
+# synced: 2026-06-23T14:47:13Z
+# hora-core commit: d6d0b3e
 #
 res/values/dimens.xml
 res/values/type.xml
 res/values/styles_shared.xml
+res/values/colors.xml
+res/values/ids.xml
+res/values/attrs.xml
 res/color/chip_background_color.xml
 res/color/chip_text_color.xml
 res/color/chip_stroke_color.xml
