@@ -1,5 +1,7 @@
 # Escalation Drafts — Apple Developer Program Enrolment
 
+> Tracking issue: [#4](https://github.com/aarshps/varisankya/issues/4) — iOS App Store launch blocked on Apple Developer Program enrolment.
+
 Pre-drafted public-escalation text. Use only if cases #102900128848 (Yana) and
 #102905434551 (parallel) both remain silent past **Fri 2026-06-05 17:00 IST**.
 The Friday calendar reminder will fire to prompt the trigger.
