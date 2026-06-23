@@ -26,7 +26,16 @@ echo "Vault unlocked successfully. Syncing..."
 bw sync
 
 echo "Retrieving Varisankya secure note..."
-ITEM_JSON=$(bw get item Varisankya)
+# Two vault items match "Varisankya" (the app-secrets note + the App Store reviewer
+# test account "varisankya148@gmail.com - ..."), so `bw get item Varisankya` is ambiguous
+# and fails ("More than one result"), silently writing empty secret files. Resolve by
+# exact item name to pick the app-secrets note only.
+ITEM_ID=$(bw list items --search Varisankya | jq -r '.[] | select(.name=="Varisankya") | .id' | head -1)
+if [ -z "$ITEM_ID" ]; then
+    echo "Error: could not find a vault item named exactly 'Varisankya'." >&2
+    exit 1
+fi
+ITEM_JSON=$(bw get item "$ITEM_ID")
 
 echo "Extracting and decoding google-services.json..."
 PART1=$(echo "$ITEM_JSON" | jq -r '.fields[] | select(.name=="google-services.json [Part 1]").value')
