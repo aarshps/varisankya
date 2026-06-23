@@ -254,7 +254,7 @@ class MainActivity : BaseActivity() {
         }
 
 
-        // Handle App Shortcuts
+        // Handle launch intent (notification-tap analytics)
         handleIntent(intent)
 
         // Setup Swipe Refresh
@@ -685,27 +685,10 @@ class MainActivity : BaseActivity() {
             Analytics.notificationTap()
             intent.removeExtra(EXTRA_FROM_NOTIFICATION)
         }
-
-        when (intent.action) {
-            ACTION_ADD_SUBSCRIPTION -> {
-                // Delay slightly to allow UI to settle if coming from cold start
-                mainContentRoot.postDelayed({
-                    showAddSubscriptionSheet(null)
-                }, 300)
-            }
-            ACTION_VIEW_HISTORY -> {
-                mainContentRoot.postDelayed({
-                    val intentHistory = Intent(this, UnifiedHistoryActivity::class.java)
-                    startActivity(intentHistory)
-                }, 300)
-            }
-        }
     }
 
 
     companion object {
-        const val ACTION_ADD_SUBSCRIPTION = "com.hora.varisankya.ACTION_ADD_SUBSCRIPTION"
-        const val ACTION_VIEW_HISTORY = "com.hora.varisankya.ACTION_VIEW_HISTORY"
         const val EXTRA_FROM_NOTIFICATION = "extra_from_notification"
     }
 
