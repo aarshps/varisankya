@@ -29,3 +29,6 @@
 .DS_Store
 Thumbs.db
 **/nul
+
+# ── Agent tool scratch dirs (Playwright MCP debug logs / page dumps) ──
+.playwright-mcp/
