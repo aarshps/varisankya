@@ -26,7 +26,7 @@ days" commitment has now **lapsed** (6 business days).
 - [x] Reply on case **102900128848** to Yana (asia.dev@apple.com) — **SENT 06-23** (in-thread; cross-references the parallel case)
 - [x] Exec-relations re-ping → tcook@ + executive_relations@ — **SENT 06-23** (in-thread on the existing escalation)
 - [x] Tweet tagging @AppleDeveloper — **POSTED 06-23**: https://x.com/aarshps/status/2069422213875515874
-- [ ] Forum bump on thread 828487 — **PENDING sign-in**: posting requires a fresh Apple ID sign-in (password + 2FA), which the agent does not perform. Paste-ready text below.
+- [x] Forum bump on thread 828487 — **POSTED 06-23** (post #895007022, after the owner completed the Apple ID sign-in). Text below.
 - [~] Parallel case **102905434551** — its own threads are automated acks only; cross-referenced in both 06-23 emails instead of a bounce-prone standalone reply.
 
 ### Forum reply — Round 3 (paste into thread 828487 after signing in)
