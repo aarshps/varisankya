@@ -14,7 +14,29 @@ This file is an operational artifact — delete after enrolment clears.
 
 ---
 
-## ⏱ ROUND 2 — Current escalation package (2026-06-16)
+## ⏱ ROUND 3 — 2026-06-23 (current)
+
+Fifth week. Status **unchanged** — identity APPROVED 2026-06-02, account-level hold
+persists. Re-confirmed by an inbox review on 06-23: **no inbound apple.com mail since
+06-16**, only automated case acknowledgements. Last substantive Apple reply remains
+**2026-06-08**, and the 06-15/16 contact-form escalations' "reply within 2 business
+days" commitment has now **lapsed** (6 business days).
+
+### Actions — fired 2026-06-23 (via Gmail + browser)
+- [x] Reply on case **102900128848** to Yana (asia.dev@apple.com) — **SENT 06-23** (in-thread; cross-references the parallel case)
+- [x] Exec-relations re-ping → tcook@ + executive_relations@ — **SENT 06-23** (in-thread on the existing escalation)
+- [x] Tweet tagging @AppleDeveloper — **POSTED 06-23**: https://x.com/aarshps/status/2069422213875515874
+- [ ] Forum bump on thread 828487 — **PENDING sign-in**: posting requires a fresh Apple ID sign-in (password + 2FA), which the agent does not perform. Paste-ready text below.
+- [~] Parallel case **102905434551** — its own threads are automated acks only; cross-referenced in both 06-23 emails instead of a bounce-prone standalone reply.
+
+### Forum reply — Round 3 (paste into thread 828487 after signing in)
+```
+Update (23 June): still blocked, now into week 5. Identity verification remains APPROVED (2 June), but the account-level hold ("Unable to Continue — contact support") still blocks enrolment before the registration/payment step. Developer Support (cases 102900128848 + 102905434551) has not sent a substantive reply since 8 June, and the two official contact-form escalations I filed on 15–16 June have passed their stated two-business-day reply window with only automated acknowledgements. Everything requested (ID files, device model, SEID, screen recording) was provided weeks ago. If any moderator or Apple staff can route this to the team that can lift an account-level hold, I would be grateful — happy to provide anything else immediately.
+```
+
+---
+
+## ⏱ ROUND 2 — escalation package (2026-06-16)
 
 Three weeks in. Identity verification **APPROVED 2026-06-02**, but a separate
 **account-level hold** ("Unable to Continue — contact support at
