@@ -1,7 +1,7 @@
 Varisankya 3.9 - housekeeping.
 
-- Removed the unused long-press app shortcuts (Add / History) to keep things simple.
-- Shared UI building blocks are now standardized across the Hora family of apps - more consistent and easier to maintain.
-- No change to how your subscriptions and payments work.
+- Adopted new shared core Android building blocks (BiometricAuthManager, BaseActivity, SelectionBottomSheet) from the Hora family engine.
+- Synced the standard Web styling language across platforms.
+- General performance and build stability enhancements.
 
 Thanks for using Varisankya!

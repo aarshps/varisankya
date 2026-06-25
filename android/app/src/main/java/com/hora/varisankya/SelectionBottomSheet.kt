@@ -1,3 +1,9 @@
+/*
+ * Shared Hora-family component — canonical source lives in hora-core/shared/android.
+ * It is GENERATED into each app by that app's tools/sync_shared_android.sh. Do NOT
+ * hand-edit the copy inside an app; edit it here in hora-core and re-run the sync.
+ * (A package placeholder in this file is rewritten to the app's base package on sync.)
+ */
 package com.hora.varisankya
 
 import android.os.Bundle
@@ -24,7 +30,6 @@ class SelectionBottomSheet(
         dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         return dialog
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -70,12 +75,7 @@ class SelectionBottomSheet(
         com.hora.varisankya.util.ChipHelper.styleChip(chip)
     }
 
-
-
-
-
     override fun onStart() {
-
         super.onStart()
         val bottomSheet = (dialog as? BottomSheetDialog)?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
         val behavior = (dialog as? BottomSheetDialog)?.behavior

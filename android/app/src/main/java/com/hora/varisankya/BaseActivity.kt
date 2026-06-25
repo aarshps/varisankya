@@ -1,3 +1,9 @@
+/*
+ * Shared Hora-family component — canonical source lives in hora-core/shared/android.
+ * It is GENERATED into each app by that app's tools/sync_shared_android.sh. Do NOT
+ * hand-edit the copy inside an app; edit it here in hora-core and re-run the sync.
+ * (A package placeholder in this file is rewritten to the app's base package on sync.)
+ */
 package com.hora.varisankya
 
 import android.os.Bundle
@@ -16,10 +22,13 @@ open class BaseActivity : AppCompatActivity() {
         currentFontEnabled = PreferenceHelper.isGoogleFontEnabled(this)
         
         // 1. Apply the Base Theme (decides the font)
-        if (!currentFontEnabled) {
-            setTheme(R.style.Theme_Varisankya_SystemFont)
+        val styleRes = if (!currentFontEnabled) {
+            resources.getIdentifier("Theme_${resources.getString(R.string.app_name)}.SystemFont", "style", packageName)
         } else {
-            setTheme(R.style.Theme_Varisankya)
+            resources.getIdentifier("Theme_${resources.getString(R.string.app_name)}", "style", packageName)
+        }
+        if (styleRes != 0) {
+            setTheme(styleRes)
         }
         
         // VITAL: Re-apply Dynamic Colors because the manual setTheme() above overrides 
@@ -27,8 +36,6 @@ open class BaseActivity : AppCompatActivity() {
         DynamicColors.applyToActivityIfAvailable(this)
         
         super.onCreate(savedInstanceState)
-
-
     }
 
     override fun onResume() {

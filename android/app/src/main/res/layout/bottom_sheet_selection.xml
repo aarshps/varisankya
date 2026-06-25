@@ -27,7 +27,6 @@
             android:textAppearance="?attr/textAppearanceHeadlineSmall"
             android:textStyle="bold" />
 
-
         <androidx.core.widget.NestedScrollView
             android:id="@+id/selection_scroll_view"
             android:layout_width="match_parent"
