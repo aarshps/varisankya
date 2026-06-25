@@ -84,6 +84,7 @@ KT_FILES=(
   util/TimeProvider.kt
   util/BiometricAuthManager.kt
   util/DragReorderCallback.kt
+  util/SwipeHelpers.kt
   BaseActivity.kt
   SelectionBottomSheet.kt
   AboutBottomSheet.kt
