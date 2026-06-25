@@ -37,6 +37,8 @@ SKILLS=(
   settings-page-standards
   android-platform-standards
   shared-android-source
+  hora-agent-discussions
+  hora-github-ops
 )
 
 src_root="$HORA_CORE/.github/skills"
