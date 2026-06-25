@@ -2,8 +2,8 @@
 # Edit them in hora-core/shared/android/ and re-run this script.
 # source: C:/Users/Aarsh/Source/hora-core/hora-core/shared/android
 # app package: com.hora.varisankya
-# synced: 2026-06-25T15:56:27Z
-# hora-core commit: 43ab203
+# synced: 2026-06-25T16:31:11Z
+# hora-core commit: 4e24288
 #
 res/values/dimens.xml
 res/values/type.xml
@@ -54,6 +54,7 @@ java/com/hora/varisankya/util/ThemeHelper.kt
 java/com/hora/varisankya/util/AnimationHelper.kt
 java/com/hora/varisankya/util/TimeProvider.kt
 java/com/hora/varisankya/util/BiometricAuthManager.kt
+java/com/hora/varisankya/util/DragReorderCallback.kt
 java/com/hora/varisankya/BaseActivity.kt
 java/com/hora/varisankya/SelectionBottomSheet.kt
 java/com/hora/varisankya/PillProgressView.kt

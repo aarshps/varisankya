@@ -1,6 +1,6 @@
 Varisankya 3.9 - housekeeping.
 
-- Adopted new shared core Android building blocks (BiometricAuthManager, BaseActivity, SelectionBottomSheet) from the Hora family engine.
+- Adopted new shared core DragReorderCallback components from the Hora family engine.
 - Synced the standard Web styling language across platforms.
 - General performance and build stability enhancements.
 
