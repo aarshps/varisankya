@@ -1,5 +1,5 @@
-Varisankya 3.9-beta.13 - bug fix.
+Varisankya 3.9-beta.14 - under-the-hood improvements.
 
-Fixed the "New Subscription" button collapsing without animation when scrolling down. The AppBar offset listener was cancelling the shrink animation on every scroll event; the scroll listener now drives all FAB state.
+More of the app's UI building blocks (swipe-to-pay, bottom sheets, list reordering) now come from the shared Hora component library, so behaviour stays consistent across the family. No change to how the app works for you.
 
-Thanks for using Varisankya!
+Thanks for testing Varisankya!

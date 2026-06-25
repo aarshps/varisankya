@@ -21,8 +21,8 @@ android {
         applicationId = "com.hora.varisankya"
         minSdk = 35
         targetSdk = 36
-        versionCode = 70
-        versionName = "3.9-beta.13"
+        versionCode = 71
+        versionName = "3.9-beta.14"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
