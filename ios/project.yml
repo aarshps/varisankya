@@ -103,5 +103,14 @@ targets:
       - package: GoogleSignIn
         product: GoogleSignInSwift
     scheme:
-      testTargets: []
+      testTargets:
+        - VarisankyaTests
       gatherCoverageData: false
+
+  VarisankyaTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: VarisankyaTests
+    dependencies:
+      - target: Varisankya

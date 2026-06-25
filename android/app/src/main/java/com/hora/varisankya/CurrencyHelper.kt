@@ -86,4 +86,27 @@ object CurrencyHelper {
     fun getByCode(code: String): CurrencyItem? {
         return ALL_CURRENCIES.find { it.code == code }
     }
+
+    /**
+     * Compact format using k / l (lakh) / m suffixes, matching the shared spec.
+     */
+    fun compactFormat(amount: Double): String {
+        if (amount == 0.0) return "0"
+        val abs = kotlin.math.abs(amount)
+        return when {
+            abs >= 1_000_000.0 -> trim(amount / 1_000_000.0, "m")
+            abs >= 100_000.0 -> trim(amount / 100_000.0, "l")
+            abs >= 1_000.0 -> trim(amount / 1_000.0, "k")
+            else -> String.format(java.util.Locale.US, "%.0f", amount)
+        }
+    }
+
+    private fun trim(value: Double, suffix: String): String {
+        val formatted = String.format(java.util.Locale.US, "%.1f", value)
+        return if (formatted.endsWith(".0")) {
+            formatted.dropLast(2) + suffix
+        } else {
+            formatted + suffix
+        }
+    }
 }
