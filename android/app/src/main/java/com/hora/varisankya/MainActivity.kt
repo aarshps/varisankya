@@ -306,11 +306,9 @@ class MainActivity : BaseActivity() {
         // Coordinate SwipeRefresh with AppBar/RecyclerView
         appBar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
             swipeRefreshLayout.isEnabled = verticalOffset == 0
-            
-            // Extend FAB when scrolled back to top
-            if (verticalOffset == 0 && auth.currentUser != null && !fabAddSubscription.isExtended) {
-                fabAddSubscription.extend()
-            }
+            // FAB extend/shrink is driven solely by the scroll listener below.
+            // The AppBar has no scrollFlags so verticalOffset is always 0; calling
+            // extend() here would cancel any in-progress shrink animation.
         }
 
         // NestedScrollView Scroll Listener for FAB hiding AND M3E Haptics
@@ -337,6 +335,8 @@ class MainActivity : BaseActivity() {
             if (dy > 12 && fabAddSubscription.isExtended) {
                 fabAddSubscription.shrink()
             } else if (dy < -12 && !fabAddSubscription.isExtended) {
+                fabAddSubscription.extend()
+            } else if (scrollY == 0 && auth.currentUser != null && !fabAddSubscription.isExtended) {
                 fabAddSubscription.extend()
             }
         })

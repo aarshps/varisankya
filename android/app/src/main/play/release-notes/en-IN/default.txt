@@ -1,7 +1,5 @@
-Varisankya 3.9 - housekeeping.
+Varisankya 3.9-beta.13 - bug fix.
 
-- Adopted new shared core DragReorderCallback components from the Hora family engine.
-- Synced the standard Web styling language across platforms.
-- General performance and build stability enhancements.
+Fixed the "New Subscription" button collapsing without animation when scrolling down. The AppBar offset listener was cancelling the shrink animation on every scroll event; the scroll listener now drives all FAB state.
 
 Thanks for using Varisankya!
