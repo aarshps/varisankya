@@ -1,3 +1,9 @@
+/*
+ * Shared Hora-family component — canonical source lives in hora-core/shared/android.
+ * It is GENERATED into each app by that app's tools/sync_shared_android.sh. Do NOT
+ * hand-edit the copy inside an app; edit it here in hora-core and re-run the sync.
+ * (A package placeholder in this file is rewritten to the app's base package on sync.)
+ */
 package com.hora.varisankya
 
 import android.content.Intent
@@ -12,7 +18,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class AboutBottomSheet : BottomSheetDialogFragment() {
+class AboutBottomSheet(
+    private val githubUrl: String
+) : BottomSheetDialogFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,7 +32,6 @@ class AboutBottomSheet : BottomSheetDialogFragment() {
         val githubLink = view.findViewById<TextView>(R.id.github_link)
         val dragHandle = view.findViewById<View>(R.id.drag_handle)
 
-        // Set version info dynamically
         try {
             val packageInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
             val versionName = packageInfo.versionName
@@ -42,10 +49,10 @@ class AboutBottomSheet : BottomSheetDialogFragment() {
             PreferenceHelper.performHaptics(it, HapticFeedbackConstants.CLOCK_TICK)
         }
 
+        githubLink.text = githubUrl.removePrefix("https://")
         githubLink.setOnClickListener {
             PreferenceHelper.performClickHaptic(it)
-            val url = "https://github.com/aarshps/varisankya"
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(githubUrl))
             startActivity(intent)
         }
 

@@ -95,7 +95,7 @@ class SettingsActivity : BaseActivity() {
         aboutLayout.setOnClickListener {
             PreferenceHelper.performClickHaptic(it)
             Analytics.screenAboutOpen()
-            AboutBottomSheet().show(supportFragmentManager, "AboutBottomSheet")
+            AboutBottomSheet("https://github.com/aarshps/varisankya").show(supportFragmentManager, "AboutBottomSheet")
         }
     }
     

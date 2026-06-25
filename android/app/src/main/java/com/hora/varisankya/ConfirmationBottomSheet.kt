@@ -1,17 +1,19 @@
-﻿package com.hora.varisankya
+/*
+ * Shared Hora-family component — canonical source lives in hora-core/shared/android.
+ * It is GENERATED into each app by that app's tools/sync_shared_android.sh. Do NOT
+ * hand-edit the copy inside an app; edit it here in hora-core and re-run the sync.
+ * (A package placeholder in this file is rewritten to the app's base package on sync.)
+ */
+package com.hora.varisankya
 
 import android.content.DialogInterface
-import android.os.Build
 import android.os.Bundle
-import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.hora.varisankya.util.AnimationHelper
-
 import com.hora.varisankya.util.ThemeHelper
 
 class ConfirmationBottomSheet(
@@ -46,7 +48,7 @@ class ConfirmationBottomSheet(
         } else {
             // Default Primary
             btnConfirm.setBackgroundColor(ThemeHelper.getPrimaryColor(requireContext()))
-             btnConfirm.setTextColor(ThemeHelper.getOnPrimaryColor(requireContext()))
+            btnConfirm.setTextColor(ThemeHelper.getOnPrimaryColor(requireContext()))
         }
         
         btnConfirm.setOnClickListener {
@@ -61,12 +63,10 @@ class ConfirmationBottomSheet(
             dismiss()
         }
         
-        // Touch Animation
-        
         // Drag handle animation
         val dragHandle = view.findViewById<View>(R.id.drag_handle)
         dragHandle.setOnClickListener {
-             PreferenceHelper.performClickHaptic(it)
+            PreferenceHelper.performClickHaptic(it)
         }
 
         return view

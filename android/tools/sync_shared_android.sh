@@ -72,6 +72,8 @@ RES_FILES=(
   drawable/ic_settings.xml
   drawable/ic_show_chart.xml
   layout/bottom_sheet_selection.xml
+  layout/bottom_sheet_about.xml
+  layout/bottom_sheet_confirmation.xml
 )
 
 # Kotlin utils — the "__HORA_PKG__" placeholder is rewritten to $APP_PKG.
@@ -84,6 +86,8 @@ KT_FILES=(
   util/DragReorderCallback.kt
   BaseActivity.kt
   SelectionBottomSheet.kt
+  AboutBottomSheet.kt
+  ConfirmationBottomSheet.kt
   PillProgressView.kt
 )
 
