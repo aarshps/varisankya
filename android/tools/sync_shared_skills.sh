@@ -25,6 +25,7 @@ DEST="${DEST:-android/.agent/skills}"
 #    app-specific runbook (real vault item/field names) local; hora-bitwarden-secrets
 #    is the scrubbed public method and is not a substitute for it.
 SKILLS=(
+  hora-agent-scope
   agent-session-closing
   agent-skill-standards
   hora-app-release
