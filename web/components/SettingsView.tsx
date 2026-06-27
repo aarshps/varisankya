@@ -11,9 +11,16 @@ import {
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "./ThemeProvider";
-import { Button, Segmented, Select, Switch } from "./controls";
+import { Button, Segmented, Select } from "./controls";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { AboutSheet } from "./AboutSheet";
+import {
+  SettingsSection,
+  SettingsRow,
+  SettingsToggle,
+  SettingsDivider,
+  SettingsLinkRow,
+} from "./settings";
 import { CURRENCIES } from "@/lib/currency";
 import { PRIVACY_URL } from "@/lib/constants";
 import { prefs, haptic, type Appearance } from "@/lib/prefs";
@@ -62,7 +69,7 @@ export function SettingsView({
 
       <div className="no-scrollbar mx-auto w-full max-w-xl flex-1 overflow-y-auto px-4 py-4">
         {/* Profile */}
-        <Card>
+        <SettingsSection>
           <div className="flex items-center gap-3">
             {user?.photoURL ? (
               <Image
@@ -85,11 +92,11 @@ export function SettingsView({
               </p>
             </div>
           </div>
-        </Card>
+        </SettingsSection>
 
         {/* Currency */}
-        <Card>
-          <Row label="Currency">
+        <SettingsSection>
+          <SettingsRow label="Currency">
             <Select
               value={currency}
               onChange={(e) => {
@@ -105,12 +112,11 @@ export function SettingsView({
                 </option>
               ))}
             </Select>
-          </Row>
-        </Card>
+          </SettingsRow>
+        </SettingsSection>
 
         {/* Appearance */}
-        <Card>
-          <SectionLabel>Appearance</SectionLabel>
+        <SettingsSection title="Appearance">
           <div className="mt-2">
             <Segmented
               options={[
@@ -125,25 +131,21 @@ export function SettingsView({
               }}
             />
           </div>
-          <Divider />
-          <Row
+          <SettingsDivider />
+          <SettingsToggle
             label="Rounded font"
             sub="Use the brand rounded font everywhere"
-          >
-            <Switch
-              checked={useRoundedFont}
-              onChange={(v) => {
-                setUseRoundedFont(v);
-                analytics.settingFontChange(v ? "rounded" : "system");
-              }}
-            />
-          </Row>
-        </Card>
+            checked={useRoundedFont}
+            onChange={(v) => {
+              setUseRoundedFont(v);
+              analytics.settingFontChange(v ? "rounded" : "system");
+            }}
+          />
+        </SettingsSection>
 
         {/* Notifications */}
-        <Card>
-          <SectionLabel>Notifications</SectionLabel>
-          <Row label="Reminder time">
+        <SettingsSection title="Notifications">
+          <SettingsRow label="Reminder time">
             <input
               type="time"
               value={timeValue}
@@ -156,7 +158,7 @@ export function SettingsView({
               }}
               className="rounded-xl border border-outline bg-surface-2 px-3 py-2"
             />
-          </Row>
+          </SettingsRow>
           <div className="mt-2">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-on-surface-variant">
@@ -182,49 +184,46 @@ export function SettingsView({
           <p className="mt-2 text-xs text-on-surface-variant">
             Reminder delivery on web is coming soon — your preference is saved.
           </p>
-        </Card>
+        </SettingsSection>
 
         {/* Haptics */}
-        <Card>
-          <Row label="Haptic feedback" sub="Subtle vibration on actions">
-            <Switch
-              checked={haptics}
-              onChange={(v) => {
-                setHaptics(v);
-                prefs.setHaptics(v);
-                analytics.settingHapticsToggle(v);
-                if (v) haptic();
-              }}
-            />
-          </Row>
-        </Card>
+        <SettingsSection>
+          <SettingsToggle
+            label="Haptic feedback"
+            sub="Subtle vibration on actions"
+            checked={haptics}
+            onChange={(v) => {
+              setHaptics(v);
+              prefs.setHaptics(v);
+              analytics.settingHapticsToggle(v);
+              if (v) haptic();
+            }}
+          />
+        </SettingsSection>
 
         {/* Legal & info */}
-        <Card>
-          <SectionLabel>Legal &amp; info</SectionLabel>
-          <a
+        <SettingsSection title="Legal & info">
+          <SettingsLinkRow
+            icon={<ShieldCheck size={18} />}
+            label="Privacy Policy"
             href={PRIVACY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 py-3 font-medium"
-          >
-            <ShieldCheck size={18} />
-            Privacy Policy
-            <ExternalLink size={14} className="ml-auto text-on-surface-variant" />
-          </a>
-          <Divider />
-          <button
+            trailing={
+              <ExternalLink size={14} className="text-on-surface-variant" />
+            }
+          />
+          <SettingsDivider />
+          <SettingsLinkRow
+            icon={<Info size={18} />}
+            label="About Varisankya"
             onClick={() => {
               setShowAbout(true);
               analytics.screenAboutOpen();
             }}
-            className="flex w-full items-center gap-3 py-3 font-medium"
-          >
-            <Info size={18} />
-            About Varisankya
-            <ChevronRight size={16} className="ml-auto text-on-surface-variant" />
-          </button>
-        </Card>
+            trailing={
+              <ChevronRight size={16} className="text-on-surface-variant" />
+            }
+          />
+        </SettingsSection>
 
         <div className="mt-2 flex flex-col gap-3">
           <Button
@@ -295,40 +294,4 @@ export function SettingsView({
       />
     </div>
   );
-}
-
-function Card({ children }: { children: React.ReactNode }) {
-  return <div className="card mb-3 p-4">{children}</div>;
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-xs font-bold uppercase tracking-wide text-on-surface-variant">
-      {children}
-    </p>
-  );
-}
-
-function Row({
-  label,
-  sub,
-  children,
-}: {
-  label: string;
-  sub?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 py-1">
-      <div className="min-w-0">
-        <p className="font-semibold">{label}</p>
-        {sub && <p className="text-xs text-on-surface-variant">{sub}</p>}
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function Divider() {
-  return <div className="my-2 h-px bg-outline/60" />;
 }

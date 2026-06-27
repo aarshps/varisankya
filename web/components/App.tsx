@@ -23,6 +23,7 @@ import { SettingsView } from "./SettingsView";
 import { HistoryView } from "./HistoryView";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { PaymentsSheet } from "./PaymentsSheet";
+import { EmptyState } from "./EmptyState";
 
 export function App() {
   const { user } = useAuth();
@@ -115,7 +116,13 @@ export function App() {
         {loading && subscriptions.length === 0 ? (
           <LoadingSkeleton />
         ) : subscriptions.length === 0 ? (
-          <EmptyState onAdd={openAdd} />
+          <EmptyState
+            icon={<Plus size={28} className="text-on-surface-variant" />}
+            title="No subscriptions yet"
+            description="Add your first recurring payment to start tracking."
+            actionLabel="Add subscription"
+            onAction={openAdd}
+          />
         ) : (
           <SubscriptionList
             subscriptions={subscriptions}
@@ -205,28 +212,6 @@ export function App() {
           onClose={() => setManaging(null)}
         />
       )}
-    </div>
-  );
-}
-
-function EmptyState({ onAdd }: { onAdd: () => void }) {
-  return (
-    <div className="card flex flex-col items-center gap-4 px-6 py-16 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-surface-2">
-        <Plus size={28} className="text-on-surface-variant" />
-      </div>
-      <div>
-        <p className="text-lg font-bold">No subscriptions yet</p>
-        <p className="mt-1 text-sm text-on-surface-variant">
-          Add your first recurring payment to start tracking.
-        </p>
-      </div>
-      <button
-        onClick={onAdd}
-        className="rounded-full bg-primary px-6 py-2.5 font-semibold text-on-primary"
-      >
-        Add subscription
-      </button>
     </div>
   );
 }
