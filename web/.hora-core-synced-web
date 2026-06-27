@@ -2,8 +2,8 @@
 # Edit them in hora-core/shared/web/ and re-run this script.
 # source: C:/Users/Aarsh/Source/hora-core/hora-core/shared/web
 # app: Varisankya
-# synced: 2026-06-27T17:03:23Z
-# hora-core commit: 15c90e7
+# synced: 2026-06-27T23:26:03Z
+# hora-core commit: 8490541
 #
 app/web_shared.css
 components/ServiceWorker.tsx

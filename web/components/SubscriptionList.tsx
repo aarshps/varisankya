@@ -45,7 +45,7 @@ export function SubscriptionList({
   // Grouped-list shapes: N cards read as one continuous surface — mirrors the
   // Android SubscriptionAdapter first/middle/last/single corner pattern.
   return (
-    <ul className="flex flex-col gap-0.5">
+    <ul className="grouped-list">
       {subscriptions.map((sub, i) => {
         const position: Position =
           n === 1 ? "single" : i === 0 ? "first" : i === n - 1 ? "last" : "middle";
