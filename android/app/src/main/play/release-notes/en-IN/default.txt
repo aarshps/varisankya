@@ -1,5 +1,7 @@
-Varisankya 3.9-beta.14 - under-the-hood improvements.
+Varisankya 3.9-beta.15 - sign-in reliability.
 
-More of the app's UI building blocks (swipe-to-pay, bottom sheets, list reordering) now come from the shared Hora component library, so behaviour stays consistent across the family. No change to how the app works for you.
+Fixes for signing in: if Google sign-in fails, the app now shows the real reason on screen instead of silently doing nothing, plus a more robust "Sign in with Google" fallback so you can get back in after being signed out.
+
+If you were logged out and couldn't sign back in, please update and try again - and share the on-screen message if it still fails.
 
 Thanks for testing Varisankya!

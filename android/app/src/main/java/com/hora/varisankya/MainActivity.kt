@@ -36,6 +36,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.color.DynamicColors
@@ -554,42 +555,67 @@ class MainActivity : BaseActivity() {
     }
     
     private fun signInWithGoogle() {
+        // Primary attempt: a Google ID credential for any Google account already on the
+        // device (no "authorized accounts" filter, so it works after a sign-out too).
         val googleIdOption = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
             .setServerClientId(WEB_CLIENT_ID)
             .setAutoSelectEnabled(false)
             .build()
 
-        val request = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .build()
+        getGoogleCredential(
+            GetCredentialRequest.Builder().addCredentialOption(googleIdOption).build(),
+            allowExplicitFallback = true
+        )
+    }
 
+    /**
+     * Runs a Credential Manager request and feeds the resulting Google ID token to
+     * Firebase. On [NoCredentialException] (no ready credential — e.g. authorization was
+     * cleared after a sign-out) it retries once with the explicit "Sign in with Google"
+     * flow, which always shows the full account picker + consent and recovers a
+     * logged-out user. Every non-cancellation failure is surfaced — previously these
+     * (and Firebase rejections) failed silently, which is why a backend/config rejection
+     * looked like an unexplained "can't sign in".
+     */
+    private fun getGoogleCredential(request: GetCredentialRequest, allowExplicitFallback: Boolean) {
         lifecycleScope.launch {
             try {
-                // Attempt to clear state to force account chooser
-                // Use a timeout so we don't block the UI indefinitely if the system is slow
-                // timeout block removed
-
-
                 val result = credentialManager.getCredential(this@MainActivity, request)
                 val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(result.credential.data)
                 firebaseAuthWithGoogle(googleIdTokenCredential.idToken)
+            } catch (e: androidx.credentials.exceptions.GetCredentialCancellationException) {
+                // User dismissed the picker — not an error.
+                updateUI(false)
+            } catch (e: NoCredentialException) {
+                if (allowExplicitFallback) {
+                    val signInOption = GetSignInWithGoogleOption.Builder(WEB_CLIENT_ID).build()
+                    getGoogleCredential(
+                        GetCredentialRequest.Builder().addCredentialOption(signInOption).build(),
+                        allowExplicitFallback = false
+                    )
+                } else {
+                    Log.e("Auth", "NoCredentialException after explicit fallback", e)
+                    showSignInError("No Google account available. Add a Google account in device Settings, then try again.")
+                    updateUI(false)
+                }
+            } catch (e: GetCredentialException) {
+                Log.e("Auth", "Credential Manager error", e)
+                showSignInError("Sign-in failed: ${e.message ?: e.type}")
+                updateUI(false)
             } catch (e: Exception) {
-                Log.e("Auth", "Credential Manager Error", e)
-                val errorMessage = when (e) {
-                    is androidx.credentials.exceptions.GetCredentialCancellationException -> "Sign-in cancelled"
-                    is androidx.credentials.exceptions.NoCredentialException -> "No accounts found. Please ensure you have a Google account on this device and that the app's SHA-1 is registered in Firebase."
-                    else -> "Sign-in error: ${e.message}"
-                }
-                if (e !is androidx.credentials.exceptions.GetCredentialCancellationException) {
-                    com.google.android.material.snackbar.Snackbar.make(
-                        mainContentRoot, errorMessage,
-                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG
-                    ).show()
-                }
+                Log.e("Auth", "Unexpected sign-in error", e)
+                showSignInError("Sign-in error: ${e.message}")
                 updateUI(false)
             }
         }
+    }
+
+    private fun showSignInError(message: String) {
+        com.google.android.material.snackbar.Snackbar.make(
+            mainContentRoot, message,
+            com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+        ).show()
     }
 
     /**
@@ -630,6 +656,13 @@ class MainActivity : BaseActivity() {
                     viewModel.loadSubscriptions() // Reload data for new user
                     observeViewModel()
                 } else {
+                    // Previously failed SILENTLY. Surface the real reason so a backend /
+                    // config rejection (Google provider disabled, credential expired or
+                    // revoked, App Check, OAuth consent issue, …) is visible and
+                    // diagnosable instead of looking like an unexplained "can't sign in".
+                    val reason = task.exception?.localizedMessage ?: "unknown error"
+                    Log.e("Auth", "Firebase signInWithCredential failed", task.exception)
+                    showSignInError("Couldn't complete sign-in: $reason")
                     updateUI(false)
                 }
             }
