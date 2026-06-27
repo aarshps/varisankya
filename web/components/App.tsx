@@ -25,6 +25,8 @@ import { HistoryView } from "./HistoryView";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { PaymentsSheet } from "./PaymentsSheet";
 import { EmptyState } from "./EmptyState";
+import { AppBar } from "./AppBar";
+import { Fab } from "./Fab";
 
 export function App() {
   const { user } = useAuth();
@@ -68,41 +70,45 @@ export function App() {
   return (
     <div className="mx-auto min-h-dvh w-full max-w-2xl px-4 pb-28">
       {/* Header */}
-      <header className="sticky top-0 z-20 -mx-4 mb-2 flex items-center gap-2 bg-bg px-4 py-3">
-        <button
-          onClick={() => {
-            setShowSettings(true);
-            analytics.screenSettingsOpen();
-          }}
-          aria-label="Settings"
-          className="overflow-hidden rounded-full border border-outline"
-        >
-          {user?.photoURL ? (
-            <Image
-              src={user.photoURL}
-              alt=""
-              width={36}
-              height={36}
-              unoptimized
-            />
-          ) : (
-            <span className="flex h-9 w-9 items-center justify-center bg-surface-2 text-on-surface-variant">
-              <User size={18} />
-            </span>
-          )}
-        </button>
-        <h1 className="flex-1 text-2xl font-extrabold">Varisankya</h1>
-        <button
-          onClick={() => {
-            setShowSearch(true);
-            analytics.screenSearchOpen();
-          }}
-          aria-label="Search"
-          className="rounded-full bg-surface-2 p-2.5 transition hover:bg-black/5 dark:hover:bg-white/10"
-        >
-          <Search size={20} />
-        </button>
-      </header>
+      <AppBar
+        title="Varisankya"
+        leading={
+          <button
+            onClick={() => {
+              setShowSettings(true);
+              analytics.screenSettingsOpen();
+            }}
+            aria-label="Settings"
+            className="overflow-hidden rounded-full border border-outline"
+          >
+            {user?.photoURL ? (
+              <Image
+                src={user.photoURL}
+                alt=""
+                width={36}
+                height={36}
+                unoptimized
+              />
+            ) : (
+              <span className="flex h-9 w-9 items-center justify-center bg-surface-2 text-on-surface-variant">
+                <User size={18} />
+              </span>
+            )}
+          </button>
+        }
+        actions={
+          <button
+            onClick={() => {
+              setShowSearch(true);
+              analytics.screenSearchOpen();
+            }}
+            aria-label="Search"
+            className="rounded-full bg-surface-2 p-2.5 transition hover:bg-black/5 dark:hover:bg-white/10"
+          >
+            <Search size={20} />
+          </button>
+        }
+      />
 
       <div className="flex flex-col gap-5 pt-2">
         <Hero
@@ -144,16 +150,14 @@ export function App() {
       </div>
 
       {/* FAB */}
-      <button
+      <Fab
+        icon={<Plus size={20} />}
+        label="Add"
         onClick={() => {
           haptics.click();
           openAdd();
         }}
-        className="fixed right-5 bottom-6 z-30 flex items-center gap-2 rounded-2xl bg-primary-container px-5 py-4 font-semibold text-on-primary-container shadow-lg transition hover:opacity-90 active:scale-95"
-      >
-        <Plus size={20} />
-        Add
-      </button>
+      />
 
       {/* Dialogs & overlays */}
       <AddSubscriptionDialog
