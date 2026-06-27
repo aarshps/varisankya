@@ -77,10 +77,3 @@ export const prefs = {
     );
   },
 };
-
-/** Fire a short vibration when haptics are enabled and supported. */
-export function haptic(pattern: number | number[] = 10) {
-  if (typeof navigator === "undefined" || !navigator.vibrate) return;
-  if (!prefs.getHaptics()) return;
-  navigator.vibrate(pattern);
-}

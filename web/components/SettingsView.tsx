@@ -18,7 +18,8 @@ import {
 } from "./settings";
 import { CURRENCIES } from "@/lib/currency";
 import { PRIVACY_URL } from "@/lib/constants";
-import { prefs, haptic, type Appearance } from "@/lib/prefs";
+import { prefs, type Appearance } from "@/lib/prefs";
+import { haptics as appHaptics } from "@/lib/haptics";
 import { analytics } from "@/lib/analytics";
 
 export function SettingsView({
@@ -182,7 +183,7 @@ export function SettingsView({
               setHaptics(v);
               prefs.setHaptics(v);
               analytics.settingHapticsToggle(v);
-              if (v) haptic();
+              if (v) appHaptics.click();
             }}
           />
         </SettingsSection>

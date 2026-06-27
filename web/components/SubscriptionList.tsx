@@ -13,7 +13,7 @@ import {
 import type { Subscription } from "@/lib/types";
 import { formatCurrency } from "@/lib/currency";
 import { daysUntilDue, isOverdue, statusText } from "@/lib/subscription";
-import { haptic } from "@/lib/prefs";
+import { haptics } from "@/lib/haptics";
 
 interface Handlers {
   onTap: (s: Subscription) => void;
@@ -127,7 +127,7 @@ function SubscriptionRow({
     const reached = dx >= SWIPE_THRESHOLD;
     setDx(0);
     if (reached) {
-      haptic();
+      haptics.click();
       handlers.onMarkPaid(sub);
     }
     // Let the click that follows pointerup read movedRef, then clear it.
@@ -214,7 +214,7 @@ function SubscriptionRow({
               aria-label="Mark paid"
               title="Mark paid"
               onClick={tapped(() => {
-                haptic();
+                haptics.click();
                 handlers.onMarkPaid(sub);
               })}
               className="rounded-full bg-secondary-container p-2 text-on-secondary-container transition hover:opacity-90"

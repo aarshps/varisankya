@@ -5,7 +5,8 @@ import Image from "next/image";
 import { Plus, Search, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
-import { prefs, haptic } from "@/lib/prefs";
+import { prefs } from "@/lib/prefs";
+import { haptics } from "@/lib/haptics";
 import { analytics } from "@/lib/analytics";
 import { nextDueDate } from "@/lib/recurrence";
 import {
@@ -145,7 +146,7 @@ export function App() {
       {/* FAB */}
       <button
         onClick={() => {
-          haptic();
+          haptics.click();
           openAdd();
         }}
         className="fixed right-5 bottom-6 z-30 flex items-center gap-2 rounded-2xl bg-primary-container px-5 py-4 font-semibold text-on-primary-container shadow-lg transition hover:opacity-90 active:scale-95"

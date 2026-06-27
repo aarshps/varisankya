@@ -18,7 +18,7 @@ import {
 } from "@/lib/firestore";
 import { nextDueDate } from "@/lib/recurrence";
 import { formatCurrency } from "@/lib/currency";
-import { haptic } from "@/lib/prefs";
+import { haptics } from "@/lib/haptics";
 import { analytics } from "@/lib/analytics";
 import type { PaymentRecord, Subscription } from "@/lib/types";
 
@@ -105,7 +105,7 @@ export function PaymentsSheet({
     try {
       await recordPayment(sub, new Date(), projectedNext, uid);
       analytics.paymentPayCurrent();
-      haptic();
+      haptics.click();
       onClose();
     } catch (e) {
       setError((e as Error).message);
@@ -122,7 +122,7 @@ export function PaymentsSheet({
     try {
       await recordPayment(sub, d, null, uid); // null nextDue → keep the due date
       analytics.paymentAddOnly();
-      haptic();
+      haptics.click();
       setAddDate(null);
       await load();
     } catch (e) {
