@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Minus, Plus } from "lucide-react";
-import { Modal } from "./ui/Modal";
-import { Button, Field, Select, Switch, TextInput } from "./ui/controls";
+import { Sheet } from "./Sheet";
+import { Button, Field, Select, Switch, TextInput } from "./controls";
 import { RECURRENCE_UNITS } from "@/lib/constants";
 import { CURRENCIES } from "@/lib/currency";
 import { decodeRecurrence, encodeRecurrence } from "@/lib/recurrence";
@@ -109,7 +109,7 @@ export function AddSubscriptionDialog({
   };
 
   return (
-    <Modal
+    <Sheet
       open={open}
       onClose={onClose}
       title={existing ? "Edit subscription" : "Add subscription"}
@@ -218,6 +218,6 @@ export function AddSubscriptionDialog({
           <Switch checked={autopay} onChange={setAutopay} />
         </div>
       </div>
-    </Modal>
+    </Sheet>
   );
 }

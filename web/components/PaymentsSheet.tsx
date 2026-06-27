@@ -8,8 +8,8 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
-import { Modal } from "./ui/Modal";
-import { Button } from "./ui/controls";
+import { Sheet } from "./Sheet";
+import { Button } from "./controls";
 import {
   deletePayment,
   fetchPayments,
@@ -133,7 +133,7 @@ export function PaymentsSheet({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Manage payments">
+    <Sheet open={open} onClose={onClose} title="Manage payments">
       <div className="flex flex-col gap-4 py-2">
         <div className="rounded-2xl bg-surface-2 p-4">
           <p className="font-bold">{sub.name || "Untitled"}</p>
@@ -240,7 +240,7 @@ export function PaymentsSheet({
           }}
         />
       )}
-    </Modal>
+    </Sheet>
   );
 }
 

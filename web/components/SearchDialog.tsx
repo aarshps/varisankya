@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { Modal } from "./ui/Modal";
-import { TextInput } from "./ui/controls";
+import { Sheet } from "./Sheet";
+import { TextInput } from "./controls";
 import { formatCurrency } from "@/lib/currency";
 import { statusText } from "@/lib/subscription";
 import type { Subscription } from "@/lib/types";
@@ -31,7 +31,7 @@ export function SearchDialog({
   }, [q, subscriptions]);
 
   return (
-    <Modal open={open} onClose={onClose} title="Search">
+    <Sheet open={open} onClose={onClose} title="Search">
       <div className="py-1">
         <div className="relative">
           <Search
@@ -76,6 +76,6 @@ export function SearchDialog({
           ))}
         </ul>
       </div>
-    </Modal>
+    </Sheet>
   );
 }

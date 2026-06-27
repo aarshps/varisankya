@@ -7,11 +7,20 @@ import { App } from "@/components/App";
 const configMissing = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
 
 export default function Home() {
-  const { user, initialized } = useAuth();
+  const { user, initialized, signInWithGoogle, authError } = useAuth();
 
   if (configMissing) return <ConfigNotice />;
   if (!initialized) return <Splash />;
-  if (!user) return <SignIn />;
+  if (!user)
+    return (
+      <SignIn
+        appName="Varisankya"
+        tagline="Track your subscriptions and recurring payments — synced across all your devices."
+        iconSrc="/icons/icon-512.png"
+        onSignIn={signInWithGoogle}
+        externalError={authError}
+      />
+    );
   return <App />;
 }
 

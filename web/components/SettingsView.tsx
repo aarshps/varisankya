@@ -11,9 +11,9 @@ import {
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "./ThemeProvider";
-import { Button, Select, Switch } from "./ui/controls";
-import { ConfirmDialog } from "./ui/ConfirmDialog";
-import { AboutDialog } from "./AboutDialog";
+import { Button, Segmented, Select, Switch } from "./controls";
+import { ConfirmDialog } from "./ConfirmDialog";
+import { AboutSheet } from "./AboutSheet";
 import { CURRENCIES } from "@/lib/currency";
 import { PRIVACY_URL } from "@/lib/constants";
 import { prefs, haptic, type Appearance } from "@/lib/prefs";
@@ -111,23 +111,19 @@ export function SettingsView({
         {/* Appearance */}
         <Card>
           <SectionLabel>Appearance</SectionLabel>
-          <div className="mt-2 flex rounded-full bg-surface-2 p-1">
-            {(["system", "light", "dark"] as Appearance[]).map((m) => (
-              <button
-                key={m}
-                onClick={() => {
-                  setAppearance(m);
-                  analytics.settingThemeChange(m);
-                }}
-                className={`flex-1 rounded-full px-3 py-2 text-sm font-semibold capitalize transition ${
-                  appearance === m
-                    ? "bg-primary text-on-primary"
-                    : "text-on-surface-variant"
-                }`}
-              >
-                {m}
-              </button>
-            ))}
+          <div className="mt-2">
+            <Segmented
+              options={[
+                { value: "system", label: "System" },
+                { value: "light", label: "Light" },
+                { value: "dark", label: "Dark" },
+              ]}
+              selected={appearance}
+              onSelect={(m) => {
+                setAppearance(m as Appearance);
+                analytics.settingThemeChange(m as Appearance);
+              }}
+            />
           </div>
           <Divider />
           <Row
@@ -255,7 +251,13 @@ export function SettingsView({
         </div>
       </div>
 
-      <AboutDialog open={showAbout} onClose={() => setShowAbout(false)} />
+      <AboutSheet
+        open={showAbout}
+        onClose={() => setShowAbout(false)}
+        appName="Varisankya"
+        iconSrc="/icons/icon-512.png"
+        description="A simple, private tracker for your subscriptions and recurring payments. Your data syncs securely across Android, iOS, and the web."
+      />
 
       <ConfirmDialog
         open={showSignOut}

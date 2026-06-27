@@ -21,7 +21,7 @@ import { AddSubscriptionDialog } from "./AddSubscriptionDialog";
 import { SearchDialog } from "./SearchDialog";
 import { SettingsView } from "./SettingsView";
 import { HistoryView } from "./HistoryView";
-import { ConfirmDialog } from "./ui/ConfirmDialog";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { PaymentsSheet } from "./PaymentsSheet";
 
 export function App() {
