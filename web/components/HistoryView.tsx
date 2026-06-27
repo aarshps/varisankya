@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowLeft,
   BarChart3,
   List as ListIcon,
   Pencil,
   Trash2,
 } from "lucide-react";
+import { ScreenHeader } from "./ScreenHeader";
 import {
   Bar,
   BarChart,
@@ -115,32 +115,28 @@ export function HistoryView({
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-bg">
-      <header className="sticky top-0 z-10 flex items-center gap-3 bg-bg px-4 py-3">
-        <button
-          onClick={onClose}
-          aria-label="Back"
-          className="rounded-full p-2 transition hover:bg-black/5 dark:hover:bg-white/10"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <h1 className="flex-1 text-xl font-extrabold">Payment history</h1>
-        <div className="flex rounded-full bg-surface-2 p-1">
-          <ToggleBtn
-            active={mode === "chart"}
-            onClick={() => setView("chart")}
-            label="Chart"
-          >
-            <BarChart3 size={16} />
-          </ToggleBtn>
-          <ToggleBtn
-            active={mode === "list"}
-            onClick={() => setView("list")}
-            label="List"
-          >
-            <ListIcon size={16} />
-          </ToggleBtn>
-        </div>
-      </header>
+      <ScreenHeader
+        title="Payment history"
+        onBack={onClose}
+        trailing={
+          <div className="flex rounded-full bg-surface-2 p-1">
+            <ToggleBtn
+              active={mode === "chart"}
+              onClick={() => setView("chart")}
+              label="Chart"
+            >
+              <BarChart3 size={16} />
+            </ToggleBtn>
+            <ToggleBtn
+              active={mode === "list"}
+              onClick={() => setView("list")}
+              label="List"
+            >
+              <ListIcon size={16} />
+            </ToggleBtn>
+          </div>
+        }
+      />
 
       <div className="no-scrollbar mx-auto w-full max-w-2xl flex-1 overflow-y-auto px-4 py-4">
         <div className="card mb-4 grid grid-cols-2 gap-4 p-5">

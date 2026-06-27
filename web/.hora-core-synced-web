@@ -2,8 +2,8 @@
 # Edit them in hora-core/shared/web/ and re-run this script.
 # source: C:/Users/Aarsh/Source/hora-core/hora-core/shared/web
 # app: Varisankya
-# synced: 2026-06-27T05:15:08Z
-# hora-core commit: f296fe1
+# synced: 2026-06-27T08:35:36Z
+# hora-core commit: 4086cfa
 #
 app/web_shared.css
 components/ServiceWorker.tsx
@@ -14,3 +14,4 @@ components/ConfirmDialog.tsx
 components/AboutSheet.tsx
 components/settings.tsx
 components/EmptyState.tsx
+components/ScreenHeader.tsx

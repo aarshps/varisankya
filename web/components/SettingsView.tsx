@@ -1,13 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import {
-  ArrowLeft,
-  ChevronRight,
-  ExternalLink,
-  Info,
-  ShieldCheck,
-} from "lucide-react";
+import { ChevronRight, ExternalLink, Info, ShieldCheck } from "lucide-react";
+import { ScreenHeader } from "./ScreenHeader";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { useTheme } from "./ThemeProvider";
@@ -56,16 +51,7 @@ export function SettingsView({
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-bg">
-      <header className="sticky top-0 z-10 flex items-center gap-3 bg-bg px-4 py-3">
-        <button
-          onClick={onClose}
-          aria-label="Back"
-          className="rounded-full p-2 transition hover:bg-black/5 dark:hover:bg-white/10"
-        >
-          <ArrowLeft size={20} />
-        </button>
-        <h1 className="text-xl font-extrabold">Settings</h1>
-      </header>
+      <ScreenHeader title="Settings" onBack={onClose} />
 
       <div className="no-scrollbar mx-auto w-full max-w-xl flex-1 overflow-y-auto px-4 py-4">
         {/* Profile */}
