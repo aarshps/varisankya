@@ -1,5 +1,5 @@
-Varisankya 3.9-beta.19 - Layout event reliability.
+Varisankya 3.9-beta.21 - design-system housekeeping.
 
-- Fixed pointer event capture conflicts on swipable subscription rows, ensuring the "Mark paid" check and options dots menu button clicks trigger reliably.
+The web app's colours now come from the shared Hora family design system (the same monochrome surfaces + accent across the family). No change to the Android app in this build.
 
 Thanks for testing Varisankya!
