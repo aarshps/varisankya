@@ -1,6 +1,5 @@
-Varisankya 3.9-beta.17 - Component UI alignment.
+Varisankya 3.9-beta.18 - Clean row UI update.
 
-- Refactored the Hero card and SubscriptionRow list layouts (padding, margins, font weights, and sizes) to match Pathivu's web design parameters exactly.
-- Unified key interactive controls for a cohesive family appearance.
+- Removed auto-generated generic letter/initial avatars from subscription list items to achieve a cleaner look and keep focus on item details.
 
 Thanks for testing Varisankya!

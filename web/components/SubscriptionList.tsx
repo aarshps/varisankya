@@ -177,15 +177,6 @@ function SubscriptionRow({
           onClick={tapped(() => handlers.onTap(sub))}
           className="flex min-w-0 flex-1 items-center gap-3.5 text-left"
         >
-          <div
-            className={`flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-2xl text-base font-bold ${
-              sub.active
-                ? "bg-primary-container text-on-primary-container"
-                : "bg-surface-container text-on-surface-variant"
-            }`}
-          >
-            {sub.name.trim().charAt(0).toUpperCase() || "?"}
-          </div>
           <div className="min-w-0 flex-1">
             <p className="font-semibold truncate">{sub.name || "Untitled"}</p>
             <div className="mt-0.5 flex items-center gap-1.5 text-xs text-on-surface-variant">
