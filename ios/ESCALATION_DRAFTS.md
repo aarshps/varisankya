@@ -16,7 +16,47 @@ This file is an operational artifact — delete after enrolment clears.
 
 ---
 
-## ⏱ ROUND 3 — 2026-06-23 (current)
+## ⏱ ROUND 4 — 2026-06-28 (current)
+
+Sixth week. Status **unchanged** — identity APPROVED 2026-06-02, account-level hold
+persists. Inbox review 06-28 (via Gmail) confirms **no substantive Apple reply since
+2026-06-08** (20 days) — every inbound since is an automated "we received your request"
+acknowledgement, and the 06-15/16 **and** 06-23 contact-form 2-business-day SLAs have
+all lapsed. Three follow-up rounds (06-04 / 06-16 / 06-23) have been ignored, so Round 4
+adds a **new lever — a fresh support case** (new case number → new agent) alongside the
+recurring channels.
+
+### Actions — 2026-06-28
+- [~] Reply on case **102900128848** to Yana (asia.dev@apple.com) — **DRAFTED in Gmail** (threaded; week-6 nudge + notes a fresh case is being opened) → owner reviews + sends.
+- [~] Exec-relations re-ping → tcook@ + executive_relations@ — **DRAFTED in Gmail** (threaded; week-6 request to route the account-level hold) → owner reviews + sends.
+- [ ] **Open a FRESH support case** at developer.apple.com/contact (Membership & Account → Program Enrollment) — copy below — needs Apple ID sign-in (agent can drive once authed).
+- [ ] Tweet tagging @AppleDeveloper — copy below — needs X auth.
+- [ ] Forum bump on thread 828487 — copy below — needs Apple ID sign-in.
+
+### Fresh support case — Round 4 (developer.apple.com/contact → Membership & Account → Program Enrollment)
+```
+Subject: Account-level hold blocking Individual enrolment after identity approval — needs escalation
+
+I am blocked enrolling in the Apple Developer Program (Individual; Apple Account aarshps@gmail.com; name "Adarsh P S"; Bengaluru, India). My identity was APPROVED on 2 June (confirmed by agent Yana), but the Apple Developer app then hard-blocks before the registration/payment step: "Unable to Continue. Contact support." — an account-level hold.
+
+Existing cases 102900128848 and 102905434551 have had NO substantive reply since 8 June (20 days), despite my providing everything requested by 11 June: Apple Account, device model (iPhone 13 Pro, MLVC3AA/A), SEID, a screen recording, two Settings screenshots, and five government-issued ID files. Multiple contact-form follow-ups (15/16 and 23 June) have lapsed past their 2-business-day windows.
+
+Please escalate to the team that can LIFT an account-level enrolment hold. I am ready for a verification call or any further documentation. Thank you.
+```
+
+### Tweet — Round 4 (≤280 chars)
+```
+@AppleDeveloper Week 6 trying to enrol (Individual, India). ID approved 2 Jun but the Developer app blocks: "Unable to Continue. Contact support." Sent everything (SEID, device, ID, recording) by 11 Jun. No reply since 8 Jun on case 102900128848. Please help route this.
+```
+
+### Forum reply — Round 4 (paste into thread 828487 after signing in)
+```
+Update (28 June): still blocked, now week 6. Identity verification remains APPROVED (2 June), but the account-level hold ("Unable to Continue — contact support") still blocks enrolment before the registration step. Developer Support (cases 102900128848 + 102905434551) has not sent a substantive reply since 8 June — 20 days — and every contact-form escalation since (15/16 and 23 June) has lapsed past its two-business-day window with only automated acknowledgements. I've now also opened a fresh case to get new eyes on it. Everything requested (ID files, device model, SEID, screen recording) was provided weeks ago. If any moderator or Apple staff can route this to the team that can lift an account-level hold, I'd be grateful.
+```
+
+---
+
+## ⏱ ROUND 3 — 2026-06-23
 
 Fifth week. Status **unchanged** — identity APPROVED 2026-06-02, account-level hold
 persists. Re-confirmed by an inbox review on 06-23: **no inbound apple.com mail since
