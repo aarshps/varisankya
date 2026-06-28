@@ -2,8 +2,8 @@
 # Edit them in hora-core/shared/web/ and re-run this script.
 # source: C:/Users/Aarsh/Source/hora-core/hora-core/shared/web
 # app: Varisankya
-# synced: 2026-06-27T23:26:03Z
-# hora-core commit: 8490541
+# synced: 2026-06-28T04:52:02Z
+# hora-core commit: 1813551
 #
 app/web_shared.css
 components/ServiceWorker.tsx
@@ -18,3 +18,4 @@ components/ScreenHeader.tsx
 components/AppBar.tsx
 components/Fab.tsx
 lib/haptics-core.ts
+scripts/theme-palette.mjs

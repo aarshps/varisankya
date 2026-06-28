@@ -1,15 +1,15 @@
-// Generates the Material 3 tonal palette for the web app.
+// Generates the web app's Material 3 palette CSS (app/theme.css).
 //
-// Hora family web design language: **neutral surfaces + per-app accent**. The
-// accent roles (primary/secondary/tertiary/error + their on/container variants)
-// come from a SchemeTonalSpot seeded from the Varisankya brand icon colour (the
-// "വരി" teal), keeping the app's identity. The surface / background / outline /
-// neutral roles come from a SchemeNeutral (near-zero chroma) so the chrome reads
-// as a clean neutral dark — matching the rest of the family instead of being
-// tinted toward the seed. Each Hora app keeps its own accent; only the surfaces
-// are held neutral and consistent.
+// Hora family web design language: **neutral surfaces + uniform accents**. The
+// canonical --md-* VALUES (the monochrome neutral surface scale + the uniform
+// family accent) are the family standard and live in hora-core at
+// shared/web/res/theme-palette.mjs — synced into this app as
+// scripts/theme-palette.mjs and imported below. This script applies those values
+// across light/dark and emits theme.css with Varisankya's own data-theme toggle
+// selectors. (Any role not in the palette falls back to a generated M3 scheme.)
+// Edit the palette in hora-core, re-sync, then re-run.
 //
-// Re-run after changing SEED:  node scripts/gen-theme-run.mjs
+// Re-run:  node scripts/gen-theme-run.mjs
 // Output: app/theme.css (generated; do not hand-edit).
 
 import {
@@ -21,6 +21,7 @@ import {
   MaterialDynamicColors,
 } from "@material/material-color-utilities";
 import { writeFileSync } from "node:fs";
+import { LIGHT as PURE_NEUTRAL_LIGHT, DARK as PURE_NEUTRAL_DARK } from "./theme-palette.mjs";
 
 const SEED = "#465454"; // sampled from public/icons/icon-512.png (brand text colour)
 
@@ -54,58 +55,10 @@ const ACCENT_ROLES = new Set([
 const mdc = MaterialDynamicColors;
 const kebab = (s) => s.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
 
-// Custom override to force clean, pure monochrome neutrals matched to Pathivu
-const PURE_NEUTRAL_LIGHT = {
-  background: "#fafafa",
-  surface: "#fafafa",
-  surfaceContainerLowest: "#ffffff",
-  surfaceContainerLow: "#f5f5f5",
-  surfaceContainer: "#ededed",
-  surfaceContainerHigh: "#e0e0e0",
-  surfaceContainerHighest: "#d6d6d6",
-  surfaceVariant: "#e0e0e0",
-  onSurface: "#1c1b1f",
-  onSurfaceVariant: "#404040",
-  outline: "#79747e",
-  outlineVariant: "#c4c4c4",
-  // Standard monochrome accent mappings for light mode (matched to Pathivu)
-  primary: "#475d92",
-  onPrimary: "#ffffff",
-  primaryContainer: "#f5f5f5",
-  onPrimaryContainer: "#475d92",
-  secondaryContainer: "#ededed",
-  onSecondaryContainer: "#404040",
-  error: "#b3392f",
-  onError: "#ffffff",
-  errorContainer: "rgba(179, 57, 47, 0.12)",
-  onErrorContainer: "#b3392f",
-};
-
-const PURE_NEUTRAL_DARK = {
-  background: "#121212",
-  surface: "#121212",
-  surfaceContainerLowest: "#0f0f0f",
-  surfaceContainerLow: "#1a1a1a",
-  surfaceContainer: "#212121",
-  surfaceContainerHigh: "#2b2b2b",
-  surfaceContainerHighest: "#333333",
-  surfaceVariant: "#2b2b2b",
-  onSurface: "#ececec",
-  onSurfaceVariant: "#b3b3b3",
-  outline: "#8c8c8c",
-  outlineVariant: "#3a3a3a",
-  // Standard monochrome accent mappings for dark mode (matched to Pathivu)
-  primary: "#aec6ff",
-  onPrimary: "#102f60",
-  primaryContainer: "#1a1a1a",
-  onPrimaryContainer: "#aec6ff",
-  secondaryContainer: "#212121",
-  onSecondaryContainer: "#b3b3b3",
-  error: "#e08077",
-  onError: "#0f0f0f",
-  errorContainer: "rgba(224, 128, 119, 0.15)",
-  onErrorContainer: "#e08077",
-};
+// PURE_NEUTRAL_LIGHT / PURE_NEUTRAL_DARK (the canonical Hora family palette —
+// monochrome neutral surfaces + the uniform family accent) are imported above
+// from the synced theme-palette.mjs. Edit the values in hora-core
+// (shared/web/res/theme-palette.mjs), re-sync, then re-run — do not hand-edit here.
 
 function vars(accent, neutral, isDark) {
   const overrides = isDark ? PURE_NEUTRAL_DARK : PURE_NEUTRAL_LIGHT;
