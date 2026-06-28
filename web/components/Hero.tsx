@@ -18,14 +18,14 @@ export function Hero({
   return (
     <button
       onClick={onOpenHistory}
-      className="card w-full overflow-hidden p-5 text-left transition active:scale-[0.995]"
+      className="card w-full overflow-hidden p-[22px] text-left transition active:scale-[0.995]"
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-on-surface-variant">
+          <p className="text-xs font-bold tracking-[0.15em] text-primary uppercase">
             This month
           </p>
-          <p className="mt-1 text-4xl font-extrabold tabular-nums">
+          <p className="mt-1 text-3xl font-bold tracking-tight tabular-nums">
             {formatCurrency(totalAmount, currency)}
           </p>
         </div>
@@ -35,7 +35,7 @@ export function Hero({
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="rounded-2xl bg-surface-3 p-3">
+        <div className="rounded-2xl bg-surface-container p-3.5">
           <div className="flex items-center gap-1.5 text-on-surface-variant">
             <CalendarClock size={15} />
             <span className="text-xs font-semibold">Next payment</span>
@@ -54,7 +54,7 @@ export function Hero({
           )}
         </div>
 
-        <div className="rounded-2xl bg-surface-3 p-3">
+        <div className="rounded-2xl bg-surface-container p-3.5">
           <div className="flex items-center gap-1.5 text-on-surface-variant">
             <AlertCircle size={15} />
             <span className="text-xs font-semibold">Overdue</span>

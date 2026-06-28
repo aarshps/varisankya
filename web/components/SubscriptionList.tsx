@@ -175,19 +175,19 @@ function SubscriptionRow({
       >
         <button
           onClick={tapped(() => handlers.onTap(sub))}
-          className="flex min-w-0 flex-1 items-center gap-3 text-left"
+          className="flex min-w-0 flex-1 items-center gap-3.5 text-left"
         >
           <div
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-base font-bold ${
+            className={`flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-2xl text-base font-bold ${
               sub.active
                 ? "bg-primary-container text-on-primary-container"
-                : "bg-surface-3 text-on-surface-variant"
+                : "bg-surface-container text-on-surface-variant"
             }`}
           >
             {sub.name.trim().charAt(0).toUpperCase() || "?"}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-bold">{sub.name || "Untitled"}</p>
+            <p className="font-semibold truncate">{sub.name || "Untitled"}</p>
             <div className="mt-0.5 flex items-center gap-1.5 text-xs text-on-surface-variant">
               <span
                 className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-semibold ${pillClass}`}
@@ -214,12 +214,12 @@ function SubscriptionRow({
               aria-label="Mark paid"
               title="Mark paid"
               onClick={tapped(() => {
-                haptics.click();
+                haptics.success();
                 handlers.onMarkPaid(sub);
               })}
-              className="rounded-full bg-secondary-container p-2 text-on-secondary-container transition hover:opacity-90"
+              className="grid place-items-center h-[46px] w-[46px] rounded-full shrink-0 bg-secondary-container text-on-secondary-container transition-transform hover:opacity-90 active:scale-95"
             >
-              <Check size={18} />
+              <Check size={18} strokeWidth={3} />
             </button>
           )}
           <button
@@ -242,7 +242,7 @@ function SubscriptionRow({
               onClick={() => setMenuOpen(false)}
             />
             <div
-              className="fixed z-[56] w-44 overflow-hidden rounded-2xl border border-outline bg-surface-3 py-1 text-sm shadow-lg"
+              className="fixed z-[56] w-44 overflow-hidden rounded-2xl border border-outline bg-surface-container-high py-1 text-sm shadow-lg"
               style={{ top: menuPos.top, right: menuPos.right }}
             >
               <MenuItem

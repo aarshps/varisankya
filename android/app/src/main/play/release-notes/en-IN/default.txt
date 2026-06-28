@@ -1,6 +1,6 @@
-Varisankya 3.9-beta.16 - Web UI update.
+Varisankya 3.9-beta.17 - Component UI alignment.
 
-- Aligned the Web UI light and dark neutral palettes exactly 1:1 with Pathivu's clean monochrome color scheme for a consistent family-wide look.
-- Retained Varisankya's brand-specific teal accent styling.
+- Refactored the Hero card and SubscriptionRow list layouts (padding, margins, font weights, and sizes) to match Pathivu's web design parameters exactly.
+- Unified key interactive controls for a cohesive family appearance.
 
 Thanks for testing Varisankya!
