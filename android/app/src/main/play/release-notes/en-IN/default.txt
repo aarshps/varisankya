@@ -1,7 +1,6 @@
-Varisankya 3.9-beta.15 - sign-in reliability.
+Varisankya 3.9-beta.16 - Web UI update.
 
-Fixes for signing in: if Google sign-in fails, the app now shows the real reason on screen instead of silently doing nothing, plus a more robust "Sign in with Google" fallback so you can get back in after being signed out.
-
-If you were logged out and couldn't sign back in, please update and try again - and share the on-screen message if it still fails.
+- Aligned the Web UI light and dark neutral palettes exactly 1:1 with Pathivu's clean monochrome color scheme for a consistent family-wide look.
+- Retained Varisankya's brand-specific teal accent styling.
 
 Thanks for testing Varisankya!
