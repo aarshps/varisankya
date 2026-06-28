@@ -27,11 +27,11 @@ adds a **new lever — a fresh support case** (new case number → new agent) al
 recurring channels.
 
 ### Actions — 2026-06-28
-- [~] Reply on case **102900128848** to Yana (asia.dev@apple.com) — **DRAFTED in Gmail** (threaded; week-6 nudge + notes a fresh case is being opened) → owner reviews + sends.
-- [~] Exec-relations re-ping → tcook@ + executive_relations@ — **DRAFTED in Gmail** (threaded; week-6 request to route the account-level hold) → owner reviews + sends.
-- [ ] **Open a FRESH support case** at developer.apple.com/contact (Membership & Account → Program Enrollment) — copy below — needs Apple ID sign-in (agent can drive once authed).
+- [x] Reply on case **102900128848** to Yana (asia.dev@apple.com) — **SENT 06-28** (in-thread; week-6 nudge, cross-references the parallel case, flags the fresh case).
+- [x] Exec-relations re-ping → tcook@ + executive_relations@ — **SENT 06-28** (in-thread; week-6 request to route the account-level hold).
+- [x] **Opened a FRESH support case** (Membership & Account → Program Enrolment) — **FILED 06-28**, new **Case ID 102927880856** ("we'll get back within 2 business days"). Agent-driven in-browser after the owner signed into Apple — the new lever: a brand-new case number → a different agent than the stuck 102900128848 / 102905434551.
 - [ ] Tweet tagging @AppleDeveloper — copy below — needs X auth.
-- [ ] Forum bump on thread 828487 — copy below — needs Apple ID sign-in.
+- [ ] Forum bump on thread 828487 — copy below — needs Apple ID sign-in (owner is signed in this session; can post now).
 
 ### Fresh support case — Round 4 (developer.apple.com/contact → Membership & Account → Program Enrollment)
 ```
