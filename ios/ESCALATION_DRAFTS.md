@@ -31,7 +31,7 @@ recurring channels.
 - [x] Exec-relations re-ping → tcook@ + executive_relations@ — **SENT 06-28** (in-thread; week-6 request to route the account-level hold).
 - [x] **Opened a FRESH support case** (Membership & Account → Program Enrolment) — **FILED 06-28**, new **Case ID 102927880856** ("we'll get back within 2 business days"). Agent-driven in-browser after the owner signed into Apple — the new lever: a brand-new case number → a different agent than the stuck 102900128848 / 102905434551.
 - [x] Forum bump on thread 828487 — **POSTED 06-28** (post #895704022; references the fresh case 102927880856).
-- [ ] Tweet tagging @AppleDeveloper — copy below — needs X auth (only remaining channel).
+- [x] Tweet @AppleDeveloper — **POSTED 06-28** as a **threaded reply** (status 2071307550713340209) under the Round-3 tweet (2069422213875515874), so rounds 1→4 now read as one continuous public thread; references the fresh case 102927880856.
 
 ### Fresh support case — Round 4 (developer.apple.com/contact → Membership & Account → Program Enrollment)
 ```
