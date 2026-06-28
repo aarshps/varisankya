@@ -106,6 +106,11 @@ function SubscriptionRow({
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (!canSwipe) return;
+    // Don't capture swipe if dragging starts on interactive buttons/actions
+    const target = e.target as HTMLElement;
+    if (target.closest("button") && target.closest(".gap-1")) {
+      return;
+    }
     draggingRef.current = true;
     startXRef.current = e.clientX;
     movedRef.current = false;
@@ -135,12 +140,14 @@ function SubscriptionRow({
       movedRef.current = false;
     }, 60);
   };
-  const tapped = (fn: () => void) => () => {
+  const tapped = (fn: () => void) => (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (movedRef.current) return;
     fn();
   };
 
-  const openMenu = () => {
+  const openMenu = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (movedRef.current) return;
     const r = menuBtnRef.current?.getBoundingClientRect();
     if (r) setMenuPos({ top: r.bottom + 4, right: window.innerWidth - r.right });

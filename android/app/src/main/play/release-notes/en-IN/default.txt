@@ -1,5 +1,5 @@
-Varisankya 3.9-beta.18 - Clean row UI update.
+Varisankya 3.9-beta.19 - Layout event reliability.
 
-- Removed auto-generated generic letter/initial avatars from subscription list items to achieve a cleaner look and keep focus on item details.
+- Fixed pointer event capture conflicts on swipable subscription rows, ensuring the "Mark paid" check and options dots menu button clicks trigger reliably.
 
 Thanks for testing Varisankya!
