@@ -14,6 +14,7 @@ import type { Subscription } from "@/lib/types";
 import { formatCurrency } from "@/lib/currency";
 import { daysUntilDue, isOverdue, statusText } from "@/lib/subscription";
 import { haptics } from "@/lib/haptics";
+import { Sheet } from "./Sheet";
 
 interface Handlers {
   onTap: (s: Subscription) => void;
@@ -78,10 +79,7 @@ function SubscriptionRow({
   handlers: Handlers;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(
-    null,
-  );
-  const menuBtnRef = useRef<HTMLButtonElement>(null);
+
 
   // Swipe-to-mark-paid (Android's signature gesture). Right-swipe past the
   // threshold marks paid; the ✓ button remains as a fallback.
@@ -149,8 +147,6 @@ function SubscriptionRow({
   const openMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (movedRef.current) return;
-    const r = menuBtnRef.current?.getBoundingClientRect();
-    if (r) setMenuPos({ top: r.bottom + 4, right: window.innerWidth - r.right });
     setMenuOpen(true);
   };
 
@@ -221,7 +217,6 @@ function SubscriptionRow({
             </button>
           )}
           <button
-            ref={menuBtnRef}
             aria-label="More actions"
             onClick={openMenu}
             className="rounded-full p-2 text-on-surface-variant transition hover:bg-on-surface/10"
@@ -231,55 +226,48 @@ function SubscriptionRow({
         </div>
       </div>
 
-      {menuOpen &&
-        menuPos &&
-        createPortal(
-          <>
-            <div
-              className="fixed inset-0 z-[55]"
-              onClick={() => setMenuOpen(false)}
-            />
-            <div
-              className="fixed z-[56] w-44 overflow-hidden rounded-2xl border border-outline bg-surface-container-high py-1 text-sm shadow-lg"
-              style={{ top: menuPos.top, right: menuPos.right }}
-            >
-              <MenuItem
-                icon={<Pencil size={16} />}
-                label="Edit"
-                onClick={() => {
-                  setMenuOpen(false);
-                  handlers.onTap(sub);
-                }}
-              />
-              <MenuItem
-                icon={<Receipt size={16} />}
-                label="Payments"
-                onClick={() => {
-                  setMenuOpen(false);
-                  handlers.onManagePayments(sub);
-                }}
-              />
-              <MenuItem
-                icon={<Power size={16} />}
-                label={sub.active ? "Deactivate" : "Activate"}
-                onClick={() => {
-                  setMenuOpen(false);
-                  handlers.onToggleActive(sub);
-                }}
-              />
-              <MenuItem
-                icon={<Trash2 size={16} />}
-                label="Delete"
-                danger
-                onClick={() => {
-                  setMenuOpen(false);
-                  handlers.onDelete(sub);
-                }}
-              />
-            </div>
-          </>,
-          document.body,
-        )}
+      {/* Using the standard shared Sheet component for actions instead of custom menu */}
+      <Sheet
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        title={sub.name || "Options"}
+      >
+        <div className="-mx-5 pb-2">
+          <MenuItem
+            icon={<Pencil size={20} />}
+            label="Edit"
+            onClick={() => {
+              setMenuOpen(false);
+              handlers.onTap(sub);
+            }}
+          />
+          <MenuItem
+            icon={<Receipt size={20} />}
+            label="Payments"
+            onClick={() => {
+              setMenuOpen(false);
+              handlers.onManagePayments(sub);
+            }}
+          />
+          <MenuItem
+            icon={<Power size={20} />}
+            label={sub.active ? "Deactivate" : "Activate"}
+            onClick={() => {
+              setMenuOpen(false);
+              handlers.onToggleActive(sub);
+            }}
+          />
+          <MenuItem
+            icon={<Trash2 size={20} />}
+            label="Delete"
+            danger
+            onClick={() => {
+              setMenuOpen(false);
+              handlers.onDelete(sub);
+            }}
+          />
+        </div>
+      </Sheet>
     </li>
   );
 }
@@ -298,12 +286,12 @@ function MenuItem({
   return (
     <button
       onClick={onClick}
-      className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-on-surface/10 ${
+      className={`flex w-full items-center gap-4 px-5 py-3.5 text-left transition hover:bg-on-surface/10 ${
         danger ? "text-error" : ""
       }`}
     >
       {icon}
-      {label}
+      <span className="font-medium text-[15px]">{label}</span>
     </button>
   );
 }
