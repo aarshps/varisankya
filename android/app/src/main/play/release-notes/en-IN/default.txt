@@ -1,5 +1,5 @@
-Varisankya 3.9-beta.21 - design-system housekeeping.
+Varisankya 3.9-beta.22 - app icon refresh.
 
-The web app's colours now come from the shared Hora family design system (the same monochrome surfaces + accent across the family). No change to the Android app in this build.
+The app icon has been refined across every surface (launcher, Play Store listing, iOS, and web) using an improved centering rule from the shared Hora family icon engine. Purely visual polish - no functional changes.
 
 Thanks for testing Varisankya!
