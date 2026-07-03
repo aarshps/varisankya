@@ -1,6 +1,13 @@
+//
+// Shared Hora-family component — canonical source lives in hora-core/shared/ios/swift.
+// It is GENERATED into each app by that app's ios/tools/sync_shared_ios.sh. Do NOT
+// hand-edit the copy inside an app; edit it here in hora-core and re-run the sync.
+//
 import SwiftUI
 
-/// Reusable bottom-sheet picker for recurrence/currency/etc.
+/// Reusable glass bottom-sheet picker (day-start / start-of-week / recurrence /
+/// currency / etc.). Hora-family standard — the SwiftUI counterpart of Android's
+/// shared `SelectionBottomSheet`.
 struct SelectionSheet: View {
     let title: String
     let options: [String]
@@ -48,12 +55,4 @@ struct SelectionSheet: View {
             }
         }
     }
-}
-
-#Preview {
-    SelectionSheet(
-        title: "Recurrence",
-        options: Constants.recurrencePresets,
-        selected: "Monthly"
-    ) { _ in }
 }

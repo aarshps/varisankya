@@ -1,8 +1,14 @@
+//
+// Shared Hora-family component — canonical source lives in hora-core/shared/ios/swift.
+// It is GENERATED into each app by that app's ios/tools/sync_shared_ios.sh. Do NOT
+// hand-edit the copy inside an app; edit it here in hora-core and re-run the sync.
+// (The app's display name is filled into the default unlock reason on sync.)
+//
 import Foundation
 import LocalAuthentication
 
 /// Wraps LocalAuthentication for the "App Lock" toggle. Mirrors Android's
-/// BiometricAuthManager.
+/// `BiometricAuthManager`.
 enum BiometricAuth {
 
     static var isAvailable: Bool {
