@@ -12,6 +12,7 @@ const rounded = Nunito({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://varisankya-web.vercel.app"),
   title: "Varisankya",
   description: "Track your subscriptions and recurring payments.",
   manifest: "/manifest.json",

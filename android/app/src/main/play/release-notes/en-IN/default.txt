@@ -1,5 +1,5 @@
-Varisankya 3.9-beta.24 - icon vertical alignment + store listing refresh.
+Varisankya 3.9-beta.25 - icon fine-tuning + social preview images.
 
-The app icon now sits slightly lower on every surface for better visual balance, and the Play Store listing gets a refreshed feature graphic and description. Purely visual polish - no functional changes.
+A small correction to the app icon's vertical position, plus new social preview images so shared links now show the app's branding on the web and elsewhere. Purely visual polish - no functional changes.
 
 Thanks for testing Varisankya!
