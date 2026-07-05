@@ -16,6 +16,7 @@ struct VarisankyaApp: App {
                 .environment(auth)
                 .environment(preferences)
                 .preferredColorScheme(preferences.appearance.colorScheme)
+                .fontDesign(preferences.useGoogleFont ? .rounded : .default)
                 .onOpenURL { url in
                     GIDSignIn.sharedInstance.handle(url)
                 }
