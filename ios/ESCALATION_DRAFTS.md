@@ -24,7 +24,7 @@ Seventh week. Support Case ID 102927880856 received an email checklist from Elij
 - [x] Reply on Case **102905434551** — **SENT 07-07** (linked hold persistence to case 102927880856 and requested escalation).
 - [x] Exec-relations re-ping → tcook@ + executive_relations@ — **SENT 07-07** (linked hold persistence to case 102927880856 and requested escalation).
 - [x] Forum bump on thread 828487 — **POSTED 07-07** (post detailing checklist response and hold persistence).
-- [ ] Tweet @AppleDeveloper — **PENDING** (automated navigation block; requires manual follow-up or user override).
+- [x] Tweet @AppleDeveloper — **POSTED 07-07** as a threaded reply (status 2074399556398391366) under the 23 Jun post.
 
 ---
 
