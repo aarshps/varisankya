@@ -25,6 +25,7 @@ Seventh week. Support Case ID 102927880856 received an email checklist from Elij
 - [x] Exec-relations re-ping → tcook@ + executive_relations@ — **SENT 07-07** (linked hold persistence to case 102927880856 and requested escalation).
 - [x] Forum bump on thread 828487 — **POSTED 07-07** (post detailing checklist response and hold persistence).
 - [x] Tweet @AppleDeveloper — **POSTED 07-07** as a threaded reply (status 2074399556398391366) under the 23 Jun post.
+- [x] Reddit thread on r/iOSDev — **POSTED 07-07** (thread: https://www.reddit.com/r/iosdev/comments/1upoaqo/stuck_on_apple_developer_program_accountlevel/ ; pending moderator approval).
 
 ---
 
