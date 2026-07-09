@@ -56,15 +56,27 @@ export function App() {
   const handleSave = async (sub: Subscription) => {
     if (!uid) return;
     const isNew = !sub.id;
-    await upsertSubscription(sub, uid);
     analytics.subscriptionSave(isNew, sub.recurrence);
+
+    // Optimistic pattern: fire write asynchronously, return immediately.
+    // Firestore latency compensation updates the local cache; snapshot
+    // listeners auto-refresh the UI. Errors are handled non-blocking.
+    upsertSubscription(sub, uid).catch((err) => {
+      console.error("Failed to save subscription:", err);
+      // TODO: show toast/alert to user
+    });
   };
 
   const handleMarkPaid = async (sub: Subscription) => {
     if (!uid) return;
     const next = nextDueDate(sub.dueDate ?? new Date(), sub.recurrence);
-    await recordPayment(sub, new Date(), next, uid);
     analytics.paymentMarkPaidSwipe();
+
+    // Optimistic pattern: fire write asynchronously, return immediately.
+    recordPayment(sub, new Date(), next, uid).catch((err) => {
+      console.error("Failed to record payment:", err);
+      // TODO: show toast/alert to user
+    });
   };
 
   return (
@@ -200,8 +212,12 @@ export function App() {
         confirmLabel="Delete"
         onConfirm={async () => {
           if (uid && pendingDelete) {
-            await deleteSubscription(pendingDelete, uid);
             analytics.subscriptionDelete();
+            // Optimistic pattern: fire delete asynchronously, close dialog immediately.
+            deleteSubscription(pendingDelete, uid).catch((err) => {
+              console.error("Failed to delete subscription:", err);
+              // TODO: show toast/alert to user
+            });
           }
           setPendingDelete(null);
         }}
