@@ -191,6 +191,15 @@ class AddSubscriptionBottomSheet(
 
                 val userId = auth.currentUser?.uid ?: return@setOnClickListener
                 firestore.collection("users").document(userId).collection("subscriptions").document(subscription.id!!).delete()
+                    .addOnFailureListener { e ->
+                        if (isAdded) {
+                            com.google.android.material.snackbar.Snackbar.make(
+                                requireView(),
+                                "Failed to delete: ${e.message}",
+                                com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                            ).show()
+                        }
+                    }
                 Analytics.subscriptionDelete()
                 dismiss()
             }
@@ -232,8 +241,6 @@ class AddSubscriptionBottomSheet(
             val finalRecurrence = getRecurrenceString(recurrenceAutoComplete.text.toString(), frequencyEditText.text.toString())
             val isActiveStatus = if (subscription != null) activeSwitch.isChecked else true
 
-
-
             val userId = auth.currentUser?.uid ?: return@setOnClickListener
 
             PreferenceHelper.recordUsage(requireContext(), "recurrence", recurrenceAutoComplete.text.toString())
@@ -250,12 +257,26 @@ class AddSubscriptionBottomSheet(
 
             val collection = firestore.collection("users").document(userId).collection("subscriptions")
             val isNew = subscription?.id == null
-            if (!isNew) {
+
+            val writeTask = if (!isNew) {
                 collection.document(subscription!!.id!!).set(dataMap)
             } else {
                 collection.add(dataMap)
             }
+
             Analytics.subscriptionSave(isNew = isNew, recurrence = finalRecurrence)
+
+            // Optimistic pattern: dismiss immediately, let Firestore latency compensation
+            // update the local cache, and snapshot listeners refresh the UI.
+            writeTask.addOnFailureListener { e ->
+                if (isAdded) {
+                    com.google.android.material.snackbar.Snackbar.make(
+                        requireView(),
+                        "Failed to save: ${e.message}",
+                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }
 
             onSave()
             dismiss()

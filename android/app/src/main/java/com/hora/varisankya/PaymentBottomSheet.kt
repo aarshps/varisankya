@@ -277,10 +277,19 @@ class PaymentBottomSheet(
             .delete()
             .addOnSuccessListener {
                 Analytics.paymentDelete()
-                // Mirror delete to the flat collection (idempotent if absent).
                 PaymentRepository.mirrorDeleteOnFlat(firestore, userId, paymentId)
                 if (isAdded) {
                     loadHistory()
+                }
+            }
+            .addOnFailureListener { e ->
+                if (isAdded) {
+                    Log.e("PaymentBottomSheet", "Delete payment failed", e)
+                    com.google.android.material.snackbar.Snackbar.make(
+                        paymentSheetRoot,
+                        "Failed to delete: ${e.message}",
+                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                    ).show()
                 }
             }
     }
@@ -311,12 +320,21 @@ class PaymentBottomSheet(
             .update("date", newDate)
             .addOnSuccessListener {
                 Analytics.paymentEditDate()
-                // Mirror update to the flat collection (best-effort).
                 PaymentRepository.mirrorUpdateOnFlat(
                     firestore, userId, paymentId, mapOf("date" to newDate)
                 )
                 if (isAdded) {
                     loadHistory()
+                }
+            }
+            .addOnFailureListener { e ->
+                if (isAdded) {
+                    Log.e("PaymentBottomSheet", "Update payment date failed", e)
+                    com.google.android.material.snackbar.Snackbar.make(
+                        paymentSheetRoot,
+                        "Failed to update: ${e.message}",
+                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                    ).show()
                 }
             }
     }
@@ -338,16 +356,7 @@ class PaymentBottomSheet(
 
     private fun recordPayment(paymentDate: Date, nextDueDate: Date?) {
         val userId = auth.currentUser?.uid ?: return
-        
-
-
-        val subId = subscription.id ?: run {
-            return
-        }
-
-        btnPayCurrent.isEnabled = false
-        btnAddPaymentOnly.isEnabled = false
-
+        val subId = subscription.id ?: return
 
         val payment = PaymentRecord(
             date = paymentDate,
@@ -367,28 +376,32 @@ class PaymentBottomSheet(
             batch.update(subRef, "dueDate", nextDueDate)
         }
 
-        batch.commit().addOnSuccessListener {
-            // Mirror to the flat per-user collection so the All-Payments page
-            // can read in one round-trip. Best-effort: a failure here does not
-            // invalidate the authoritative legacy write above.
-            PaymentRepository.mirrorPaymentToFlat(firestore, userId, paymentRef.id, payment)
-            // Refresh the consolidated reminder so the drawer matches in-app
-            // state — the paid item drops out while everything still due
-            // stays visible.
-            context?.let { ctx ->
-                SubscriptionNotificationWorker.refreshNow(ctx.applicationContext)
+        // Optimistic pattern: fire asynchronously, dismiss immediately.
+        // Firestore latency compensation updates the local cache; snapshot
+        // listeners auto-refresh the UI. Failures are shown non-blocking.
+        batch.commit()
+            .addOnSuccessListener {
+                PaymentRepository.mirrorPaymentToFlat(firestore, userId, paymentRef.id, payment)
+                context?.let { ctx ->
+                    SubscriptionNotificationWorker.refreshNow(ctx.applicationContext)
+                }
+                if (isAdded) {
+                    onPaymentRecorded()
+                }
             }
-            if (isAdded) {
-                onPaymentRecorded()
-                dismiss()
+            .addOnFailureListener { e ->
+                if (isAdded) {
+                    Log.e("PaymentBottomSheet", "Payment write failed", e)
+                    com.google.android.material.snackbar.Snackbar.make(
+                        paymentSheetRoot,
+                        "Failed to record payment: ${e.message}",
+                        com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+                    ).show()
+                }
             }
-        }.addOnFailureListener { e ->
-            if (isAdded) {
-                btnPayCurrent.isEnabled = true
-                btnAddPaymentOnly.isEnabled = true
 
-                Log.e("PaymentBottomSheet", "Payment Failed", e)
-            }
+        if (isAdded) {
+            dismiss()
         }
     }
 }

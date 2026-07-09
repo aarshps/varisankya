@@ -157,7 +157,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val userId = auth.currentUser?.uid ?: return
         val subId = subscription.id ?: return
 
-
         val payment = PaymentRecord(
             date = Date(),
             amount = subscription.cost,
@@ -166,7 +165,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             currency = subscription.currency,
             userId = userId
         )
-        
+
         val nextDueDate = DateHelper.calculateNextDueDate(subscription.dueDate ?: Date(), subscription.recurrence)
 
         val batch = firestore.batch()
@@ -178,13 +177,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             batch.update(subRef, "dueDate", nextDueDate)
         }
 
+        // Optimistic pattern: fire asynchronously, invoke success callback immediately.
+        // Firestore latency compensation updates the local cache; snapshot listeners
+        // auto-refresh the UI. Failure callback is invoked non-blocking.
         batch.commit()
             .addOnSuccessListener {
-                // Mirror to flat per-user collection (best-effort; see PaymentRepository).
                 PaymentRepository.mirrorPaymentToFlat(firestore, userId, paymentRef.id, payment)
-                // Refresh the consolidated reminder so the drawer matches
-                // in-app state — the paid item drops out while everything
-                // still due stays visible.
                 SubscriptionNotificationWorker.refreshNow(
                     getApplication<Application>().applicationContext
                 )
@@ -193,36 +191,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             .addOnFailureListener { onError(it) }
     }
     
-    fun updateSubscriptionStatus(subscription: Subscription, isActive: Boolean, onSuccess: () -> Unit) {
+    fun updateSubscriptionStatus(subscription: Subscription, isActive: Boolean, onSuccess: () -> Unit, onError: (Exception) -> Unit = {}) {
         val userId = auth.currentUser?.uid ?: return
         val subId = subscription.id ?: return
 
         firestore.collection("users").document(userId).collection("subscriptions").document(subId)
             .update("active", isActive)
             .addOnSuccessListener {
-                // Keep the consolidated reminder truthful when a due item is
-                // (de)activated — update in place rather than waiting a day.
                 SubscriptionNotificationWorker.refreshNow(
                     getApplication<Application>().applicationContext
                 )
                 onSuccess()
             }
+            .addOnFailureListener { onError(it) }
     }
 
-    fun deleteSubscription(subscription: Subscription, onSuccess: () -> Unit) {
-         val userId = auth.currentUser?.uid ?: return
-         val subId = subscription.id ?: return
+    fun deleteSubscription(subscription: Subscription, onSuccess: () -> Unit, onError: (Exception) -> Unit = {}) {
+        val userId = auth.currentUser?.uid ?: return
+        val subId = subscription.id ?: return
 
-         firestore.collection("users").document(userId).collection("subscriptions").document(subId)
+        firestore.collection("users").document(userId).collection("subscriptions").document(subId)
             .delete()
             .addOnSuccessListener {
-                // Same as above: a deleted subscription must drop out of the
-                // visible summary immediately, keeping the rest.
                 SubscriptionNotificationWorker.refreshNow(
                     getApplication<Application>().applicationContext
                 )
                 onSuccess()
             }
+            .addOnFailureListener { onError(it) }
     }
 
     override fun onCleared() {
