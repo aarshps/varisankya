@@ -14,6 +14,30 @@ The Friday calendar reminder will fire to prompt the trigger.
 
 This file is an operational artifact — delete after enrolment clears.
 
+## ⏱ ROUND 6 — 2026-07-10 (current)
+
+Still seventh/eighth week, hold unchanged. Case 102927880856 got its first substantive reply (Franchessca, 07-09) but it only re-asked for diagnostics already on file. Sent replies to all three active email threads (Franchessca/102927880856, Yana/102900128848+102905434551, Executive Relations/tcook) on 07-10 — drafted by agent, reviewed and sent by the account owner. Forum/tweet/Reddit bumps below are **pending** — Chrome extension wasn't connected to post them directly this round; text is ready to paste.
+
+### Actions — 2026-07-10
+- [x] Reply to Franchessca on Case **102927880856** (eurodev@apple.com) — **SENT 07-10** (answered her specific diagnostic request: date first occurred, device/OS, screen-recording offer).
+- [x] Reply on Case **102900128848** / **102905434551** to Yana (asia.dev@apple.com) — **SENT 07-10** (consolidated every diagnostic already provided, cross-referenced case 102927880856, requested escalation to whoever can lift the hold).
+- [x] Exec-relations re-ping → tcook@ + executive_relations@ — **SENT 07-10** (seventh-week update tying all case threads together).
+- [ ] Forum bump on thread 828487 — **pending**, text below.
+- [ ] Tweet @AppleDeveloper — **pending**, threaded reply, text below.
+- [ ] Reddit thread (r/iOSDev) update comment — **pending**, text below.
+
+### Forum reply — Round 6 (paste into thread 828487 after signing in)
+
+Week 7/8 update: still blocked. Identity verification remains APPROVED (2 Jun), account-level hold ("Unable to Continue — contact support") unchanged since it first appeared. A newer case (102927880856) finally got a substantive reply this week, but only re-requested diagnostics (device, OS, screen recording) that were provided to Developer Support over a month ago on the original case — I've resent everything. Still no path forward on lifting the hold itself across three case numbers and five Developer Support agents. If any moderator or Apple staff can route this to the team that handles account-level holds, I'd be very grateful.
+
+### Tweet — Round 6 (reply under the 07-07 post, status 2074399556398391366)
+
+@AppleDeveloper Week 7/8, still stuck. ID approved 2 Jun, account-level hold unchanged since. Newest case finally replied this week — only to re-ask for diagnostics I sent a month ago. 3 case numbers, 5 agents, still no one who can lift the hold. Please help route this.
+
+### Reddit update comment (r/iosdev, thread 1upoaqo)
+
+Update: still no resolution. The newest of my three open cases got its first real reply this week, but it just asked me to resend diagnostics (device model, OS, screen recording) I'd already provided a month ago on the original case. Sent everything again today, plus fresh nudges to the other two case threads and the executive escalation. Seven-plus weeks in now with an approved identity but a completely unexplained account-level hold. Will keep this updated if anything changes.
+
 ## ⏱ ROUND 5 — 2026-07-07 (current)
 
 Seventh week. Support Case ID 102927880856 received an email checklist from Elijah on 2026-07-01. Follow-up replies were dispatched to all active threads on 2026-07-07 because the hold persists despite following all requirements.
