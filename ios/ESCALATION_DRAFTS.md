@@ -34,7 +34,11 @@ Week 7/8 update: still blocked. Identity verification remains APPROVED (2 Jun), 
 
 @AppleDeveloper Week 7/8, still stuck. ID approved 2 Jun, account-level hold unchanged since. Newest case finally replied this week — only to re-ask for diagnostics I sent a month ago. 3 case numbers, 5 agents, still no one who can lift the hold. Please help route this.
 
-### Reddit update comment (r/iosdev, thread 1upoaqo)
+### Reddit — status update (2026-07-10): original post silently removed by Reddit's filters
+
+Checked thread 1upoaqo (posted 07-07) — Reddit shows "Sorry, this post was removed by Reddit's filters" to the author, 0 comments, no visible engagement. The post itself isn't reaching anyone, so a follow-up comment on it is pointless until/unless it's restored. **Sent mod-mail to r/iosdev moderators** requesting review/restoration instead of posting the round-6 update comment. If restored, post the update comment below; if not, drop Reddit from the escalation channel rotation going forward — it was always the weakest/most tangential channel of the five.
+
+### Reddit update comment (r/iosdev, thread 1upoaqo) — use only if/once restored
 
 Update: still no resolution. The newest of my three open cases got its first real reply this week, but it just asked me to resend diagnostics (device model, OS, screen recording) I'd already provided a month ago on the original case. Sent everything again today, plus fresh nudges to the other two case threads and the executive escalation. Seven-plus weeks in now with an approved identity but a completely unexplained account-level hold. Will keep this updated if anything changes.
 
