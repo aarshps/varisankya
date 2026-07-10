@@ -22,9 +22,9 @@ Still seventh/eighth week, hold unchanged. Case 102927880856 got its first subst
 - [x] Reply to Franchessca on Case **102927880856** (eurodev@apple.com) — **SENT 07-10** (answered her specific diagnostic request: date first occurred, device/OS, screen-recording offer).
 - [x] Reply on Case **102900128848** / **102905434551** to Yana (asia.dev@apple.com) — **SENT 07-10** (consolidated every diagnostic already provided, cross-referenced case 102927880856, requested escalation to whoever can lift the hold).
 - [x] Exec-relations re-ping → tcook@ + executive_relations@ — **SENT 07-10** (seventh-week update tying all case threads together).
-- [ ] Forum bump on thread 828487 — **pending**, text below.
-- [ ] Tweet @AppleDeveloper — **pending**, threaded reply, text below.
-- [ ] Reddit thread (r/iOSDev) update comment — **pending**, text below.
+- [x] Forum bump on thread 828487 — **POSTED 07-10** (text below).
+- [x] Tweet @AppleDeveloper — **POSTED 07-10** as a threaded reply under the 07-07 post (text below).
+- [x] Reddit mod-mail sent to r/iosdev moderators — **SENT 07-10**, requesting review of the filter-removed post (1upoaqo). Outcome pending; Reddit update comment stays on hold until/unless the post is restored.
 
 ### Forum reply — Round 6 (paste into thread 828487 after signing in)
 
