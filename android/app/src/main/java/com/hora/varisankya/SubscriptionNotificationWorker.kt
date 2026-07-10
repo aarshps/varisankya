@@ -17,7 +17,10 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.google.android.material.color.MaterialColors
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -192,6 +195,13 @@ class SubscriptionNotificationWorker(
         return "$dayPrefix$autopayPrefix${sub.name}: ${sub.currency} ${sub.cost}"
     }
 
+    /**
+     * Hora family Notification Design Standard (Material 3 bleeding): full-bleed
+     * background via [NotificationCompat.Builder.setColorized] driven by the
+     * app's Material You primary colour, subtext metadata (app name + time),
+     * PRIORITY_HIGH, and vibration gated on the user's haptics preference.
+     * See hora-core/docs/conventions.md → "Notification Design Standard".
+     */
     private fun baseBuilder(context: Context): NotificationCompat.Builder {
         // Body tap → MainActivity. EXTRA_FROM_NOTIFICATION lets the
         // activity log notification_tap on resume.
@@ -204,22 +214,34 @@ class SubscriptionNotificationWorker(
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
 
+        val primaryColor = MaterialColors.getColor(
+            context, android.R.attr.colorPrimary, 0xFF1C1B1F.toInt()
+        )
+        val formattedTime = SimpleDateFormat("h:mm a", Locale.getDefault()).format(java.util.Date())
+
         return NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setSubText("Varisankya • $formattedTime")
+            .setColor(primaryColor)
+            .setColorized(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(openPi)
             .setAutoCancel(true)
+            .setVibrate(
+                if (PreferenceHelper.isHapticsEnabled(context)) longArrayOf(0, 200) else longArrayOf(0)
+            )
     }
 
     companion object {
         private const val TAG = "NotificationWorker"
 
         // Bumped from v2 → v3 in v3.8-beta.12 to swap the channel importance
-        // from LOW (silent, no peek) up to DEFAULT (sound + peek). Channel
-        // importance can only be raised by recreating the channel with a new
-        // ID — the OS treats it as immutable once a user-visible channel has
-        // been created.
-        const val CHANNEL_ID = "subscription_reminders_v3"
+        // from LOW (silent, no peek) up to DEFAULT (sound + peek). Bumped
+        // v3 → v4 in v3.9-beta.27 to reach HIGH (Hora Notifications Design
+        // Standard — full-bleed + heads-up). Channel importance can only be
+        // raised by recreating the channel with a new ID — the OS treats it
+        // as immutable once a user-visible channel has been created.
+        const val CHANNEL_ID = "subscription_reminders_v4"
 
         // The one and only notification ID this app ever posts. Reminders and
         // the Settings test notification all share it, which is what enforces
@@ -345,12 +367,20 @@ class SubscriptionNotificationWorker(
                 return
             }
             createNotificationChannel(context)
+            val primaryColor = MaterialColors.getColor(
+                context, android.R.attr.colorPrimary, 0xFF1C1B1F.toInt()
+            )
             val builder = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Varisankya — test notification")
                 .setContentText("If you can see this, notifications are working.")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setColor(primaryColor)
+                .setColorized(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
+                .setVibrate(
+                    if (PreferenceHelper.isHapticsEnabled(context)) longArrayOf(0, 200) else longArrayOf(0)
+                )
             NotificationManagerCompat.from(context).notify(SUMMARY_NOTIFICATION_ID, builder.build())
             Analytics.init(context)
             Analytics.notificationTestSent()
@@ -364,15 +394,17 @@ class SubscriptionNotificationWorker(
             nm.deleteNotificationChannel("subscription_reminders")
             nm.deleteNotificationChannel("subscription_reminders_v1")
             nm.deleteNotificationChannel("subscription_reminders_v2")
+            nm.deleteNotificationChannel("subscription_reminders_v3")
 
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "Subscription Reminders",
-                NotificationManager.IMPORTANCE_DEFAULT,
+                NotificationManager.IMPORTANCE_HIGH,
             ).apply {
                 description = "Daily reminders for upcoming subscription payments"
                 enableLights(false)
                 enableVibration(true)
+                vibrationPattern = longArrayOf(0, 200)
                 setShowBadge(true)
             }
             nm.createNotificationChannel(channel)

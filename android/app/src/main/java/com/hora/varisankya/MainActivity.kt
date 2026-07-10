@@ -241,7 +241,9 @@ class MainActivity : BaseActivity() {
         }
         subscriptionsRecyclerView.layoutManager = LinearLayoutManager(this)
         subscriptionsRecyclerView.adapter = adapter
-        
+        // M3E Mechanical Scroll Feel — Hora family standard for the primary list.
+        PreferenceHelper.attachScrollHaptics(subscriptionsRecyclerView)
+
         // Check current user and update UI
         updateUI(auth.currentUser != null)
         

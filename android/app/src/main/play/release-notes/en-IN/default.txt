@@ -1,5 +1,5 @@
-Varisankya 3.9-beta.26 - Google Sans/System font-toggle bugfixes.
+Varisankya 3.9-beta.27 - Notification design refresh + scroll feel polish.
 
-Fixes a bug where the font toggle (Google Sans vs. System Font) silently did nothing on Android and iOS. The System Font setting is now properly applied dynamically across screens.
+Payment reminder notifications now have a full-bleed themed background colour, clearer text hierarchy, and vibrate only when your haptics setting is on. Also added the same mechanical scroll-tick feel to the main subscriptions list.
 
 Thanks for testing Varisankya!
