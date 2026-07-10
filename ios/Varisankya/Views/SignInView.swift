@@ -37,9 +37,9 @@ struct SignInView: View {
                                 .glassEffect(in: .circle)
 
                             Text("Varisankya")
-                                .font(.system(.largeTitle, design: .rounded, weight: .semibold))
+                                .font(.system(.largeTitle, weight: .semibold))
                             Text("Smart subscription manager.\nLiquid-glass calm.")
-                                .font(.system(.body, design: .rounded))
+                                .font(.system(.body))
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(.secondary)
                         }
@@ -79,7 +79,7 @@ struct SignInView: View {
                                 Image(systemName: "g.circle.fill")
                                     .font(.system(size: 22, weight: .medium))
                                 Text("Sign in with Google")
-                                    .font(.system(.body, design: .rounded, weight: .medium))
+                                    .font(.system(.body, weight: .medium))
                             }
                             .frame(maxWidth: .infinity, minHeight: 54)
                         }

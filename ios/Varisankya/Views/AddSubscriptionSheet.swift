@@ -265,7 +265,7 @@ struct FormField<Content: View>: View {
     var body: some View {
         HStack {
             Text(label)
-                .font(.system(.subheadline, design: .rounded, weight: .medium))
+                .font(.system(.subheadline, weight: .medium))
                 .foregroundStyle(.secondary)
             Spacer()
             content
@@ -282,11 +282,11 @@ struct SelectionRow: View {
         Button(action: { Haptics.click(); action() }) {
             HStack {
                 Text(label)
-                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                    .font(.system(.subheadline, weight: .medium))
                     .foregroundStyle(.secondary)
                 Spacer()
                 Text(value)
-                    .font(.system(.body, design: .rounded, weight: .semibold))
+                    .font(.system(.body, weight: .semibold))
                 Image(systemName: "chevron.right")
                     .font(.system(.caption, weight: .semibold))
                     .foregroundStyle(.secondary)
@@ -302,9 +302,9 @@ struct LabelStack: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
-                .font(.system(.body, design: .rounded, weight: .medium))
+                .font(.system(.body, weight: .medium))
             Text(subtitle)
-                .font(.system(.caption, design: .rounded))
+                .font(.system(.caption))
                 .foregroundStyle(.secondary)
         }
     }

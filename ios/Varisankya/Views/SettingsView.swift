@@ -71,11 +71,11 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             HStack {
                                 Text("Days before due")
-                                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                                    .font(.system(.subheadline, weight: .medium))
                                     .foregroundStyle(.secondary)
                                 Spacer()
                                 Text("\(Int(notificationDays)) days")
-                                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                    .font(.system(.subheadline, weight: .semibold))
                             }
                             Slider(value: $notificationDays, in: 0...10, step: 1)
                                 .tint(.accentColor)
@@ -142,7 +142,7 @@ struct SettingsView: View {
                                 Image(systemName: "arrow.up.right.square")
                                     .foregroundStyle(.secondary)
                             }
-                            .font(.system(.body, design: .rounded, weight: .medium))
+                            .font(.system(.body, weight: .medium))
                             .foregroundStyle(.primary)
                         }
                         Divider()
@@ -157,7 +157,7 @@ struct SettingsView: View {
                                 Image(systemName: "chevron.right")
                                     .foregroundStyle(.secondary)
                             }
-                            .font(.system(.body, design: .rounded, weight: .medium))
+                            .font(.system(.body, weight: .medium))
                             .foregroundStyle(.primary)
                         }
                         .buttonStyle(.plain)
@@ -316,7 +316,7 @@ private struct SectionLabel: View {
     var body: some View {
         HStack {
             Text(text.uppercased())
-                .font(.system(.caption2, design: .rounded, weight: .semibold))
+                .font(.system(.caption2, weight: .semibold))
                 .foregroundStyle(.secondary)
                 .tracking(0.8)
             Spacer()
@@ -349,9 +349,9 @@ private struct ProfileCard: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(auth.displayName ?? "Signed in")
-                        .font(.system(.headline, design: .rounded))
+                        .font(.system(.headline))
                     Text(auth.email ?? "")
-                        .font(.system(.caption, design: .rounded))
+                        .font(.system(.caption))
                         .foregroundStyle(.secondary)
                 }
 

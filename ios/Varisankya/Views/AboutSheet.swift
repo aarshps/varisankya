@@ -22,18 +22,18 @@ struct AboutSheet: View {
 
                     VStack(spacing: 6) {
                         Text("Varisankya")
-                            .font(.system(.title, design: .rounded, weight: .semibold))
+                            .font(.system(.title, weight: .semibold))
                         Text(versionString)
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.system(.subheadline))
                             .foregroundStyle(.secondary)
                     }
 
                     GlassFormCard {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Track every recurring bill — subscriptions, EMIs, school fees — without losing the calm look of iOS.")
-                                .font(.system(.body, design: .rounded))
+                                .font(.system(.body))
                             Text("Sync stays private inside your own Firebase project. Notifications are scheduled locally — no remote tracking.")
-                                .font(.system(.body, design: .rounded))
+                                .font(.system(.body))
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -47,7 +47,7 @@ struct AboutSheet: View {
                             Link("Privacy Policy",
                                  destination: URL(string: "https://github.com/aarshps/varisankya/blob/main/android/PRIVACY.md")!)
                         }
-                        .font(.system(.body, design: .rounded, weight: .medium))
+                        .font(.system(.body, weight: .medium))
                     }
                 }
                 .padding(.horizontal, 18)

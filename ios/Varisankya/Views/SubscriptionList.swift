@@ -87,19 +87,19 @@ struct SubscriptionRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(subscription.name)
-                    .font(.system(.body, design: .rounded, weight: .semibold))
+                    .font(.system(.body, weight: .semibold))
                     .foregroundStyle(subscription.active ? .primary : .secondary)
                     .lineLimit(1)
                 HStack(spacing: 6) {
                     Text(subscription.recurrence)
-                        .font(.system(.caption, design: .rounded))
+                        .font(.system(.caption))
                         .foregroundStyle(.secondary)
                     if subscription.autopay {
                         Image(systemName: "arrow.triangle.2.circlepath")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                         Text("Autopay")
-                            .font(.system(.caption, design: .rounded))
+                            .font(.system(.caption))
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -109,7 +109,7 @@ struct SubscriptionRow: View {
 
             VStack(alignment: .trailing, spacing: 6) {
                 Text(CurrencyHelper.format(subscription.cost, code: currency))
-                    .font(.system(.body, design: .rounded, weight: .semibold))
+                    .font(.system(.body, weight: .semibold))
                     .foregroundStyle(subscription.active ? .primary : .secondary)
 
                 StatusPill(text: subscription.statusText, tint: pillTint)
@@ -128,7 +128,7 @@ private struct StatusPill: View {
     let tint: Color
     var body: some View {
         Text(text)
-            .font(.system(.caption2, design: .rounded, weight: .semibold))
+            .font(.system(.caption2, weight: .semibold))
             .padding(.horizontal, 10)
             .padding(.vertical, 5)
             .background(tint.opacity(0.18), in: .capsule)
@@ -147,7 +147,7 @@ private struct InitialGlyph: View {
 
     var body: some View {
         Text(initial)
-            .font(.system(size: 18, weight: .semibold, design: .rounded))
+            .font(.system(size: 18, weight: .semibold))
             .foregroundStyle(.tint)
             .frame(width: 44, height: 44)
             .background(.tint.opacity(0.14), in: .circle)

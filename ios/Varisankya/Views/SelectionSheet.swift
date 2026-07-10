@@ -28,7 +28,7 @@ struct SelectionSheet: View {
                         } label: {
                             HStack {
                                 Text(option)
-                                    .font(.system(.body, design: .rounded, weight: option == selected ? .semibold : .regular))
+                                    .font(.system(.body, weight: option == selected ? .semibold : .regular))
                                 Spacer()
                                 if option == selected {
                                     Image(systemName: "checkmark.circle.fill")

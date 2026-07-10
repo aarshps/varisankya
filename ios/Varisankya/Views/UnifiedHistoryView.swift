@@ -60,12 +60,12 @@ struct UnifiedHistoryView: View {
         GlassFormCard {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Total spent")
-                    .font(.system(.subheadline, design: .rounded))
+                    .font(.system(.subheadline))
                     .foregroundStyle(.secondary)
                 Text(CurrencyHelper.format(vm.totalSpent, code: prefs.currency))
-                    .font(.system(size: 38, weight: .bold, design: .rounded))
+                    .font(.system(size: 38, weight: .bold))
                 Text("\(vm.allPayments.count) payments")
-                    .font(.system(.caption, design: .rounded))
+                    .font(.system(.caption))
                     .foregroundStyle(.secondary)
             }
         }
@@ -74,7 +74,7 @@ struct UnifiedHistoryView: View {
     private func chart(buckets: [HistoryViewModel.Bucket], title: String? = nil) -> some View {
         GlassFormCard {
             VStack(alignment: .leading, spacing: 12) {
-                if let title { Text(title).font(.system(.headline, design: .rounded)) }
+                if let title { Text(title).font(.system(.headline)) }
                 if buckets.isEmpty {
                     Text("No payments yet")
                         .font(.subheadline)
@@ -90,7 +90,7 @@ struct UnifiedHistoryView: View {
                         .cornerRadius(12)
                         .annotation(position: .top) {
                             Text(CurrencyHelper.compactFormat(bucket.total))
-                                .font(.system(.caption2, design: .rounded, weight: .semibold))
+                                .font(.system(.caption2, weight: .semibold))
                                 .padding(.horizontal, 8).padding(.vertical, 3)
                                 .glassEffect(in: .capsule)
                         }
@@ -114,7 +114,7 @@ struct UnifiedHistoryView: View {
     ) -> some View {
         GlassFormCard {
             VStack(alignment: .leading, spacing: 10) {
-                Text(title).font(.system(.headline, design: .rounded))
+                Text(title).font(.system(.headline))
                 if buckets.isEmpty {
                     Text("Nothing here yet")
                         .font(.subheadline)
@@ -125,14 +125,14 @@ struct UnifiedHistoryView: View {
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(bucket.label)
-                                        .font(.system(.body, design: .rounded, weight: .semibold))
+                                        .font(.system(.body, weight: .semibold))
                                     Text("\(bucket.payments.count) payments")
-                                        .font(.system(.caption, design: .rounded))
+                                        .font(.system(.caption))
                                         .foregroundStyle(.secondary)
                                 }
                                 Spacer()
                                 Text(CurrencyHelper.format(bucket.total, code: bucket.payments.first?.currency ?? "USD"))
-                                    .font(.system(.body, design: .rounded, weight: .semibold))
+                                    .font(.system(.body, weight: .semibold))
                                 Image(systemName: "chevron.right")
                                     .font(.system(.caption, weight: .semibold))
                                     .foregroundStyle(.secondary)
@@ -152,7 +152,7 @@ struct UnifiedHistoryView: View {
     private func paymentsList(forDayKey key: String, label: String) -> some View {
         GlassFormCard {
             VStack(alignment: .leading, spacing: 12) {
-                Text(label).font(.system(.headline, design: .rounded))
+                Text(label).font(.system(.headline))
                 let payments = vm.payments(forDayKey: key)
                 if payments.isEmpty {
                     Text("No payments on this day")
@@ -163,14 +163,14 @@ struct UnifiedHistoryView: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(p.subscriptionName)
-                                    .font(.system(.body, design: .rounded, weight: .medium))
+                                    .font(.system(.body, weight: .medium))
                                 Text(p.currency)
                                     .font(.caption2)
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
                             Text(CurrencyHelper.format(p.amount, code: p.currency))
-                                .font(.system(.body, design: .rounded, weight: .semibold))
+                                .font(.system(.body, weight: .semibold))
                         }
                         .padding(.vertical, 6)
                         if p.id != payments.last?.id {
@@ -189,7 +189,7 @@ struct UnifiedHistoryView: View {
         } label: {
             HStack {
                 Image(systemName: "chevron.left")
-                Text(text).font(.system(.body, design: .rounded, weight: .medium))
+                Text(text).font(.system(.body, weight: .medium))
                 Spacer()
             }
             .padding(.horizontal, 12).padding(.vertical, 8)

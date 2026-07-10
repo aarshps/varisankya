@@ -147,7 +147,7 @@ struct MainView: View {
             Haptics.success()
         } label: {
             Label("Add Subscription", systemImage: "plus")
-                .font(.system(.body, design: .rounded, weight: .semibold))
+                .font(.system(.body, weight: .semibold))
                 .labelStyle(.titleAndIcon)
                 .padding(.horizontal, 6)
         }

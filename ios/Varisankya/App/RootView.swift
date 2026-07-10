@@ -34,6 +34,8 @@ struct RootView: View {
 }
 
 private struct LaunchSplash: View {
+    @Environment(Preferences.self) private var preferences
+
     var body: some View {
         ZStack {
             Color(.systemBackground).ignoresSafeArea()
@@ -44,7 +46,7 @@ private struct LaunchSplash: View {
                     .frame(width: 96, height: 96)
                     .foregroundStyle(.tint)
                 Text("Varisankya")
-                    .font(.system(.largeTitle, design: .rounded, weight: .semibold))
+                    .font(.system(.largeTitle, design: preferences.useGoogleFont ? .rounded : .default, weight: .semibold))
             }
         }
     }
@@ -52,6 +54,7 @@ private struct LaunchSplash: View {
 
 private struct AppLockGate: View {
     var onUnlock: () -> Void
+    @Environment(Preferences.self) private var preferences
     @State private var failed = false
 
     var body: some View {
@@ -64,7 +67,7 @@ private struct AppLockGate: View {
                     .frame(width: 72, height: 72)
                     .foregroundStyle(.tint)
                 Text("Varisankya is locked")
-                    .font(.system(.title3, design: .rounded, weight: .medium))
+                    .font(.system(.title3, design: preferences.useGoogleFont ? .rounded : .default, weight: .medium))
                 Text("Authenticate with \(BiometricAuth.displayName) to continue.")
                     .font(.body)
                     .foregroundStyle(.secondary)

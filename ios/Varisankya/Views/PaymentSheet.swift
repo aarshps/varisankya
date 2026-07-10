@@ -32,17 +32,17 @@ struct PaymentSheet: View {
                     GlassFormCard {
                         VStack(alignment: .leading, spacing: 10) {
                             Text(subscription.name)
-                                .font(.system(.title3, design: .rounded, weight: .semibold))
+                                .font(.system(.title3, weight: .semibold))
                             Text("Due: \(formattedDue)")
-                                .font(.system(.subheadline, design: .rounded))
+                                .font(.system(.subheadline))
                                 .foregroundStyle(.secondary)
                             if let next = projectedNext {
                                 Text("Next bill will be: \(format(next))")
-                                    .font(.system(.subheadline, design: .rounded))
+                                    .font(.system(.subheadline))
                                     .foregroundStyle(.secondary)
                             } else {
                                 Text("Next due date: Undefined (Custom recurrence)")
-                                    .font(.system(.subheadline, design: .rounded))
+                                    .font(.system(.subheadline))
                                     .foregroundStyle(.secondary)
                             }
                         }
@@ -74,7 +74,7 @@ struct PaymentSheet: View {
                     GlassFormCard {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Recent payments")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.system(.headline))
                             if loading {
                                 ProgressView().padding(.vertical, 12)
                             } else if history.isEmpty {
@@ -230,14 +230,14 @@ private struct PaymentRow: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(formatDate(payment.date))
-                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                    .font(.system(.subheadline, weight: .medium))
                 Text(payment.currency)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
             Spacer()
             Text(CurrencyHelper.format(payment.amount, code: payment.currency))
-                .font(.system(.body, design: .rounded, weight: .semibold))
+                .font(.system(.body, weight: .semibold))
             Menu {
                 Button("Edit Date", systemImage: "calendar") { onEdit() }
                 Button("Delete", systemImage: "trash", role: .destructive) { onDelete() }

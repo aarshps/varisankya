@@ -62,7 +62,7 @@ struct SearchView: View {
     private var filters: some View {
         VStack(spacing: 12) {
             HStack {
-                Text("Filters").font(.system(.subheadline, design: .rounded, weight: .semibold))
+                Text("Filters").font(.system(.subheadline, weight: .semibold))
                 Spacer()
             }
             ScrollView(.horizontal, showsIndicators: false) {
@@ -94,7 +94,7 @@ struct SearchView: View {
                     .font(.system(size: 40))
                     .foregroundStyle(.secondary)
                 Text("No results")
-                    .font(.system(.body, design: .rounded))
+                    .font(.system(.body))
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, minHeight: 240)
@@ -122,7 +122,7 @@ private struct Chip: View {
             action()
         } label: {
             Text(text)
-                .font(.system(.caption, design: .rounded, weight: .semibold))
+                .font(.system(.caption, weight: .semibold))
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .foregroundStyle(isOn ? Color.white : Color.primary)

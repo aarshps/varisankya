@@ -13,9 +13,9 @@ struct EmptyState: View {
 
             VStack(spacing: 6) {
                 Text("No subscriptions yet")
-                    .font(.system(.title2, design: .rounded, weight: .semibold))
+                    .font(.system(.title2, weight: .semibold))
                 Text("Add your first subscription to start tracking due dates and total spend.")
-                    .font(.system(.body, design: .rounded))
+                    .font(.system(.body))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 16)

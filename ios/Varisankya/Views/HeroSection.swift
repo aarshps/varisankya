@@ -50,7 +50,7 @@ struct HeroSection: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text(label)
-                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                        .font(.system(.subheadline, weight: .semibold))
                         .foregroundStyle(labelTint)
                     Spacer()
                     Image(systemName: "chart.line.uptrend.xyaxis")
@@ -59,7 +59,7 @@ struct HeroSection: View {
                 }
 
                 Text(primaryText)
-                    .font(.system(size: 44, weight: .bold, design: .rounded))
+                    .font(.system(size: 44, weight: .bold))
                     .foregroundStyle(primaryTint)
                     .contentTransition(.numericText())
                     .animation(.smooth(duration: 0.4), value: primaryText)
@@ -70,7 +70,7 @@ struct HeroSection: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         Text("Next: \(next.name) \(next.statusText)")
-                            .font(.system(.caption, design: .rounded))
+                            .font(.system(.caption))
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                     }
