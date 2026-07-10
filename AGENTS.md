@@ -96,15 +96,22 @@ Known gotchas encountered in this project:
 
 ---
 
-## Current release state (2026-06-23)
+## Current release state (2026-07-10)
 
 | Platform | Version | Track / Status |
 | --- | --- | --- |
-| Android | v3.9-beta.9 (versionCode 66) | Play **Beta** (Open Testing) — also internal + closed; new Baloo Chettan 2 **വരി** wordmark launcher + solid-disc / hollow-വ notification icon (hora-core unified engine); shared `Widget.App.*`/`ShapeAppearance.App.*` styles extracted to hora-core `styles_shared.xml`; unused long-press app shortcuts removed |
-| iOS | 3.8 (build auto-bumped by CI) | Awaiting Apple enrollment (cases #102900128848 + #102905434551); new വരി AppIcon-1024 landed, ships once enrollment clears |
+| Android | v3.9-beta.28 (versionCode 85) | Play **Beta** (Open Testing) — real System-font toggle fix (shared `type.xml` via `?attr/fontFamily`); production track carries stable **v3.8** (vc 57) |
+| iOS | 3.8 (build auto-bumped by CI) | Awaiting Apple enrollment (cases #102900128848 + #102905434551 + #102927880856); source carries the app-wide font-toggle fix, ships once enrollment clears |
 | Web | latest `main` | Vercel production — new വരി favicon + PWA icons |
 
-> **Release tracks:** Varisankya is past Play's one-time 12-testers × 14-days testing gate (production since v3.8), so betas publish straight to **Open Testing** (GPP `track` defaults to `beta`) — *not* gated to internal/closed. The `hora-app-release` skill's internal→closed flow is a skeleton for new apps still under the gate. See the wiki **Build & Release** page.
+> **Release tracks (owner-directed policy, 2026-07-10):** exactly **two** channels —
+> every beta goes to **Open Testing** (`beta`, GPP's default track) and every stable cut
+> to **Production**. The **internal** and **closed (`alpha`)** tracks are **retired**;
+> never pass `-PplayTrack=internal`/`alpha`. **Every Play release also requires a
+> corresponding GitHub Release** (tag `v<versionName>`, signed release APK attached,
+> pre-release flag for betas). The `hora-app-release` skill's internal→closed flow is a
+> skeleton for new apps still under Play's one-time testing gate — Varisankya cleared it
+> at v3.8. See `android/CLI_RELEASE_GUIDE.md` and the wiki **Build & Release** page.
 
 ### App Store reviewer test account (iOS)
 

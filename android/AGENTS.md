@@ -35,7 +35,7 @@ If you ever find yourself on `master` of this repo: switch back to `main` (`git 
 * **Session Closing:** Before closing a session, agents MUST follow the `Agent Session Closing Protocol` (see `.agent/skills/agent-session-closing/SKILL.md`) to update documentation, clean up, and push changes to the repository.
 * **Tool Usage:** Prefer specific tools (e.g., targeted file replacement) over rewriting entire files. Run commands non-interactively where possible.
 * **Windows Build Environment:** The project is built from Windows 11 without Android Studio. SDK at `C:\Users\Aarsh\AppData\Local\Android\Sdk`. Use `.\gradlew.bat` (or Bash tool with `./gradlew`) from the `android/` directory.
-* **Releases:** See `CLI_RELEASE_GUIDE.md` and the `play-store-release` skill. Current live version: **v3.9-beta.9** (versionCode 66) on the **beta** track. Release bundle via: `cd android && ./gradlew publishReleaseBundle` (Gradle Play Publisher auto-signs + uploads + commits the edit). The Play Store **"What's New"** comes from `app/src/main/play/release-notes/en-IN/default.txt` (≤ 500 chars, ASCII-only). Update that file on every release.
+* **Releases:** See `CLI_RELEASE_GUIDE.md` and the `play-store-release` skill. Current live version: **v3.9-beta.28** (versionCode 85) on the **beta** track. Release bundle via: `cd android && ./gradlew publishReleaseBundle` (Gradle Play Publisher auto-signs + uploads + commits the edit). The Play Store **"What's New"** comes from `app/src/main/play/release-notes/en-IN/default.txt` (≤ 500 chars, ASCII-only). Update that file on every release.
 
 ## Design Invariants — do NOT "clean up" these
 
@@ -61,13 +61,13 @@ Decisions accumulated over the v3.8-beta line. Each looks like dead code or unne
 
 ---
 
-## Current release state (as of 2026-06-23)
+## Current release state (as of 2026-07-10)
 
 | Item | Value |
 | --- | --- |
-| versionName | 3.9-beta.9 |
-| versionCode | 66 |
-| Play track | beta (Open Testing) |
+| versionName | 3.9-beta.28 |
+| versionCode | 85 |
+| Play track | beta (Open Testing) — **only** `beta` + `production` are in use; internal/closed retired (owner-directed, 2026-07-10). Every Play release must have a matching GitHub Release (signed APK, pre-release flag for betas). |
 | CI | `.github/workflows/android-build.yml` — lint + debug APK on every `android/` push/PR |
 | Version catalog | `gradle/libs.versions.toml` — all 19 deps catalogued; `build.gradle.kts` uses `libs.xxx` throughout |
 | Firebase SHA-1s | 3 active certs: Play app signing (`D0:FB:3D:47…`), upload keystore (`4E:2E:B5:C5…`), Windows debug (`DC:55:9C:26…`) |

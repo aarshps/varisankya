@@ -25,9 +25,22 @@ To automate Play Store pushes, we use the **Gradle Play Publisher (GPP)** plugin
 - **Auth**: A Service Account JSON key from the Google Play Console is securely retrieved from Bitwarden via `./retrieve_secrets.sh` and placed at `app/play_console_key.json` (ignored by Git).
 
 ## Phase 4: Execution
+
+> **Release-channel policy (owner-directed, 2026-07-10).** Varisankya is in Production,
+> so exactly **two** Play channels are in use:
+> **Open Testing (`beta`)** for every beta, **Production** for every stable cut.
+> The **internal** and **closed (`alpha`)** tracks are **retired** — never pass
+> `-PplayTrack=internal` or `-PplayTrack=alpha`. (Matches the family precedent set by
+> Pathivu on the same date; recorded in `hora-core/docs/agent-resume.md`.)
+>
+> **Every Play release must have a corresponding GitHub Release** — no exceptions:
+> tag `v<versionName>`, signed release APK attached, marked **Pre-release** for betas
+> and a normal release for stables. A build that reached a Play track without its
+> GitHub Release is an unfinished release.
+
 - **Debug APK**: `./gradlew assembleDebug`
 - **Release APK**: `./gradlew assembleRelease`
-- **Pre-release (Beta)**: When requested to do a pre-release, we create a GitHub pre-release (with the Debug APK) AND an Open Testing (Beta) release on the Play Store.
+- **Pre-release (Beta)**: Every beta gets a GitHub pre-release (with the signed **release** APK from `assembleRelease`) AND an Open Testing (Beta) release on the Play Store.
   - Play Store Beta: `./gradlew publishBundle` (default track is `beta`)
 - **Production (Live)**: Once a pre-release is tested and approved, we promote it to Production on the Play Store and create a standard GitHub release.
   - Play Store Production: `./gradlew publishBundle -PplayTrack=production`
