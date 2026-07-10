@@ -1,5 +1,5 @@
-Varisankya 3.9-beta.27 - Notification design refresh + scroll feel polish.
+Varisankya 3.9-beta.28 - Fixed the "System font" toggle so it actually applies everywhere.
 
-Payment reminder notifications now have a full-bleed themed background colour, clearer text hierarchy, and vibrate only when your haptics setting is on. Also added the same mechanical scroll-tick feel to the main subscriptions list.
+Previously, switching to System font in Settings only changed a few screens - most buttons and text kept using the app's brand font regardless. The toggle is now wired at the true source so every screen, including all buttons, respects your choice.
 
 Thanks for testing Varisankya!
