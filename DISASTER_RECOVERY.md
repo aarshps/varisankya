@@ -44,7 +44,7 @@ All secrets live under **Bitwarden folder `Hora`** unless noted otherwise.
 | Secret | Bitwarden item | Field | Notes |
 | --- | --- | --- | --- |
 | `google-services.json` | `Varisankya` | `google-services.json [Part 1]` + `[Part 2]` | Base64, split due to field-size limit. Place at `android/app/google-services.json`. |
-| Android upload keystore | `Varisankya` | `varisankya-upload-key [Part 1]` + `[Part 2]` | Base64 `.jks`. Place at `android/varisankya-upload-key`. **TODO: independent offline backup — see §Open TODOs #1.** |
+| Android upload keystore | `Varisankya` | `varisankya-upload-key [Part 1]` + `[Part 2]` | Base64 `.jks`. Place at `android/varisankya-upload-key`. **Verified 2026-07-11: the stored field was corrupted (decoded to a truncated, unparseable keystore — `keytool` raised `EOFException`) and has been replaced with a verified-correct copy (SHA1 `4E:2E:B5:C5…` matches the live signing cert). No independent offline backup beyond the vault exists — see §Open TODOs #1.** |
 | Play Console service account | `Varisankya` | `play_console_key.json` | Base64 JSON. Place at `android/app/play_console_key.json`. |
 | Keystore alias | `Varisankya` | `Key Alias` | Plain text. Inject into `android/local.properties` as `RELEASE_KEY_ALIAS`. |
 | Keystore password | `Varisankya` | `Keystore Password` | Plain text. Inject as `RELEASE_STORE_PASSWORD`. |
@@ -55,22 +55,28 @@ Automated retrieval: `cd android && source scripts/bw_unlock.sh && ./retrieve_se
 
 ### iOS
 
-iOS signing materials are not yet in the vault — Apple Developer enrollment is
-still pending (case #102900128848). Once enrollment completes (see
-`ios/POST_ENROLLMENT.md`), create the `Varisankya iOS signing` item per
-§Vault Coverage Audit.
+Full iOS signing materials (p12, provisioning profile, App Store Connect API
+key) can't exist yet — Apple Developer enrollment is still pending (issue #4,
+cases #102900128848 / #102905434551 / #102927880856). The pre-enrollment
+materials that **do** exist (the CSR and its private key, generated ahead of
+time so enrollment can move fast once it clears) **are already backed up** as
+fields on the existing `Varisankya` item — verified byte-identical to the
+local `ios/Varisankya-key.pem` / `ios/Varisankya.csr` on 2026-07-11. Once
+enrollment completes, follow `ios/POST_ENROLLMENT.md` and create the full
+`Varisankya iOS signing` item per §Vault Coverage Audit.
 
 | Secret | Bitwarden item | Field | Status |
 | --- | --- | --- | --- |
-| Distribution private key | `Varisankya iOS signing` | `Varisankya-key.pem [base64]` | **TODO: add after enrollment** |
-| Distribution certificate + key (.p12) | `Varisankya iOS signing` | `Varisankya-Distribution.p12 [base64]` | **TODO: add after enrollment** |
+| Distribution private key (pre-generated) | `Varisankya` | `Varisankya-key.pem (base64)` | ✅ backed up, verified 2026-07-11 |
+| CSR (pre-generated) | `Varisankya` | `Varisankya.csr (base64)` | ✅ backed up, verified 2026-07-11 |
+| Distribution certificate + key (.p12) | `Varisankya iOS signing` | `Varisankya-Distribution.p12 [base64]` | **TODO: add after enrollment** — cert doesn't exist yet |
 | .p12 export password | `Varisankya iOS signing` | `P12_PASSWORD` | **TODO: add after enrollment** |
 | Provisioning profile | `Varisankya iOS signing` | `Varisankya_AppStore.mobileprovision [base64]` | **TODO: add after enrollment** |
 | App Store Connect API key | `Varisankya iOS signing` | `AuthKey_p8 [base64]` | **TODO: add after enrollment** |
 | Team ID | `Varisankya iOS signing` | `APPLE_TEAM_ID` | **TODO: add after enrollment** |
 | API Issuer ID | `Varisankya iOS signing` | `APPLE_API_ISSUER_ID` | **TODO: add after enrollment** |
 | API Key ID | `Varisankya iOS signing` | `APPLE_API_KEY_ID` | **TODO: add after enrollment** |
-| `GoogleService-Info.plist` | `Varisankya` | `GoogleService-Info.plist [base64]` | **TODO: add** (currently only in GitHub Secret `GOOGLE_SERVICE_INFO_BASE64`) |
+| `GoogleService-Info.plist` | `Varisankya` | `GoogleService-Info.plist (base64)` | ✅ backed up, verified byte-identical to `ios/Varisankya/Resources/GoogleService-Info.plist` 2026-07-11 |
 
 GitHub Secrets that CI reads directly (check with `ios/scripts/check_apple_secrets.sh`):
 `GOOGLE_SERVICE_INFO_BASE64`, `APPLE_TEAM_ID`, `APPLE_API_ISSUER_ID`,
@@ -82,8 +88,8 @@ GitHub Secrets that CI reads directly (check with `ios/scripts/check_apple_secre
 | Secret | Bitwarden item | Field | Notes |
 | --- | --- | --- | --- |
 | Android config | `Varisankya` | `google-services.json [Part 1/2]` | See Android row above. |
-| iOS config | `Varisankya` | `GoogleService-Info.plist [base64]` | **TODO: add** — currently only in GitHub Secrets. |
-| Web config | `Varisankya web .env.local` | full `.env.local` contents | **TODO: create item** — see §Vault Coverage Audit. |
+| iOS config | `Varisankya` | `GoogleService-Info.plist (base64)` | ✅ backed up, verified 2026-07-11 |
+| Web config | `Varisankya` | `web .env.local (base64)` | ✅ backed up, verified byte-identical to `web/.env.local` 2026-07-11 |
 
 Firebase project: `helloworld-92567418`. Console: https://console.firebase.google.com  
 Auth providers: Google + Apple. Firestore rules: `shared/firebase/firestore.rules` (source-controlled).
@@ -134,7 +140,7 @@ is explicitly deleted.
 | --- | --- |
 | Account | `aarshps@gmail.com` (GitHub OAuth or email login) |
 | Project | Linked to `aarshps/varisankya` repo, `web/` subdirectory |
-| Environment variables | Set via Vercel dashboard; **TODO: create `Varisankya Vercel env` BW item** — see §Vault Coverage Audit |
+| Environment variables | Set via Vercel dashboard, sourced from Firebase web config (also mirrored in the `Varisankya` BW item's `web .env.local (base64)` field — see Firebase row above). **Still open: no Vercel CLI project link exists locally** (checked 2026-07-11 — no `.vercel/project.json`, no `vercel` CLI installed), so there's nothing project-side to lose on this machine; deploy config lives entirely in the Vercel dashboard under the `aarshps@gmail.com` account. **TODO: create a `Varisankya Vercel env` BW item anyway**, since Vercel's own env-var values could still diverge from `web/.env.local` over time — see §Vault Coverage Audit. |
 | 2FA | **TODO: document backup codes** — see §Emergency Access & 2FA |
 
 ### App Store reviewer test account
@@ -164,9 +170,9 @@ bw get password "varisankya148@gmail.com - App Store reviewer test account"
 
 | Item | Detail |
 | --- | --- |
-| Domain registrar | **TODO: identify and document** |
-| Domain name(s) | **TODO: confirm** (Vercel deployment domain + any custom domain) |
-| DNS / SSL | Managed by Vercel for `*.vercel.app`; custom domain if configured managed via registrar + Vercel |
+| Domain registrar | N/A — no custom domain configured (verified 2026-07-11: no domain/CNAME config anywhere in `web/`) |
+| Domain name(s) | Default Vercel deployment domain only (`*.vercel.app`) |
+| DNS / SSL | Fully managed by Vercel; nothing to recover outside the Vercel account (`aarshps@gmail.com`) |
 
 ---
 
@@ -205,20 +211,30 @@ cd android && ./retrieve_secrets.sh
 #   android/app/play_console_key.json
 #   android/local.properties (signing props appended)
 
-# 6. Restore iOS secrets (after Apple enrollment completes)
-#    GitHub Secrets are set in the repo — re-set from BW item "Varisankya iOS signing":
+# 6. Restore the pre-enrollment iOS materials (CSR + private key) — these are
+#    fields on the main "Varisankya" item, not a separate item, and exist today:
 source scripts/bw_unlock.sh
-ITEM=$(bw get item "Varisankya iOS signing")
-echo "$ITEM" | jq -r '.fields[] | select(.name=="Varisankya-Distribution.p12 [base64]").value' \
+ITEM=$(bw get item ce5c0d02-ad99-4fbc-ace3-b438009d137f)
+echo "$ITEM" | jq -r '.fields[] | select(.name=="Varisankya-key.pem (base64)").value' \
+  | base64 --decode > ios/Varisankya-key.pem
+echo "$ITEM" | jq -r '.fields[] | select(.name=="Varisankya.csr (base64)").value' \
+  | base64 --decode > ios/Varisankya.csr
+echo "$ITEM" | jq -r '.fields[] | select(.name=="GoogleService-Info.plist (base64)").value' \
+  | base64 --decode > ios/Varisankya/Resources/GoogleService-Info.plist
+
+# 6b. Once Apple enrollment completes, restore the rest from "Varisankya iOS signing"
+#     (only exists after POST_ENROLLMENT.md Stage A creates it — see §Vault Coverage Audit #1):
+ITEM2=$(bw get item "Varisankya iOS signing")
+echo "$ITEM2" | jq -r '.fields[] | select(.name=="Varisankya-Distribution.p12 [base64]").value' \
   | base64 --decode > Varisankya-Distribution.p12
-echo "$ITEM" | jq -r '.fields[] | select(.name=="AuthKey_p8 [base64]").value' \
+echo "$ITEM2" | jq -r '.fields[] | select(.name=="AuthKey_p8 [base64]").value' \
   | base64 --decode > AuthKey_restore.p8
 gh secret set BUILD_CERTIFICATE_BASE64 < Varisankya-Distribution.p12.b64
 # ... repeat for each GitHub Secret
 
-# 7. Restore web .env.local
-source scripts/bw_unlock.sh
-bw get notes "Varisankya web .env.local" > web/.env.local
+# 7. Restore web .env.local — also a field on the main "Varisankya" item:
+echo "$ITEM" | jq -r '.fields[] | select(.name=="web .env.local (base64)").value' \
+  | base64 --decode > web/.env.local
 chmod 600 web/.env.local
 ```
 
@@ -309,29 +325,38 @@ safe, or a trusted offline location separate from the dev machine).
 
 ```bash
 source scripts/bw_unlock.sh
-bw export --format encrypted_json --output "bitwarden-varisankya-$(date +%Y%m).json"
+bw export --format encrypted_json --password "$BW_PASSWORD" --output "bitwarden-varisankya-$(date +%Y%m%d).json"
 # Move the file to offline storage immediately; delete the local copy.
 ```
 
-**TODO: establish an actual monthly cadence (calendar reminder or cron).**
+**2026-07-11: ran ahead of a planned machine destruction** — full encrypted
+export taken, delivered to the developer, local copy deleted immediately.
+**Still TODO: establish an actual recurring monthly cadence** (calendar
+reminder or cron) so this isn't only done around machine-loss events.
 
 ---
 
 ## Vault Coverage Audit
 
-*Audited 2026-06-10 based on code analysis. Run `bw list items` after
-`source scripts/bw_unlock.sh` to verify against the live vault.*
+*Last full audit: 2026-07-11 (Varisankya agent), verified against the live
+vault (not just code analysis) ahead of a planned machine destruction — every
+field below was fetched and byte-diffed against its local counterpart.*
 
 ### Known vault items (Hora folder)
 
-| Item | Fields confirmed in code | Status |
+| Item | Fields confirmed | Status |
 | --- | --- | --- |
-| `Varisankya` (secure note) | `google-services.json [Part 1/2]`, `varisankya-upload-key [Part 1/2]`, `play_console_key.json`, `Key Alias`, `Keystore Password`, `Key Password` | ✅ confirmed (used by `android/retrieve_secrets.sh`) |
+| `Varisankya` (secure note, id `ce5c0d02-ad99-4fbc-ace3-b438009d137f`) | `google-services.json [Part 1/2]`, `varisankya-upload-key [Part 1/2]`, `play_console_key.json`, `Key Alias`, `Keystore Password`, `Key Password`, `GCP Ubuntu VNC Password`, `GoogleService-Info.plist (base64)`, `Varisankya-key.pem (base64)`, `Varisankya.csr (base64)`, `web .env.local (base64)`, `credentials.txt` | ✅ all 14 fields verified byte-identical to local files on 2026-07-11, **except** `varisankya-upload-key [Part 1/2]` which was found corrupted and was repaired in place (see §Secret Inventory → Android). Only one `Varisankya` item exists now — the earlier duplicate-item ambiguity noted in `android/retrieve_secrets.sh`'s comments is not currently reproducible, but the script's exact-name-match workaround is left in place as cheap insurance. |
 | `varisankya148@gmail.com - App Store reviewer test account` (login) | password | ✅ confirmed (referenced in `ios/AGENTS.md`) |
 
-### Missing items — needs to be added to vault
+### Still missing — needs to be added to vault once available
 
-#### 1. `Varisankya iOS signing` (create after Apple enrollment)
+#### 1. `Varisankya iOS signing` full item (blocked on Apple enrollment)
+
+The pre-enrollment materials (`Varisankya-key.pem`, `Varisankya.csr`) are
+**already** backed up as fields on the existing `Varisankya` item (verified
+2026-07-11) — only the post-enrollment materials below are still missing,
+because they don't exist yet:
 
 ```bash
 source scripts/bw_unlock.sh
@@ -341,7 +366,6 @@ FOLDER_ID=$(bw list folders | jq -r '.[] | select(.name=="Hora") | .id')
 # Run from ios/ directory after completing POST_ENROLLMENT.md Stage A:
 ITEM=$(bw get template item | jq \
   --arg fid    "$FOLDER_ID" \
-  --arg pem    "$(base64 -w0 < Varisankya-key.pem)" \
   --arg p12    "$(base64 -w0 < Varisankya-Distribution.p12)" \
   --arg pw     "$P12_PASSWORD" \
   --arg prov   "$(base64 -w0 < Varisankya_AppStore.mobileprovision)" \
@@ -351,7 +375,6 @@ ITEM=$(bw get template item | jq \
    .folderId = $fid |
    .notes = "iOS distribution signing materials. Regenerate via ios/POST_ENROLLMENT.md Stage A." |
    .fields = [
-     {"type":1,"name":"Varisankya-key.pem [base64]","value":$pem},
      {"type":1,"name":"Varisankya-Distribution.p12 [base64]","value":$p12},
      {"type":1,"name":"P12_PASSWORD","value":$pw},
      {"type":1,"name":"Varisankya_AppStore.mobileprovision [base64]","value":$prov},
@@ -360,54 +383,16 @@ ITEM=$(bw get template item | jq \
 echo "$ITEM" | bw encode | bw create item
 ```
 
-Field names for the `bw get item` calls in recovery scripts:
-- `Varisankya-key.pem [base64]`
-- `Varisankya-Distribution.p12 [base64]`
-- `P12_PASSWORD`
-- `Varisankya_AppStore.mobileprovision [base64]`
-- `AuthKey_p8 [base64]`
-
 Also store `APPLE_TEAM_ID`, `APPLE_API_ISSUER_ID`, `APPLE_API_KEY_ID` as plain-text
 fields on the same item (add via `bw edit item` or Bitwarden Web UI).
 
-#### 2. `GoogleService-Info.plist [base64]` field on the existing `Varisankya` item
+#### 2. `Varisankya Vercel env` (new secure note) — low priority
 
-```bash
-source scripts/bw_unlock.sh
-bw sync
-ITEM_ID=$(bw list items --search "Varisankya" | jq -r '.[] | select(.name=="Varisankya") | .id')
-PLIST_B64=$(base64 -w0 < ios/Varisankya/Resources/GoogleService-Info.plist)
-
-# Add the field to the existing item
-ITEM_JSON=$(bw get item "$ITEM_ID")
-UPDATED=$(echo "$ITEM_JSON" | jq \
-  --arg val "$PLIST_B64" \
-  '.fields += [{"type":1,"name":"GoogleService-Info.plist [base64]","value":$val}]')
-echo "$UPDATED" | bw encode | bw edit item "$ITEM_ID"
-```
-
-#### 3. `Varisankya web .env.local` (new secure note)
-
-```bash
-source scripts/bw_unlock.sh
-bw sync
-FOLDER_ID=$(bw list folders | jq -r '.[] | select(.name=="Hora") | .id')
-
-# Run from repo root (requires web/.env.local to exist locally):
-ENV_CONTENT=$(cat web/.env.local)
-ITEM=$(bw get template item | jq \
-  --arg fid "$FOLDER_ID" \
-  --arg content "$ENV_CONTENT" \
-  '.type = 2 |
-   .name = "Varisankya web .env.local" |
-   .folderId = $fid |
-   .notes = $content')
-echo "$ITEM" | bw encode | bw create item
-```
-
-#### 4. `Varisankya Vercel env` (new secure note)
-
-After identifying all Vercel environment variables via `vercel env list`:
+No Vercel CLI project link exists on this machine (checked 2026-07-11 — no
+`.vercel/project.json`, `vercel` CLI not installed), so there's no
+project-side local state to lose. This item would just be a redundant mirror
+of the values already in the `web .env.local (base64)` field, kept in case
+Vercel's actual configured env vars ever drift from `web/.env.local`:
 
 ```bash
 source scripts/bw_unlock.sh
@@ -427,24 +412,24 @@ echo "$ITEM" | bw encode | bw create item
 
 ## Open TODOs
 
-1. **Independent offline backup of Android upload keystore.** The keystore is in Bitwarden (`Varisankya` secure note), but there is no independent offline backup (e.g., encrypted USB). If Bitwarden is inaccessible _and_ the dev machine is lost, the upload keystore is recoverable only by requesting a new upload key from Play Console. Consider a periodic export of just the keystore to encrypted offline storage.
+1. **Independent offline backup of Android upload keystore.** The keystore is in Bitwarden (`Varisankya` secure note) and was verified/repaired 2026-07-11, but there is still no independent offline backup (e.g., encrypted USB) beyond the vault itself and the 2026-07-11 full vault export. If Bitwarden is inaccessible _and_ the dev machine is lost, the upload keystore is recoverable only by requesting a new upload key from Play Console. Consider a periodic export of just the keystore to encrypted offline storage.
 
-2. **Create `Varisankya iOS signing` Bitwarden item** after Apple Developer enrollment completes. Use the pack command in §Vault Coverage Audit.
+2. **Create the post-enrollment fields of `Varisankya iOS signing`** once Apple Developer enrollment completes (issue #4). The pre-enrollment CSR/key are already backed up. Use the command in §Vault Coverage Audit #1.
 
-3. **Add `GoogleService-Info.plist [base64]` field** to the existing `Varisankya` BW item. Use the command in §Vault Coverage Audit.
+3. ~~Add `GoogleService-Info.plist` field~~ — **done**, verified 2026-07-11.
 
-4. **Create `Varisankya web .env.local` Bitwarden item.** Use the command in §Vault Coverage Audit.
+4. ~~Create web env item~~ — **done**, stored as the `web .env.local (base64)` field on the `Varisankya` item, verified 2026-07-11.
 
-5. **Create `Varisankya Vercel env` Bitwarden item.** Use the command in §Vault Coverage Audit.
+5. **Create `Varisankya Vercel env` Bitwarden item** — low priority, see §Vault Coverage Audit #2 (no local Vercel state exists to lose).
 
-6. **Configure Bitwarden Emergency Access** — designate a trusted person as emergency contact in Bitwarden Web Vault → Settings → Emergency Access.
+6. **Configure Bitwarden Emergency Access** — designate a trusted person as emergency contact in Bitwarden Web Vault → Settings → Emergency Access. Requires manual web UI action; not something an agent can do.
 
-7. **Document 2FA recovery codes** for each service in §Emergency Access & 2FA. Store codes offline (printed, physical safe).
+7. **Document 2FA recovery codes** for each service in §Emergency Access & 2FA. Store codes offline (printed, physical safe). Requires manual action per-service.
 
-8. **Identify and document domain registrar.** Add the registrar account login and domain details to Bitwarden.
+8. ~~Identify and document domain registrar~~ — **resolved 2026-07-11**: no custom domain exists, nothing to document.
 
-9. **Enable Firestore scheduled exports** to Cloud Storage (Firebase Console → Firestore → Import/Export → Schedule export). Without this, accidental project deletion destroys all user data.
+9. **Enable Firestore scheduled exports** to Cloud Storage (Firebase Console → Firestore → Import/Export → Schedule export). **Confirmed still not configured** (checked 2026-07-11 via `gcloud firestore operations list` — zero results). Without this, accidental project deletion destroys all user data. This is a data-loss risk, not a machine-loss risk — the Firestore data itself isn't affected by destroying the dev machine, but is worth fixing independently.
 
-10. **Set a monthly calendar reminder** for the encrypted vault export (§Vault Maintenance). Consider a cron job on the dev machine.
+10. **Set a monthly calendar reminder** for the encrypted vault export (§Vault Maintenance). One-off export done 2026-07-11 ahead of machine destruction; still no recurring cadence.
 
-11. **Verify Bitwarden 2FA is enabled** and that recovery codes are printed and stored offline. Without 2FA, the vault is one stolen master password from full compromise.
+11. **Verify Bitwarden 2FA is enabled** and that recovery codes are printed and stored offline. Without 2FA, the vault is one stolen master password from full compromise. Requires manual action.
