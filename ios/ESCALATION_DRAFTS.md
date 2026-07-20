@@ -14,7 +14,31 @@ The Friday calendar reminder will fire to prompt the trigger.
 
 This file is an operational artifact — delete after enrolment clears.
 
-## ⏱ ROUND 6 — 2026-07-10 (current)
+## ⏱ ROUND 7 — 2026-07-21 (current)
+
+Eighth week, hold unchanged. Since Round 6 (07-10) there has been **total silence** from Apple — Franchessca's 07-09 reply on case 102927880856 remains the last substantive contact from any of the three case threads, 11 days ago. Fired a full round on every channel.
+
+### Actions — 2026-07-21
+- [x] Reply to Franchessca on Case **102927880856** (eurodev@apple.com) — **DRAFTED**, ready to send (confirms 11-day silence since the 07-10 diagnostics resend, asks for confirmation of receipt + escalation).
+- [x] Reply on Case **102900128848** / **102905434551** to Yana (asia.dev@apple.com) — **DRAFTED**, ready to send (six weeks since Yana's last reply; cross-references 102927880856's renewed silence).
+- [x] Exec-relations re-ping → tcook@ + executive_relations@ — **DRAFTED**, ready to send (eighth-week summary tying all threads together).
+- [x] Tweet @AppleDeveloper — **POSTED** as a threaded reply under the Round 6 tweet: https://x.com/aarshps/status/2079294961338687956
+- [ ] Forum bump on thread 828487 — **BLOCKED**: signed out of the Apple ID session used for the forums; needs the account owner to complete sign-in (2FA) before the agent can post. Text below, paste-ready once signed in.
+- [ ] Reddit follow-up (r/iosdev, thread 1upoaqo / mod-mail from Round 6) — **BLOCKED**: signed out of Reddit, and reddit.com is also serving a bot-detection (403) challenge to the automated browser session independent of login. Needs the account owner to check inbox/mod-mail manually.
+
+Gmail has no send capability available to the agent — all three email drafts are sitting in the Gmail Drafts folder for the account owner to review and send.
+
+### Forum reply — Round 7 (paste into thread 828487 after signing in)
+
+Week 8 update: still blocked, and now total silence from Apple. Identity verification remains APPROVED (2 Jun), account-level hold ("Unable to Continue — contact support") unchanged since it first appeared. The most recent substantive reply from any of my three cases was Franchessca on case 102927880856 on 9 July — I resent the requested diagnostics the same day and have heard nothing since (11 days now). No path forward on lifting the hold itself across three case numbers and six-plus Developer Support agents. If any moderator or Apple staff can route this to the team that handles account-level holds, I'd be very grateful.
+
+### Tweet — Round 7 (POSTED, reply under the 07-10 post, status 2079294961338687956)
+
+@AppleDeveloper Week 8, still stuck. ID approved 2 Jun, hold unchanged. Case 102927880856 replied 9 Jul but only re-asked for diagnostics already on file - resent, then 11 days silence again. 3 cases, 6+ agents, still no one who can lift the hold. Please help route this.
+
+---
+
+## ⏱ ROUND 6 — 2026-07-10
 
 Still seventh/eighth week, hold unchanged. Case 102927880856 got its first substantive reply (Franchessca, 07-09) but it only re-asked for diagnostics already on file. Sent replies to all three active email threads (Franchessca/102927880856, Yana/102900128848+102905434551, Executive Relations/tcook) on 07-10 — drafted by agent, reviewed and sent by the account owner. Forum/tweet/Reddit bumps below are **pending** — Chrome extension wasn't connected to post them directly this round; text is ready to paste.
 
