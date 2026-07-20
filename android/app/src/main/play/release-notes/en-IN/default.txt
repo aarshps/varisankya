@@ -1,5 +1,5 @@
-Varisankya 3.9-beta.28 - Fixed the "System font" toggle so it actually applies everywhere.
+Varisankya 3.9-beta.29 - System font toggle: closed the last two gaps.
 
-Previously, switching to System font in Settings only changed a few screens - most buttons and text kept using the app's brand font regardless. The toggle is now wired at the true source so every screen, including all buttons, respects your choice.
+Beta.28 fixed most of the app, but a few buttons and collapsing screen titles were still stuck in the brand font. Both are now fixed - the System font toggle applies everywhere.
 
 Thanks for testing Varisankya!
