@@ -1,5 +1,5 @@
-Varisankya 3.9-beta.29 - System font toggle: closed the last two gaps.
+Varisankya 3.9-beta.30 - Edit screen no longer eats your changes.
 
-Beta.28 fixed most of the app, but a few buttons and collapsing screen titles were still stuck in the brand font. Both are now fixed - the System font toggle applies everywhere.
+Fixed: editing a subscription and then swiping away, tapping outside, or hitting back could silently lose your changes with no warning. The app now asks before discarding anything you typed.
 
 Thanks for testing Varisankya!
