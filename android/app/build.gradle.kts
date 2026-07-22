@@ -97,6 +97,9 @@ dependencies {
 
 play {
     serviceAccountCredentials.set(file("play_console_key.json"))
-    track.set(project.findProperty("playTrack")?.toString() ?: "beta")
+    // Closed Testing by default — near-instant rollout while the owner is mostly the
+    // sole tester, vs. Open Testing's public review pipeline. Pass -PplayTrack=beta or
+    // -PplayTrack=production to target a different track. See CLI_RELEASE_GUIDE.md.
+    track.set(project.findProperty("playTrack")?.toString() ?: "alpha")
     defaultToAppBundles.set(true)
 }
