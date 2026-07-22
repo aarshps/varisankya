@@ -26,24 +26,28 @@ To automate Play Store pushes, we use the **Gradle Play Publisher (GPP)** plugin
 
 ## Phase 4: Execution
 
-> **Release-channel policy (owner-directed, 2026-07-22 — supersedes the 2026-07-10 policy below).**
-> The owner is mostly the sole tester right now, and Closed Testing (`alpha`) rolls out to
-> testers near-instantly with no review wait, unlike Open Testing (`beta`) which is public
-> and subject to Play's review pipeline. So the iteration channel is now **Closed Testing
-> (`alpha`)**, not Open Testing — `./gradlew publishBundle` defaults to `alpha` (see
-> `play { track.set(...) }` in `app/build.gradle.kts`). Open Testing is no longer part of
-> the regular loop; revisit it only if/when public beta testers are actually wanted.
+> **Release-channel policy (owner-directed, 2026-07-22, v2 — supersedes both the 2026-07-10
+> and same-day Closed Testing policies below).** The owner is mostly the sole tester right
+> now. Internal Testing is the easiest/fastest path of all four tracks — no review at all,
+> rollout is near-instant — faster even than Closed Testing (`alpha`), which was tried
+> first the same day and is now superseded by this one. So the iteration channel is
+> **Internal Testing (`internal`)** — `./gradlew publishBundle` defaults to `internal` (see
+> `play { track.set(...) }` in `app/build.gradle.kts`). Open (`beta`) and Closed (`alpha`)
+> Testing are no longer part of the regular loop; revisit either only if/when broader
+> testers are actually wanted.
 > This is a **Varisankya-specific** reversal — it does **not** apply to Pathivu or the rest
 > of the family, which still follow the 2026-07-10 two-channel (`beta`/`production`) policy
 > recorded in `hora-core/docs/agent-resume.md`.
 >
-> One-time setup this reversal depends on: the `alpha` track's tester list was empty (the
-> Android Publisher API can only manage Google-Group testers, not raw email addresses, so
-> this has to be done by hand) — **add your email under Play Console → Testing → Closed
-> testing → alpha → Testers**, then open the track's opt-in URL once on your test device.
-> Skipping this means builds publish successfully but nothing shows up as installable.
+> One-time setup this depends on: the `internal` track's tester list was (like `alpha`)
+> confirmed empty via a read-only Android Publisher API check — the API can only manage
+> Google-Group testers, not raw email addresses, so this has to be done by hand — **add
+> your email under Play Console → Testing → Internal testing → Testers**, then open the
+> track's opt-in URL once on your test device. Skipping this means builds publish
+> successfully but nothing shows up as installable.
 >
-> ~~Previous policy (2026-07-10, retained for history): exactly two channels — Open Testing
+> ~~Superseded same-day policy: Closed Testing (`alpha`) as the iteration channel.~~
+> ~~Original policy (2026-07-10, retained for history): exactly two channels — Open Testing
 > (`beta`) for every beta, Production for every stable cut; internal/alpha retired.~~
 >
 > **Every Play release must have a corresponding GitHub Release** — no exceptions:
@@ -53,9 +57,9 @@ To automate Play Store pushes, we use the **Gradle Play Publisher (GPP)** plugin
 
 - **Debug APK**: `./gradlew assembleDebug`
 - **Release APK**: `./gradlew assembleRelease`
-- **Pre-release (Beta)**: Every beta gets a GitHub pre-release (with the signed **release** APK from `assembleRelease`) AND a Closed Testing release on the Play Store.
-  - Play Store Closed Testing: `./gradlew publishBundle` (default track is `alpha`)
-  - Falling back to Open Testing for a specific release: `./gradlew publishBundle -PplayTrack=beta`
+- **Pre-release (Beta)**: Every beta gets a GitHub pre-release (with the signed **release** APK from `assembleRelease`) AND an Internal Testing release on the Play Store.
+  - Play Store Internal Testing: `./gradlew publishBundle` (default track is `internal`)
+  - Falling back to Closed/Open Testing for a specific release: `./gradlew publishBundle -PplayTrack=alpha` (Closed) or `-PplayTrack=beta` (Open)
 - **Production (Live)**: Once a pre-release is tested and approved, we promote it to Production on the Play Store and create a standard GitHub release.
   - Play Store Production: `./gradlew publishBundle -PplayTrack=production`
 
