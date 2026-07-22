@@ -20,10 +20,32 @@ struct AddSubscriptionSheet: View {
     @State private var showRecurrencePicker = false
     @State private var showPaymentSheet = false
     @State private var deleteRequested = false
+    @State private var discardRequested = false
     @State private var working = false
     @State private var errorMessage: String?
 
+    // Baseline snapshot taken right after prefill(), so we can tell whether the
+    // user has actually changed anything before letting a swipe-to-dismiss or
+    // Cancel silently drop their edits.
+    @State private var baselineName: String = ""
+    @State private var baselineCost: String = ""
+    @State private var baselineDueDate: Date = Date()
+    @State private var baselineRecurrenceUnit: String = "Monthly"
+    @State private var baselineFrequency: String = "1"
+    @State private var baselineActive: Bool = true
+    @State private var baselineAutopay: Bool = false
+
     private var isEditing: Bool { existing != nil }
+
+    private var hasChanges: Bool {
+        name != baselineName ||
+        cost != baselineCost ||
+        dueDate != baselineDueDate ||
+        recurrenceUnit != baselineRecurrenceUnit ||
+        frequency != baselineFrequency ||
+        active != baselineActive ||
+        autopay != baselineAutopay
+    }
 
     var body: some View {
         NavigationStack {
@@ -113,9 +135,16 @@ struct AddSubscriptionSheet: View {
             }
             .navigationTitle(isEditing ? "Edit Subscription" : "Add Subscription")
             .navigationBarTitleDisplayMode(.inline)
+            .interactiveDismissDisabled(hasChanges)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("Cancel") {
+                        if hasChanges {
+                            discardRequested = true
+                        } else {
+                            dismiss()
+                        }
+                    }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { Task { await save() } }
@@ -138,6 +167,12 @@ struct AddSubscriptionSheet: View {
                 isPresented: $deleteRequested
             ) {
                 Button("Delete", role: .destructive) { Task { await deleteSubscription() } }
+            }
+            .confirmationDialog(
+                "Discard changes?",
+                isPresented: $discardRequested
+            ) {
+                Button("Discard", role: .destructive) { dismiss() }
             }
             .sheet(isPresented: $showRecurrencePicker) {
                 SelectionSheet(
@@ -178,7 +213,10 @@ struct AddSubscriptionSheet: View {
     }
 
     private func prefill() {
-        guard let existing else { return }
+        guard let existing else {
+            captureBaseline()
+            return
+        }
         name = existing.name
         cost = existing.cost.truncatingRemainder(dividingBy: 1) == 0
             ? String(format: "%.0f", existing.cost)
@@ -190,6 +228,18 @@ struct AddSubscriptionSheet: View {
         let decoded = RecurrenceHelper.decode(existing.recurrence)
         recurrenceUnit = decoded.unit
         frequency = String(decoded.frequency)
+
+        captureBaseline()
+    }
+
+    private func captureBaseline() {
+        baselineName = name
+        baselineCost = cost
+        baselineDueDate = dueDate
+        baselineRecurrenceUnit = recurrenceUnit
+        baselineFrequency = frequency
+        baselineActive = active
+        baselineAutopay = autopay
     }
 
     private func makeUpdatedSubscription(from base: Subscription) -> Subscription {

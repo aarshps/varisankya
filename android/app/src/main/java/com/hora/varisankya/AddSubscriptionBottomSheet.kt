@@ -47,6 +47,21 @@ class AddSubscriptionBottomSheet(
     private lateinit var auth: FirebaseAuth
     private var selectedDueDate: Date? = null
 
+    // Promoted so isDirty() and the swipe-to-dismiss interception in onStart() can
+    // read the live form state.
+    private lateinit var nameEditText: TextInputEditText
+    private lateinit var dueDateEditText: TextInputEditText
+    private lateinit var costEditText: TextInputEditText
+    private lateinit var recurrenceAutoComplete: AutoCompleteTextView
+    private lateinit var frequencyEditText: TextInputEditText
+    private lateinit var activeSwitch: MaterialSwitch
+    private lateinit var autopaySwitch: MaterialSwitch
+    private var discardShowing = false
+    // Set right before an intentional dismiss() following Save/Delete/Mark Paid, so
+    // the STATE_HIDDEN interceptor below doesn't mistake a just-saved sheet (whose
+    // fields now differ from the stale `subscription` snapshot) for unsaved edits.
+    private var intentionalDismiss = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -54,16 +69,16 @@ class AddSubscriptionBottomSheet(
         val view = inflater.inflate(R.layout.bottom_sheet_add_subscription, container, false)
         firestore = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
-        
+
         val titleTextView = view.findViewById<TextView>(R.id.bottom_sheet_title)
-        val nameEditText = view.findViewById<TextInputEditText>(R.id.edit_text_name)
-        val dueDateEditText = view.findViewById<TextInputEditText>(R.id.edit_text_due_date)
-        val costEditText = view.findViewById<TextInputEditText>(R.id.edit_text_cost)
-        val recurrenceAutoComplete = view.findViewById<AutoCompleteTextView>(R.id.auto_complete_recurrence)
-        val frequencyEditText = view.findViewById<TextInputEditText>(R.id.edit_text_frequency)
+        nameEditText = view.findViewById(R.id.edit_text_name)
+        dueDateEditText = view.findViewById(R.id.edit_text_due_date)
+        costEditText = view.findViewById(R.id.edit_text_cost)
+        recurrenceAutoComplete = view.findViewById(R.id.auto_complete_recurrence)
+        frequencyEditText = view.findViewById(R.id.edit_text_frequency)
         val tilFrequency = view.findViewById<TextInputLayout>(R.id.til_frequency)
-        val activeSwitch = view.findViewById<MaterialSwitch>(R.id.switch_active)
-        val autopaySwitch = view.findViewById<MaterialSwitch>(R.id.switch_autopay)
+        activeSwitch = view.findViewById(R.id.switch_active)
+        autopaySwitch = view.findViewById(R.id.switch_autopay)
         val saveButton = view.findViewById<Button>(R.id.button_save)
         val deleteButton = view.findViewById<Button>(R.id.button_delete)
         val markPaidButton = view.findViewById<Button>(R.id.button_mark_paid)
@@ -201,6 +216,7 @@ class AddSubscriptionBottomSheet(
                         }
                     }
                 Analytics.subscriptionDelete()
+                intentionalDismiss = true
                 dismiss()
             }
 
@@ -217,8 +233,9 @@ class AddSubscriptionBottomSheet(
                     active = activeSwitch.isChecked
                 )
                 val paymentSheet = PaymentBottomSheet(currentSubscription) {
-                    onSave() 
-                    dismiss() 
+                    onSave()
+                    intentionalDismiss = true
+                    dismiss()
                 }
                 paymentSheet.show(parentFragmentManager, "PAYMENT_SHEET")
             }
@@ -279,6 +296,7 @@ class AddSubscriptionBottomSheet(
             }
 
             onSave()
+            intentionalDismiss = true
             dismiss()
         }
 
@@ -308,16 +326,63 @@ class AddSubscriptionBottomSheet(
                         BottomSheetBehavior.STATE_SETTLING, BottomSheetBehavior.STATE_COLLAPSED -> {
                             dragHandle.animate().scaleX(1f).scaleY(1f).setDuration(Constants.ANIM_DURATION_SHORT).setInterpolator(androidx.interpolator.view.animation.FastOutSlowInInterpolator()).start()
                         }
+                        BottomSheetBehavior.STATE_HIDDEN -> {
+                            // Covers swipe-to-dismiss, tap-outside, and back-press alike â€”
+                            // BottomSheetDialog routes all three through STATE_HIDDEN before
+                            // actually dismissing. If the form has unsaved edits, bounce back
+                            // to STATE_COLLAPSED and make the user explicitly confirm discard
+                            // rather than silently losing what they typed.
+                            if (isDirty() && !discardShowing && !intentionalDismiss) {
+                                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                                showDiscardConfirmation()
+                            }
+                        }
                     }
                 }
 
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 }
             })
-            
+
             // Add scroll listener to provide dragging haptics only on initial start of drag if handled by touch listener
             // logic above in click listener handles simple touch, but callback handles sheet drag
         }
+    }
+
+    private fun isDirty(): Boolean {
+        val currentName = nameEditText.text?.toString().orEmpty()
+        val currentCost = costEditText.text?.toString().orEmpty()
+        val currentDueDateText = dueDateEditText.text?.toString().orEmpty()
+        val currentRecurrence = getRecurrenceString(recurrenceAutoComplete.text.toString(), frequencyEditText.text.toString())
+        val currentAutopay = autopaySwitch.isChecked
+
+        if (subscription == null) {
+            return currentName.isNotBlank() || currentCost.isNotBlank() || currentAutopay
+        }
+
+        val originalDueDateText = subscription.dueDate?.let {
+            SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(it)
+        }.orEmpty()
+
+        return currentName != subscription.name ||
+            currentCost != subscription.cost.toString() ||
+            currentDueDateText != originalDueDateText ||
+            currentRecurrence != subscription.recurrence ||
+            currentAutopay != subscription.autopay ||
+            activeSwitch.isChecked != subscription.active
+    }
+
+    private fun showDiscardConfirmation() {
+        discardShowing = true
+        ConfirmationBottomSheet(
+            title = "Discard changes?",
+            message = "You have unsaved changes. Are you sure you want to discard them?",
+            positiveButtonText = "Discard",
+            negativeButtonText = "Keep Editing",
+            isDestructive = true,
+            onConfirm = { discardShowing = false; dismiss() },
+            onCancel = { discardShowing = false }
+        ).show(parentFragmentManager, "DISCARD_CONFIRM")
     }
 
     private fun clearCurrentFocus() {

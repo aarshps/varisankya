@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { Sheet } from "./Sheet";
+import { ConfirmDialog } from "./ConfirmDialog";
 import { Button, Field, Select, Switch, TextInput } from "./controls";
 import { RECURRENCE_UNITS } from "@/lib/constants";
 import { CURRENCIES } from "@/lib/currency";
@@ -46,6 +47,7 @@ export function AddSubscriptionDialog({
   const [active, setActive] = useState(true);
   const [autopay, setAutopay] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
 
   // Reset form whenever the dialog opens.
   useEffect(() => {
@@ -84,6 +86,56 @@ export function AddSubscriptionDialog({
 
   const showFrequency = unit !== "Custom";
 
+  // Snapshot of the field values right when the dialog opened, so a backdrop
+  // click / Escape / Cancel can tell whether the user actually changed
+  // anything before silently dropping it.
+  const baseline = useMemo(() => {
+    if (!open) return null;
+    if (existing) {
+      const dec = decodeRecurrence(existing.recurrence);
+      return {
+        name: existing.name,
+        cost: String(existing.cost),
+        currency: existing.currency || defaultCurrency,
+        unit: dec.unit,
+        frequency: dec.frequency,
+        dueDate: toDateInput(existing.dueDate),
+        active: existing.active,
+        autopay: existing.autopay,
+      };
+    }
+    return {
+      name: "",
+      cost: "",
+      currency: defaultCurrency,
+      unit: "Monthly",
+      frequency: 1,
+      dueDate: toDateInput(new Date()),
+      active: true,
+      autopay: false,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, existing, defaultCurrency]);
+
+  const isDirty =
+    !!baseline &&
+    (name !== baseline.name ||
+      cost !== baseline.cost ||
+      currency !== baseline.currency ||
+      unit !== baseline.unit ||
+      frequency !== baseline.frequency ||
+      dueDate !== baseline.dueDate ||
+      active !== baseline.active ||
+      autopay !== baseline.autopay);
+
+  const requestClose = () => {
+    if (isDirty) {
+      setConfirmDiscardOpen(true);
+    } else {
+      onClose();
+    }
+  };
+
   const submit = async () => {
     if (!name.trim()) return;
     setSaving(true);
@@ -109,115 +161,129 @@ export function AddSubscriptionDialog({
   };
 
   return (
-    <Sheet
-      open={open}
-      onClose={onClose}
-      title={existing ? "Edit subscription" : "Add subscription"}
-      footer={
-        <div className="flex gap-3">
-          <Button variant="ghost" className="flex-1" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            className="flex-1"
-            onClick={submit}
-            disabled={saving || !name.trim()}
-          >
-            {saving ? "Saving…" : existing ? "Save" : "Add"}
-          </Button>
-        </div>
-      }
-    >
-      <div className="flex flex-col gap-4 py-2">
-        <Field label="Name">
-          <TextInput
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Netflix"
-            autoFocus
-          />
-        </Field>
-
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Cost">
+    <>
+      <Sheet
+        open={open}
+        onClose={requestClose}
+        title={existing ? "Edit subscription" : "Add subscription"}
+        footer={
+          <div className="flex gap-3">
+            <Button variant="ghost" className="flex-1" onClick={requestClose}>
+              Cancel
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={submit}
+              disabled={saving || !name.trim()}
+            >
+              {saving ? "Saving…" : existing ? "Save" : "Add"}
+            </Button>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-4 py-2">
+          <Field label="Name">
             <TextInput
-              value={cost}
-              onChange={(e) => setCost(e.target.value)}
-              inputMode="decimal"
-              placeholder="0"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Netflix"
+              autoFocus
             />
           </Field>
-          <Field label="Currency">
-            <Select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-            >
-              {currencies.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.code} {c.symbol}
-                </option>
-              ))}
-            </Select>
-          </Field>
-        </div>
 
-        <Field label="Repeats">
-          <div className="flex gap-3">
-            <Select
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-              className="flex-1"
-            >
-              {[...RECURRENCE_UNITS, "Custom"].map((u) => (
-                <option key={u} value={u}>
-                  {u}
-                </option>
-              ))}
-            </Select>
-            {showFrequency && (
-              <div className="flex items-center gap-1 rounded-xl border border-outline bg-surface-2 px-2">
-                <button
-                  type="button"
-                  aria-label="Decrease"
-                  className="rounded-full p-1.5 disabled:opacity-30"
-                  disabled={frequency <= 1}
-                  onClick={() => setFrequency((f) => Math.max(1, f - 1))}
-                >
-                  <Minus size={16} />
-                </button>
-                <span className="w-6 text-center font-bold tabular-nums">
-                  {frequency}
-                </span>
-                <button
-                  type="button"
-                  aria-label="Increase"
-                  className="rounded-full p-1.5"
-                  onClick={() => setFrequency((f) => f + 1)}
-                >
-                  <Plus size={16} />
-                </button>
-              </div>
-            )}
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Cost">
+              <TextInput
+                value={cost}
+                onChange={(e) => setCost(e.target.value)}
+                inputMode="decimal"
+                placeholder="0"
+              />
+            </Field>
+            <Field label="Currency">
+              <Select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+              >
+                {currencies.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.code} {c.symbol}
+                  </option>
+                ))}
+              </Select>
+            </Field>
           </div>
-        </Field>
 
-        <Field label="Due date">
-          <TextInput
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
-        </Field>
+          <Field label="Repeats">
+            <div className="flex gap-3">
+              <Select
+                value={unit}
+                onChange={(e) => setUnit(e.target.value)}
+                className="flex-1"
+              >
+                {[...RECURRENCE_UNITS, "Custom"].map((u) => (
+                  <option key={u} value={u}>
+                    {u}
+                  </option>
+                ))}
+              </Select>
+              {showFrequency && (
+                <div className="flex items-center gap-1 rounded-xl border border-outline bg-surface-2 px-2">
+                  <button
+                    type="button"
+                    aria-label="Decrease"
+                    className="rounded-full p-1.5 disabled:opacity-30"
+                    disabled={frequency <= 1}
+                    onClick={() => setFrequency((f) => Math.max(1, f - 1))}
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <span className="w-6 text-center font-bold tabular-nums">
+                    {frequency}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Increase"
+                    className="rounded-full p-1.5"
+                    onClick={() => setFrequency((f) => f + 1)}
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+          </Field>
 
-        <div className="flex items-center justify-between rounded-xl bg-surface-2 px-4 py-3">
-          <span className="font-semibold">Active</span>
-          <Switch checked={active} onChange={setActive} />
+          <Field label="Due date">
+            <TextInput
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
+          </Field>
+
+          <div className="flex items-center justify-between rounded-xl bg-surface-2 px-4 py-3">
+            <span className="font-semibold">Active</span>
+            <Switch checked={active} onChange={setActive} />
+          </div>
+          <div className="flex items-center justify-between rounded-xl bg-surface-2 px-4 py-3">
+            <span className="font-semibold">Autopay</span>
+            <Switch checked={autopay} onChange={setAutopay} />
+          </div>
         </div>
-        <div className="flex items-center justify-between rounded-xl bg-surface-2 px-4 py-3">
-          <span className="font-semibold">Autopay</span>
-          <Switch checked={autopay} onChange={setAutopay} />
-        </div>
-      </div>
-    </Sheet>
+      </Sheet>
+      <ConfirmDialog
+        open={confirmDiscardOpen}
+        title="Discard changes?"
+        message="You have unsaved changes. Are you sure you want to discard them?"
+        confirmLabel="Discard"
+        danger
+        onConfirm={() => {
+          setConfirmDiscardOpen(false);
+          onClose();
+        }}
+        onClose={() => setConfirmDiscardOpen(false)}
+      />
+    </>
   );
 }
