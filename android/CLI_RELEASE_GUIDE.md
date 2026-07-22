@@ -26,29 +26,19 @@ To automate Play Store pushes, we use the **Gradle Play Publisher (GPP)** plugin
 
 ## Phase 4: Execution
 
-> **Release-channel policy (owner-directed, 2026-07-22, v2 — supersedes both the 2026-07-10
-> and same-day Closed Testing policies below).** The owner is mostly the sole tester right
-> now. Internal Testing is the easiest/fastest path of all four tracks — no review at all,
-> rollout is near-instant — faster even than Closed Testing (`alpha`), which was tried
-> first the same day and is now superseded by this one. So the iteration channel is
-> **Internal Testing (`internal`)** — `./gradlew publishBundle` defaults to `internal` (see
-> `play { track.set(...) }` in `app/build.gradle.kts`). Open (`beta`) and Closed (`alpha`)
-> Testing are no longer part of the regular loop; revisit either only if/when broader
-> testers are actually wanted.
-> This is a **Varisankya-specific** reversal — it does **not** apply to Pathivu or the rest
-> of the family, which still follow the 2026-07-10 two-channel (`beta`/`production`) policy
-> recorded in `hora-core/docs/agent-resume.md`.
+> **Release-channel policy (owner-directed, 2026-07-22, v3 — restores the original
+> 2026-07-10 policy below; supersedes the same-day Closed/Internal Testing experiments).**
+> Same-day history: tried Closed Testing (`alpha`) for faster iteration, then Internal
+> Testing (`internal`, no review at all) as an even faster alternative — **owner paused
+> Internal Testing** and asked to go back to Open Testing. So the iteration channel is
+> **Open Testing (`beta`)** again — `./gradlew publishBundle` defaults to `beta` (see
+> `play { track.set(...) }` in `app/build.gradle.kts`). Internal (`internal`) and Closed
+> (`alpha`) Testing are not part of the regular loop; revisit either only if the owner
+> asks again.
+> Varisankya is back in sync with the family precedent (Pathivu, `hora-core/docs/agent-resume.md`).
 >
-> One-time setup this depends on: the `internal` track's tester list was (like `alpha`)
-> confirmed empty via a read-only Android Publisher API check — the API can only manage
-> Google-Group testers, not raw email addresses, so this has to be done by hand — **add
-> your email under Play Console → Testing → Internal testing → Testers**, then open the
-> track's opt-in URL once on your test device. Skipping this means builds publish
-> successfully but nothing shows up as installable.
->
+> ~~Superseded same-day policy: Internal Testing (`internal`) as the iteration channel.~~
 > ~~Superseded same-day policy: Closed Testing (`alpha`) as the iteration channel.~~
-> ~~Original policy (2026-07-10, retained for history): exactly two channels — Open Testing
-> (`beta`) for every beta, Production for every stable cut; internal/alpha retired.~~
 >
 > **Every Play release must have a corresponding GitHub Release** — no exceptions:
 > tag `v<versionName>`, signed release APK attached, marked **Pre-release** for betas
@@ -57,9 +47,9 @@ To automate Play Store pushes, we use the **Gradle Play Publisher (GPP)** plugin
 
 - **Debug APK**: `./gradlew assembleDebug`
 - **Release APK**: `./gradlew assembleRelease`
-- **Pre-release (Beta)**: Every beta gets a GitHub pre-release (with the signed **release** APK from `assembleRelease`) AND an Internal Testing release on the Play Store.
-  - Play Store Internal Testing: `./gradlew publishBundle` (default track is `internal`)
-  - Falling back to Closed/Open Testing for a specific release: `./gradlew publishBundle -PplayTrack=alpha` (Closed) or `-PplayTrack=beta` (Open)
+- **Pre-release (Beta)**: Every beta gets a GitHub pre-release (with the signed **release** APK from `assembleRelease`) AND an Open Testing (Beta) release on the Play Store.
+  - Play Store Beta: `./gradlew publishBundle` (default track is `beta`)
+  - Falling back to Internal/Closed Testing for a specific release: `./gradlew publishBundle -PplayTrack=internal` or `-PplayTrack=alpha`
 - **Production (Live)**: Once a pre-release is tested and approved, we promote it to Production on the Play Store and create a standard GitHub release.
   - Play Store Production: `./gradlew publishBundle -PplayTrack=production`
 
